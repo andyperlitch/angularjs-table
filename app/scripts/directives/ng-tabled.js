@@ -4,7 +4,7 @@ angular.module('andyperlitch.ngTabled', [])
 
 .service('tabledFilterFunctions', function() {
 
-  function like(term, value, computedValue, row) {
+  function like(term, value) {
     term = term.toLowerCase().trim();
     value = value.toLowerCase();
     var first = term[0];
@@ -63,72 +63,84 @@ angular.module('andyperlitch.ngTabled', [])
   function numberFormatted(term, value, computedValue) {
     return number(term, computedValue);
   }
-  var unitmap = {
-    second: 1000,
-    minute: 60000,
-    hour: 3600000,
-    day: 86400000,
-    week: 86400000*7,
-    month: 86400000*31,
-    year: 86400000*365
-  };
+  var unitmap = {};
+  unitmap.second = unitmap.sec = unitmap.s = 1000;
+  unitmap.minute = unitmap.min = unitmap.m = unitmap.second * 60;
+  unitmap.hour = unitmap.hr = unitmap.h    = unitmap.minute * 60;
+  unitmap.day = unitmap.d                  = unitmap.hour * 24;
+  unitmap.week = unitmap.wk = unitmap.w    = unitmap.day * 7;
+  unitmap.month                            = unitmap.week * 4;
+  unitmap.year = unitmap.yr = unitmap.y    = unitmap.day * 365;
+
+  var clauseExp = /(\d+(?:\.\d+)?)\s*([a-z]+)/;
   function parseDateFilter(string) {
 
     // split on clauses (if any)
-    var clauses = string.split(',');
+    var clauses = string.trim().split(',');
     var total = 0;
-    
     // parse each clause
     for (var i = 0; i < clauses.length; i++) {
       var clause = clauses[i].trim();
-      var terms = clause.split(' ');
-      if (terms.length < 2) {
+      var terms = clauseExp.exec(clause);
+      if (!terms) {
         continue;
       }
-      var count = terms[0]*1;
-      var unit = terms[1].replace(/s$/, '');
+      var count = terms[1]*1;
+      var unit = terms[2].replace(/s$/, '');
       if (! unitmap.hasOwnProperty(unit) ) {
         continue;
       }
       total += count * unitmap[unit];
     }
-    
     return total;
     
   }
   function date(term, value) {
+    // today
+    // yesterday
+    // 1 day ago
+    // 2 days ago
+
     // < 1 day ago
     // < 10 minutes ago
+    // < 10 min ago
     // < 10 minutes, 50 seconds ago
+    // > 10 min, 30 sec ago
     // > 2 days ago
     // >= 1 day ago
-    
+    term = term.trim();
+    if (!term) {
+      return true;
+    }
     value *= 1;
-    var now = (+new Date());
-    var first_two = term.substr(0,2);
+    var nowDate = new Date();
+    var now = (+nowDate);
     var first_char = term[0];
-    var against_1 = (term.substr(1)).trim();
-    var against_2 = (term.substr(2)).trim();
+    var other_chars = (term.substr(1)).trim();
     var lowerbound, upperbound;
-    if ( first_two === '<=' ) {
-      lowerbound = now - parseDateFilter(against_2);
-      return value >= lowerbound;
-    }
-    else if ( first_two === '>=' ) {
-      upperbound = now - parseDateFilter(against_2);
-      return value <= upperbound;
-    }
-    else if ( first_char === '<' ) {
-      lowerbound = now - parseDateFilter(against_1);
+    if ( first_char === '<' ) {
+      lowerbound = now - parseDateFilter(other_chars);
       return value > lowerbound;
     }
-    else if ( first_char === '>' ) {
-      upperbound = now - parseDateFilter(against_1);
+    if ( first_char === '>' ) {
+      upperbound = now - parseDateFilter(other_chars);
       return value < upperbound;
-    } else {
-      // no comparative signs found
-      return false;
     }
+    
+    if ( term === 'today') {
+      return new Date(value).toDateString() === nowDate.toDateString();
+    }
+
+    if ( term === 'yesterday') {
+      return new Date(value).toDateString() === new Date(now - unitmap.d).toDateString();
+    }
+
+    var supposedDate = new Date(term);
+    if (!isNaN(supposedDate)) {
+      return new Date(value).toDateString() === supposedDate.toDateString();
+    }
+
+    return false;
   }
 
   return {
