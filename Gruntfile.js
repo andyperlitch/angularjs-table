@@ -88,6 +88,29 @@ module.exports = function (grunt) {
         options: {
           base: '<%= yeoman.dist %>'
         }
+      },
+      webserver: {
+        options: {
+          port: 8888,
+          keepalive: true
+        }
+      },
+      devserver: {
+        options: {
+          port: 8888
+        }
+      },
+      testserver: {
+        options: {
+          port: 9999
+        }
+      },
+      coverage: {
+        options: {
+          base: 'coverage/',
+          port: 5555,
+          keepalive: true
+        }
       }
     },
 
@@ -318,8 +341,28 @@ module.exports = function (grunt) {
     // Test settings
     karma: {
       unit: {
-        configFile: 'karma.conf.js',
+        configFile: './test/karma-unit.conf.js',
+        autoWatch: false,
         singleRun: true
+      },
+      unit_auto: {
+        configFile: './test/karma-unit.conf.js'
+      },
+      midway: {
+        configFile: './test/karma-midway.conf.js',
+        autoWatch: false,
+        singleRun: true
+      },
+      midway_auto: {
+        configFile: './test/karma-midway.conf.js'
+      },
+      e2e: {
+        configFile: './test/karma-e2e.conf.js',
+        autoWatch: false,
+        singleRun: true
+      },
+      e2e_auto: {
+        configFile: './test/karma-e2e.conf.js'
       }
     }
   });
@@ -345,13 +388,16 @@ module.exports = function (grunt) {
     grunt.task.run(['serve']);
   });
 
-  grunt.registerTask('test', [
-    'clean:server',
-    'concurrent:test',
-    'autoprefixer',
-    'connect:test',
-    'karma'
-  ]);
+  grunt.registerTask('test', ['connect:testserver','karma:unit','karma:midway', 'karma:e2e']);
+  grunt.registerTask('test:unit', ['karma:unit']);
+  grunt.registerTask('test:midway', ['connect:testserver','karma:midway']);
+  grunt.registerTask('test:e2e', ['connect:testserver', 'karma:e2e']);
+
+  //keeping these around for legacy use
+  grunt.registerTask('autotest', ['autotest:unit']);
+  grunt.registerTask('autotest:unit', ['connect:testserver','karma:unit_auto']);
+  grunt.registerTask('autotest:midway', ['connect:testserver','karma:midway_auto']);
+  grunt.registerTask('autotest:e2e', ['connect:testserver','karma:e2e_auto']);
 
   grunt.registerTask('build', [
     'clean:dist',

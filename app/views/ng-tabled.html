@@ -1,0 +1,22 @@
+<table class="{{classes}}">
+    <thead>
+        <tr>
+            <th scope="col" ng-repeat="column in columns">
+                {{column.label || column.id}}
+                <div class="column-resizer"></div>
+            </th>
+        </tr>
+        <tr>
+            <th ng-if="hasFilterFields()" ng-repeat="column in columns">
+                <input type="search" ng-if="(column.filter)" ng-model="searchTerms[column.id]">
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms">
+            <td ng-repeat="column in columns">
+                {{ row[column.key] }}
+            </td>
+        </tr>
+    </tbody>
+</table>
