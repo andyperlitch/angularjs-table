@@ -62,6 +62,10 @@ describe('Service: tabledFilterFunctions', function() {
         expect( fn('\\!test', '!testing')).to.equal(true);
       });
 
+      it('should return true if nothing comes after the !', function() {
+        expect( fn('!', 'anything')).to.equal(true);
+      });
+
     });
 
     describe('when term is set to strict equal', function() {
@@ -485,6 +489,18 @@ describe('the date filter', function() {
       expect( fn(' <1d,1hr', now - units.day.ms - units.hour.ms + 100)).to.equal(true);
     });
 
+    it('should ignore invalid clauses', function() {
+      var now = +new Date();
+      expect( fn('>1day,awesome widget,1hour', now - units.day.ms - units.hour.ms - 100)).to.equal(true);
+      expect( fn('<1day,awesome widget,1hour', now - units.day.ms - units.hour.ms - 100)).to.equal(false);
+    });
+
+    it('should ignore clauses with invalid units', function() {
+      var now = +new Date();
+      expect( fn('>1day,1widget,1hour', now - units.day.ms - units.hour.ms - 100)).to.equal(true);
+      expect( fn('<1day,1widget,1hour', now - units.day.ms - units.hour.ms - 100)).to.equal(false);
+    });
+
     describe('[DATE] expression', function() {
       
       it('should return true for values that land on search day', function() {
@@ -502,6 +518,10 @@ describe('the date filter', function() {
       it('should allow "yesterday" as a valid search', function() {
         expect( fn('yesterday', +new Date() - units.day.ms )).to.equal(true);
         expect( fn('yesterday', +new Date())).to.equal(false);
+      });
+
+      it('should return false if it is an invalid date string', function() {
+        expect( fn('last monday', +new Date() - units.day.ms )).to.equal(false);
       });
 
     });
