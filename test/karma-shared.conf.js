@@ -1,7 +1,7 @@
 module.exports = function() {
   return {
     basePath: '../',
-    frameworks: ['mocha'],
+    frameworks: ['mocha','sinon-chai'],
     reporters: ['dot', 'coverage'],
     browsers: ['Chrome'],
     autoWatch: true,
@@ -31,6 +31,7 @@ module.exports = function() {
 
       //Test-Specific Code
       'node_modules/chai/chai.js',
+      'node_modules/sinon/lib/sinon.js',
       'test/lib/chai-should.js',
       'test/lib/chai-expect.js'
     ]
