@@ -154,17 +154,54 @@ angular.module('andyperlitch.ngTabled', [])
 
 .filter('tabledRowFilter', ['tabledFilterFunctions', function(tabledFilterFunctions) {
   return function(rows, columns, searchTerms) {
-    // var fns = columns
-    // .filter(function(column) {
-    //   if (searchTerms.hasOwnProperty(column.id)) {
-    //     return true;
-    //   }
-    //   return false;
-    // })
-    // .map(function(column) {
-    //   return column.filter;
-    // });
-    return rows;
+
+    var enabledFilterColumns, result = rows;
+
+    // gather enabled filter functions
+    enabledFilterColumns = columns.filter(function(column) {
+      // check search term
+      var term = searchTerms[column.id];
+      if (searchTerms.hasOwnProperty(column.id) && typeof term === 'string') {
+
+        // filter empty strings and whitespace
+        if (!term.trim()) {
+          return false;
+        }
+        
+        // check search filter function
+        if (typeof column.filter === 'function') {
+          return true;
+        }
+        // not a function, check for predefined filter function
+        var predefined = tabledFilterFunctions[column.filter];
+        if (typeof predefined === 'function') {
+          column.filter = predefined;
+          return true;
+        }
+
+        return true;
+      }
+      return false;
+    });
+
+    // loop through rows and filter on every enabled function
+    if (enabledFilterColumns.length) {
+      result = rows.filter(function(row) {
+        for (var i = enabledFilterColumns.length - 1; i >= 0; i--) {
+          var col = enabledFilterColumns[i];
+          var filter = col.filter;
+          var term = searchTerms[col.id];
+          var value = row[col.key];
+          var computedValue = typeof col.format === 'function' ? col.format(value) : value;
+          if (!filter(term, value, computedValue, row)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
+    return result;
   };
 }])
 
