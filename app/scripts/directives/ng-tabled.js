@@ -156,17 +156,7 @@ angular.module('andyperlitch.ngTabled', [])
   return {};
 })
 
-.service('tabledConsoleWarn', function() {
-  var canWarn = typeof console === 'object' && typeof console.warn === 'function';
-
-  return function tabledWarn(msg) {
-    if (canWarn) {
-      console.warn('ngTabled WARNING: ' + msg);
-    }
-  }
-})
-
-.filter('tabledRowFilter', ['tabledFilterFunctions', 'tabledConsoleWarn', function(tabledFilterFunctions, WARN) {
+.filter('tabledRowFilter', ['tabledFilterFunctions', '$log', function(tabledFilterFunctions, $log) {
   return function tabledRowFilter(rows, columns, searchTerms) {
 
     var enabledFilterColumns, result = rows;
@@ -192,7 +182,7 @@ angular.module('andyperlitch.ngTabled', [])
           column.filter = predefined;
           return true;
         }
-        WARN('The filter function "'+column.filter+'" '
+        $log.warn('ngTabled: The filter function "'+column.filter+'" '
           + 'specified by column(id='+column.id+').filter '
           + 'was not found in predefined tabledFilterFunctions. '
           + 'Available filters: "'+Object.keys(tabledFilterFunctions).join('","')+'"')
@@ -221,7 +211,7 @@ angular.module('andyperlitch.ngTabled', [])
   };
 }])
 
-.filter('tabledCellFilter', ['tabledFormatFunctions','tabledConsoleWarn', function(tabledFormatFunctions, WARN) {
+.filter('tabledCellFilter', ['tabledFormatFunctions','$log', function(tabledFormatFunctions, $log) {
   return function tabledCellFilter(row, column) {
 
     // check if property is available on the row    
@@ -251,7 +241,7 @@ angular.module('andyperlitch.ngTabled', [])
     }
 
     // bad formatting function definition
-    WARN('format reference in column(id=' + column.id + ') '
+    $log.warn('format reference in column(id=' + column.id + ') '
       + 'was not found in ngTabled predefined formats. '
       + 'Format given: "' + column.format + '". '
       + 'Available formats: ' + Object.keys(tabledFormatFunctions).join(','))
