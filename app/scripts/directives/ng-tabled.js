@@ -152,8 +152,22 @@ angular.module('andyperlitch.ngTabled', [])
   };
 })
 
-.filter('tabledRowFilter', ['tabledFilterFunctions', function(tabledFilterFunctions) {
-  return function(rows, columns, searchTerms) {
+.service('tabledFormatFunctions', function() {
+  return {};
+})
+
+.service('tabledConsoleWarn', function() {
+  var canWarn = typeof console === 'object' && typeof console.warn === 'function';
+
+  return function tabledWarn(msg) {
+    if (canWarn) {
+      console.warn('ngTabled WARNING: ' + msg);
+    }
+  }
+})
+
+.filter('tabledRowFilter', ['tabledFilterFunctions', 'tabledConsoleWarn', function(tabledFilterFunctions, WARN) {
+  return function tabledRowFilter(rows, columns, searchTerms) {
 
     var enabledFilterColumns, result = rows;
 
@@ -178,8 +192,10 @@ angular.module('andyperlitch.ngTabled', [])
           column.filter = predefined;
           return true;
         }
-
-        return true;
+        WARN('The filter function "'+column.filter+'" '
+          + 'specified by column(id='+column.id+').filter '
+          + 'was not found in predefined tabledFilterFunctions. '
+          + 'Available filters: "'+Object.keys(tabledFilterFunctions).join('","')+'"')
       }
       return false;
     });
@@ -205,6 +221,44 @@ angular.module('andyperlitch.ngTabled', [])
   };
 }])
 
+.filter('tabledCellFilter', ['tabledFormatFunctions','tabledConsoleWarn', function(tabledFormatFunctions, WARN) {
+  return function tabledCellFilter(row, column) {
+
+    // check if property is available on the row    
+    var hasProp = row.hasOwnProperty(column.key);
+    if (!hasProp) {
+      return column.defaultValue || '';
+    }
+
+    // cache raw data value
+    var value = row[column.key];
+
+    // no format, ends here
+    if (!column.format) {
+      return value;
+    }
+
+    // check for format
+    var format = column.format
+    if (typeof format === 'function') {
+      return format(value, row, column);
+    }
+
+    // check for predefined format
+    if (typeof tabledFormatFunctions[format] === 'function') {
+      column.format = format = tabledFormatFunctions[format];
+      return format(value, row, column);
+    }
+
+    // bad formatting function definition
+    WARN('format reference in column(id=' + column.id + ') '
+      + 'was not found in ngTabled predefined formats. '
+      + 'Format given: "' + column.format + '". '
+      + 'Available formats: ' + Object.keys(tabledFormatFunctions).join(','))
+    return value;
+  }
+}])
+
 .directive('ngTabled', function () {
   return {
     // templateUrl: 'views/ng-tabled.html',
@@ -225,7 +279,7 @@ angular.module('andyperlitch.ngTabled', [])
                   '<tbody>' +
                       '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms">' +
                           '<td ng-repeat="column in columns">' +
-                              '{{ row[column.key] }}' +
+                              '{{ row | tabledCellFilter:column }}' +
                           '</td>' +
                       '</tr>' +
                   '</tbody>' +

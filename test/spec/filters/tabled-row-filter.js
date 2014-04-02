@@ -1,14 +1,19 @@
 describe('Filter: tabledRowFilter', function() {
 
-  // load the filter's module
-  beforeEach(module('andyperlitch.ngTabled'));
+  var columns, rows, searchTerms, filter, fakeSearchFn1, fakeSearchFn2, sandbox, mockWarn;
 
-  var columns, rows, searchTerms, filter, fakeSearchFn1, fakeSearchFn2, sandbox;
+  beforeEach(function() {
+      sandbox = sinon.sandbox.create();
+  });
+
+  // load the filter's module
+  beforeEach(module('andyperlitch.ngTabled', function($provide) {
+    mockWarn = sandbox.stub();
+    $provide.value('tabledConsoleWarn', mockWarn);
+  }));
 
   beforeEach(inject(['tabledRowFilterFilter', function(f){
     filter = f;
-
-    sandbox = sinon.sandbox.create();
 
     fakeSearchFn1 = function(term, value, computedValue, row) {
       return value === term;
@@ -60,10 +65,11 @@ describe('Filter: tabledRowFilter', function() {
     expect( results2[0] ).to.equal(rows[1]);    
   });
 
-  it('should ignore invalid predefined filter names', function() {
+  it('should ignore invalid predefined filter names and call the tabledConsoleWarn service', function() {
     searchTerms.col4 = 'some search';
     var results = filter(rows, columns, searchTerms);
     expect(results).to.equal(rows);
+    expect(mockWarn).to.have.been.calledOnce;
   });
 
   it('should replace string references to built-in filter functions with actual functions', function() {
