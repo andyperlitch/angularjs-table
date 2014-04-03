@@ -156,6 +156,22 @@ angular.module('andyperlitch.ngTabled', [])
   return {};
 })
 
+.service('tabledSortFunctions', function() {
+  return {
+    number: function(field){
+      return function(row1,row2) { 
+        return row1[field] - row2[field];
+      }
+    },
+    string: function(field){
+      return function(row1,row2) { 
+        if ( row1[field].toString().toLowerCase() == row2[field].toString().toLowerCase() ) return 0;
+        return row1[field].toString().toLowerCase() > row2[field].toString().toLowerCase() ? 1 : -1 ;
+      }
+    }
+  }
+})
+
 .filter('tabledRowFilter', ['tabledFilterFunctions', '$log', function(tabledFilterFunctions, $log) {
   return function tabledRowFilter(rows, columns, searchTerms) {
 
@@ -249,25 +265,111 @@ angular.module('andyperlitch.ngTabled', [])
   }
 }])
 
+.filter('tabledRowSorter', ['tabledSortFunctions', '$log', function(sortFunctions, $log) {
+  return function tabledRowSorter(rows, columns) {
+    return rows;
+  }
+}])
+
+.controller('TabledController', ['$scope', function($scope) {
+
+  // Set configuration options
+  $scope.options = {
+    sort_classes: [
+      'glyphicon glyphicon-sort',
+      'glyphicon glyphicon-chevron-up',
+      'glyphicon glyphicon-chevron-down'
+    ]
+  };
+
+  // Object that holds search terms
+  $scope.searchTerms = {};
+
+  // Checks if columns have any filter fileds
+  $scope.hasFilterFields = function() {
+    for (var i = $scope.columns.length - 1; i >= 0; i--) {
+      if (typeof $scope.columns[i].filter !== 'undefined') {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Toggles column sorting
+  $scope.toggleSort = function($event, column) {
+
+    // check if even sortable
+    if (!column.sort) {
+      return;
+    }
+
+    if ( $event.shiftKey ) {
+      // shift is down, ignore other columns
+      // but toggle between three states
+      switch (column.sorting) {
+        case '+':
+          column.sorting = '-';
+        break;
+        case '-':
+          delete column.sorting;
+        break;
+        default:
+          column.sorting = '+';
+        break;
+      }
+
+    } else {
+      // shift is not down, disable other
+      // columns but toggle two states
+      $scope.columns.forEach(function(col) {
+        if (col !== column) {
+          delete col.sorting;
+        }
+      });
+
+      if (column.sorting === '+') {
+        column.sorting = '-';
+      }
+      else {
+        column.sorting = '+';
+      }
+    }
+  };
+
+  // Retrieve className for given sorting state
+  $scope.getSortClass = function(sorting) {
+    var classes = $scope.options.sort_classes;
+    if (sorting === '+') {
+      return classes[1];
+    }
+    if (sorting === '-') {
+      return classes[2];
+    }
+    return classes[0];
+  }
+
+}])
+
 .directive('ngTabled', function () {
   return {
     // templateUrl: 'views/ng-tabled.html',
     template:  '<table class="{{classes}}">' +
                   '<thead>' +
                       '<tr>' +
-                          '<th scope="col" ng-repeat="column in columns">' +
+                          '<th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" class="{{ column.sort ? \'sortable-column\' : \'\'}}">' +
                               '{{column.label || column.id}}' +
+                              '<span ng-if="column.sort" class="sorting-icon {{getSortClass(column.sorting)}}"></span>' +
                               '<div class="column-resizer"></div>' +
                           '</th>' +
                       '</tr>' +
-                      '<tr>' +
-                          '<th ng-if="hasFilterFields()" ng-repeat="column in columns">' +
+                      '<tr ng-if="hasFilterFields()">' +
+                          '<th ng-repeat="column in columns">' +
                               '<input type="search" ng-if="(column.filter)" ng-model="searchTerms[column.id]">' +
                           '</th>' +
                       '</tr>' +
                   '</thead>' +
                   '<tbody>' +
-                      '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms">' +
+                      '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms | tabledRowSorter:columns ">' +
                           '<td ng-repeat="column in columns">' +
                               '{{ row | tabledCellFilter:column }}' +
                           '</td>' +
@@ -280,23 +382,6 @@ angular.module('andyperlitch.ngTabled', [])
       rows: '=',
       classes: '@class'
     },
-    controller: function($scope) {
-
-        // Object that holds search terms
-        $scope.searchTerms = {};
-
-        // Checks if columns have any filter fileds
-        $scope.hasFilterFields = function() {
-          for (var i = $scope.columns.length - 1; i >= 0; i--) {
-            if (typeof $scope.columns[i].filter === 'function') {
-              return true;
-            }
-          }
-        };
-
-      },
-    link: function postLink(scope, element, attrs) {
-      // element.text('cool')
-    }
+    controller: 'TabledController'
   };
 });

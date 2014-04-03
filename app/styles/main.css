@@ -8,3 +8,23 @@ table th input {
   border: 1px solid #CCC;
   outline: none;
 }
+
+table th span.sorting-icon {
+    font-size: 10px;
+    margin-left: 10px;
+}
+
+table th span.glyphicon-sort {
+    opacity: 0.2;
+}
+
+table th.sortable-column {
+    cursor: pointer;
+    -moz-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
