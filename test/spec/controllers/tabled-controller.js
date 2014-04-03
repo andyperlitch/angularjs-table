@@ -9,6 +9,18 @@ describe('Controller: TabledController', function() {
     $controller('TabledController', {$scope: $scope})
   }));
 
+  it('should attach a searchTerms object to the scope', function() {
+    expect($scope.searchTerms).to.be.an('object');
+  });
+
+  it('should attach a sortOrder array to the scope', function() {
+    expect($scope.sortOrder).to.be.instanceof(Array);
+  });
+
+  it('should attach a sortDirection object to the scope', function() {
+    expect($scope.sortDirection).to.be.an('object');
+  });
+
   describe('method: hasFilterFields', function() {
 
     it('should be a function', function() {
@@ -63,30 +75,36 @@ describe('Controller: TabledController', function() {
           };
       });
 
-      it('should set a "sorting" attribute on the column to "+" if no value is present', function() {
+      it('should add the column to sortOrder and sortDirection as "+" if it was not being sorted', function() {
         $scope.toggleSort( $event, col1 );
-        expect(col1.sorting).to.equal('+');
+        expect($scope.sortOrder).to.eql(['k1']);
+        expect($scope.sortDirection.k1).to.equal('+');
       });
 
-      it('should set "sorting" to "-" if "+" is the current value', function() {
-        col1.sorting = '+';
+      it('should set sortDirection[column.id] to "-" if "+" is the current value', function() {
+        $scope.sortOrder = ['k1'];
+        $scope.sortDirection.k1 = '+';
         $scope.toggleSort( $event, col1 );
-        expect(col1.sorting).to.equal('-');
+        expect($scope.sortOrder).to.eql(['k1']);
+        expect($scope.sortDirection.k1).to.equal('-');
       });
 
-      it('should clear out the "sorting" attribute on all other columns', function() {
-        col1.sorting = '-';
-        col3.sorting = '+';
+      it('should clear out sortDirection[column.id] attribute on all other columns', function() {
+        $scope.sortOrder = ['k1','k3'];
+        $scope.sortDirection.k1 = '+';
+        $scope.sortDirection.k3 = '-';
         $scope.toggleSort( $event, col2 );
-        expect(col2.sorting).to.equal('+');
-        expect(col1).not.to.have.property('sorting');
-        expect(col3).not.to.have.property('sorting');
+
+        expect($scope.sortOrder).to.eql(['k2']);
+        expect($scope.sortDirection.k2).to.equal('+');
+        expect($scope.sortDirection).not.to.have.property('k1');
+        expect($scope.sortDirection).not.to.have.property('k3');
       });
 
       it('should do nothing if the column has no "sort" attribute', function() {
         delete col1.sort;
         $scope.toggleSort($event, col1);
-        expect(col1).not.to.have.property('sorting');
+        expect($scope.sortOrder).not.to.include('k1');
       });
 
     });
@@ -102,26 +120,29 @@ describe('Controller: TabledController', function() {
       it('should do nothing if the column has no "sort" attribute', function() {
         delete col1.sort;
         $scope.toggleSort($event, col1);
-        expect(col1).not.to.have.property('sorting');
+        expect($scope.sortDirection).not.to.have.property('k1');
       });
 
-      it('should ignore sorting attributes on all other columns', function() {
-        col1.sorting = '-';
-        col2.sorting = '+';
+      it('should not clear out sorting on all other columns', function() {
+        $scope.sortOrder = ['k1','k2'];
+        $scope.sortDirection = { k1: '-', k2: '+' };
         $scope.toggleSort($event, col3);
-        expect(col1.sorting).to.equal('-');
-        expect(col2.sorting).to.equal('+');
+        expect($scope.sortDirection.k1).to.equal('-');
+        expect($scope.sortDirection.k2).to.equal('+');
       });
 
       it('should toggle sorting of column between three states: "+", "-", undefined', function() {
         $scope.toggleSort($event, col1);
-        expect(col1.sorting).to.equal('+');
+        expect($scope.sortDirection.k1).to.equal('+');
+        expect($scope.sortOrder.indexOf('k1')).to.not.equal(-1);
 
         $scope.toggleSort($event, col1);
-        expect(col1.sorting).to.equal('-');
+        expect($scope.sortDirection.k1).to.equal('-');
+        expect($scope.sortOrder.indexOf('k1')).to.not.equal(-1);
 
         $scope.toggleSort($event, col1);
-        expect(col1).not.to.have.property('sorting');
+        expect($scope.sortDirection.k1).to.be.undefined;
+        expect($scope.sortOrder.indexOf('k1')).to.equal(-1);
       });
 
     });

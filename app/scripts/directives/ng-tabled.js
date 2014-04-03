@@ -159,17 +159,19 @@ angular.module('andyperlitch.ngTabled', [])
 .service('tabledSortFunctions', function() {
   return {
     number: function(field){
-      return function(row1,row2) { 
+      return function(row1,row2) {
         return row1[field] - row2[field];
-      }
+      };
     },
     string: function(field){
-      return function(row1,row2) { 
-        if ( row1[field].toString().toLowerCase() == row2[field].toString().toLowerCase() ) return 0;
+      return function(row1,row2) {
+        if ( row1[field].toString().toLowerCase() === row2[field].toString().toLowerCase() ) {
+          return 0;
+        }
         return row1[field].toString().toLowerCase() > row2[field].toString().toLowerCase() ? 1 : -1 ;
-      }
+      };
     }
-  }
+  };
 })
 
 .filter('tabledRowFilter', ['tabledFilterFunctions', '$log', function(tabledFilterFunctions, $log) {
@@ -198,10 +200,10 @@ angular.module('andyperlitch.ngTabled', [])
           column.filter = predefined;
           return true;
         }
-        $log.warn('ngTabled: The filter function "'+column.filter+'" '
-          + 'specified by column(id='+column.id+').filter '
-          + 'was not found in predefined tabledFilterFunctions. '
-          + 'Available filters: "'+Object.keys(tabledFilterFunctions).join('","')+'"')
+        $log.warn('ngTabled: The filter function "'+column.filter+'" ' +
+          'specified by column(id='+column.id+').filter ' +
+          'was not found in predefined tabledFilterFunctions. ' +
+          'Available filters: "'+Object.keys(tabledFilterFunctions).join('","')+'"');
       }
       return false;
     });
@@ -245,7 +247,7 @@ angular.module('andyperlitch.ngTabled', [])
     }
 
     // check for format
-    var format = column.format
+    var format = column.format;
     if (typeof format === 'function') {
       return format(value, row, column);
     }
@@ -257,18 +259,22 @@ angular.module('andyperlitch.ngTabled', [])
     }
 
     // bad formatting function definition
-    $log.warn('format reference in column(id=' + column.id + ') '
-      + 'was not found in ngTabled predefined formats. '
-      + 'Format given: "' + column.format + '". '
-      + 'Available formats: ' + Object.keys(tabledFormatFunctions).join(','))
+    $log.warn('format reference in column(id=' + column.id + ') ' +
+      'was not found in ngTabled predefined formats. ' +
+      'Format given: "' + column.format + '". ' +
+      'Available formats: ' + Object.keys(tabledFormatFunctions).join(','));
     return value;
-  }
+  };
 }])
 
 .filter('tabledRowSorter', ['tabledSortFunctions', '$log', function(sortFunctions, $log) {
   return function tabledRowSorter(rows, columns) {
+    var sortFunctions = [];
+    columns.forEach(function(col) {
+      // if (typeof col.sort)
+    });
     return rows;
-  }
+  };
 }])
 
 .controller('TabledController', ['$scope', function($scope) {
@@ -284,6 +290,31 @@ angular.module('andyperlitch.ngTabled', [])
 
   // Object that holds search terms
   $scope.searchTerms = {};
+
+  // Array and Object for sort order+direction
+  $scope.sortOrder = [];
+  $scope.sortDirection = {};
+
+  $scope.addSort = function(id, dir) {
+    var idx = $scope.sortOrder.indexOf(id);
+    if (idx === -1) {
+      $scope.sortOrder.push(id);
+    }
+    $scope.sortDirection[id] = dir;
+  };
+
+  $scope.removeSort = function(id) {
+    var idx = $scope.sortOrder.indexOf(id);
+    if (idx !== -1) {
+      $scope.sortOrder.splice(idx, 1);
+    }
+    delete $scope.sortDirection[id];
+  };
+
+  $scope.clearSort = function() {
+    $scope.sortOrder = [];
+    $scope.sortDirection = {};
+  };
 
   // Checks if columns have any filter fileds
   $scope.hasFilterFields = function() {
@@ -306,33 +337,33 @@ angular.module('andyperlitch.ngTabled', [])
     if ( $event.shiftKey ) {
       // shift is down, ignore other columns
       // but toggle between three states
-      switch (column.sorting) {
+      switch ($scope.sortDirection[column.id]) {
         case '+':
-          column.sorting = '-';
-        break;
+          // Make descending
+          $scope.sortDirection[column.id] = '-';
+          break;
         case '-':
-          delete column.sorting;
-        break;
+          // Remove from sortOrder and direction
+          $scope.removeSort(column.id);
+          break;
         default:
-          column.sorting = '+';
-        break;
+          // Make ascending
+          $scope.addSort(column.id, '+');
+          break;
       }
 
     } else {
       // shift is not down, disable other
       // columns but toggle two states
-      $scope.columns.forEach(function(col) {
-        if (col !== column) {
-          delete col.sorting;
-        }
-      });
-
-      if (column.sorting === '+') {
-        column.sorting = '-';
+      var lastState = $scope.sortDirection[column.id];
+      $scope.clearSort();
+      if (lastState === '+') {
+        $scope.addSort(column.id, '-');
       }
       else {
-        column.sorting = '+';
+        $scope.addSort(column.id, '+');
       }
+      
     }
   };
 
@@ -346,7 +377,7 @@ angular.module('andyperlitch.ngTabled', [])
       return classes[2];
     }
     return classes[0];
-  }
+  };
 
 }])
 
@@ -355,27 +386,27 @@ angular.module('andyperlitch.ngTabled', [])
     // templateUrl: 'views/ng-tabled.html',
     template:  '<table class="{{classes}}">' +
                   '<thead>' +
-                      '<tr>' +
-                          '<th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" class="{{ column.sort ? \'sortable-column\' : \'\'}}">' +
-                              '{{column.label || column.id}}' +
-                              '<span ng-if="column.sort" class="sorting-icon {{getSortClass(column.sorting)}}"></span>' +
-                              '<div class="column-resizer"></div>' +
-                          '</th>' +
-                      '</tr>' +
-                      '<tr ng-if="hasFilterFields()">' +
-                          '<th ng-repeat="column in columns">' +
-                              '<input type="search" ng-if="(column.filter)" ng-model="searchTerms[column.id]">' +
-                          '</th>' +
-                      '</tr>' +
+                    '<tr>' +
+                      '<th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" class="{{ column.sort ? \'sortable-column\' : \'\'}}">' +
+                        '{{column.label || column.id}}' +
+                        '<span ng-if="column.sort" class="sorting-icon {{getSortClass(sortDirection[column.id])}}"></span>' +
+                        '<div class="column-resizer"></div>' +
+                      '</th>' +
+                    '</tr>' +
+                    '<tr ng-if="hasFilterFields()">' +
+                      '<th ng-repeat="column in columns">' +
+                        '<input type="search" ng-if="(column.filter)" ng-model="searchTerms[column.id]">' +
+                      '</th>' +
+                    '</tr>' +
                   '</thead>' +
                   '<tbody>' +
-                      '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms | tabledRowSorter:columns ">' +
-                          '<td ng-repeat="column in columns">' +
-                              '{{ row | tabledCellFilter:column }}' +
-                          '</td>' +
-                      '</tr>' +
+                    '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms | tabledRowSorter:columns ">' +
+                      '<td ng-repeat="column in columns">' +
+                        '{{ row | tabledCellFilter:column }}' +
+                      '</td>' +
+                    '</tr>' +
                   '</tbody>' +
-              '</table>',
+                '</table>',
     restrict: 'E',
     scope: {
       columns: '=',
