@@ -5,11 +5,12 @@ A table component catered to real-time data.
 
 Feature List
 ------------
-- filters
-- column sorting
+X filters
+X column sorting
 - column resizing
-- stacked ordering
+X stacked ordering
 - localStorage state persistance
+- column re-ordering
 
 Browser Support
 ---------------
