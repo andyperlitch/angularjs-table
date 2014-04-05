@@ -57,4 +57,8 @@ angular.module('andyperlitch.ngTabled.ghPage')
     // Table data
     $scope.my_table_data = genRows(30);
 
+    setInterval(function() {
+      $scope.my_table_data = genRows(30);
+    }, 1000);
+
   });

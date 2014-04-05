@@ -179,4 +179,17 @@ describe('Controller: TabledController', function() {
 
   });
 
+  describe('method: setColumns', function() {
+
+    var fn;
+
+    beforeEach(function() {
+      fn = $scope.setColumns;
+    });
+
+    it('should be a function', function() {
+      expect(fn).to.be.a('function');
+    });
+  });
+
 });

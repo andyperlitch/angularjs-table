@@ -229,7 +229,7 @@ angular.module('andyperlitch.ngTabled', [])
   };
 }])
 
-.filter('tabledCellFilter', ['tabledFormatFunctions','$log', function(tabledFormatFunctions, $log) {
+.filter('tabledCellFilter', function() {
   return function tabledCellFilter(row, column) {
 
     // check if property is available on the row    
@@ -241,60 +241,53 @@ angular.module('andyperlitch.ngTabled', [])
     // cache raw data value
     var value = row[column.key];
 
-    // no format, ends here
-    if (!column.format) {
-      return value;
-    }
-
     // check for format
     var format = column.format;
     if (typeof format === 'function') {
       return format(value, row, column);
     }
 
-    // check for predefined format
-    if (typeof tabledFormatFunctions[format] === 'function') {
-      column.format = format = tabledFormatFunctions[format];
-      return format(value, row, column);
-    }
-
-    // bad formatting function definition
-    $log.warn('format reference in column(id=' + column.id + ') ' +
-      'was not found in ngTabled predefined formats. ' +
-      'Format given: "' + column.format + '". ' +
-      'Available formats: ' + Object.keys(tabledFormatFunctions).join(','));
     return value;
   };
-}])
+})
 
-.filter('tabledRowSorter', ['tabledSortFunctions', '$log', function(sortFunctions, $log) {
-  return function tabledRowSorter(rows, columns) {
-    var sortFunctions = [];
-    columns.forEach(function(col) {
-      // if (typeof col.sort)
+.filter('tabledRowSorter', function() {
+  function getColumn(columns,id) {
+    for (var i = columns.length - 1; i >= 0; i--) {
+      if (columns[i].id === id) {
+        return columns[i];
+      }
+    }
+    return false;
+  }
+  return function tabledRowSorter(rows, columns, sortOrder, sortDirection) {
+    if (!sortOrder.length) {
+      return rows;
+    }
+    return rows.sort(function(a,b) {
+      for (var i = 0; i < sortOrder.length; i++) {
+        var id = sortOrder[i];
+        var column = getColumn(columns,id);
+        var dir = sortDirection[id];
+        if (column && column.sort) {
+          
+          var fn = column.sort;
+          var result = dir === '+' ? fn(a,b) : fn(b,a);
+          if (result !== 0) {
+            return result;
+          }
+
+        }
+      }
+      return 0;
     });
     return rows;
   };
-}])
+})
 
-.controller('TabledController', ['$scope', function($scope) {
+.controller('TabledController', ['$scope','tabledFormatFunctions','tabledSortFunctions','tabledFilterFunctions','$log', function($scope, formats, sorts, filters, $log) {
 
-  // Set configuration options
-  $scope.options = {
-    sort_classes: [
-      'glyphicon glyphicon-sort',
-      'glyphicon glyphicon-chevron-up',
-      'glyphicon glyphicon-chevron-down'
-    ]
-  };
-
-  // Object that holds search terms
-  $scope.searchTerms = {};
-
-  // Array and Object for sort order+direction
-  $scope.sortOrder = [];
-  $scope.sortDirection = {};
-
+  // SCOPE FUNCTIONS
   $scope.addSort = function(id, dir) {
     var idx = $scope.sortOrder.indexOf(id);
     if (idx === -1) {
@@ -302,7 +295,6 @@ angular.module('andyperlitch.ngTabled', [])
     }
     $scope.sortDirection[id] = dir;
   };
-
   $scope.removeSort = function(id) {
     var idx = $scope.sortOrder.indexOf(id);
     if (idx !== -1) {
@@ -310,12 +302,10 @@ angular.module('andyperlitch.ngTabled', [])
     }
     delete $scope.sortDirection[id];
   };
-
   $scope.clearSort = function() {
     $scope.sortOrder = [];
     $scope.sortDirection = {};
   };
-
   // Checks if columns have any filter fileds
   $scope.hasFilterFields = function() {
     for (var i = $scope.columns.length - 1; i >= 0; i--) {
@@ -325,7 +315,6 @@ angular.module('andyperlitch.ngTabled', [])
     }
     return false;
   };
-
   // Toggles column sorting
   $scope.toggleSort = function($event, column) {
 
@@ -366,7 +355,6 @@ angular.module('andyperlitch.ngTabled', [])
       
     }
   };
-
   // Retrieve className for given sorting state
   $scope.getSortClass = function(sorting) {
     var classes = $scope.options.sort_classes;
@@ -378,6 +366,49 @@ angular.module('andyperlitch.ngTabled', [])
     }
     return classes[0];
   };
+  $scope.setColumns = function(columns) {
+    $scope.columns = columns;
+    var column_lookups = { format: formats, sort: sorts, filter: filters };
+    $scope.columns.forEach(function(column) {
+      angular.forEach(column_lookups, function(builtins, key) {
+        var attr = column[key];
+        if (typeof attr === 'function') {
+          return;
+        }
+        if (typeof attr === 'string' && typeof builtins[attr] === 'function') {
+          column[key] = key === 'sort' ? builtins[attr](column.key) : builtins[attr];
+        } else {
+          delete column[key];
+          $log.warn(key + ' function reference in column(id=' + column.id + ') ' +
+                  'was not found in built-in ' + key + ' functions. ' +
+                  key + ' function given: "' + attr + '". ' +
+                  'Available built-ins: ' + Object.keys(builtins).join(','));
+        }
+      });
+    });
+  }
+
+  // Set configuration options
+  $scope.options = {
+    sort_classes: [
+      'glyphicon glyphicon-sort',
+      'glyphicon glyphicon-chevron-up',
+      'glyphicon glyphicon-chevron-down'
+    ]
+  };
+  // Look for built-in filter, sort, and format functions
+  if ($scope.columns instanceof Array) {
+    $scope.setColumns($scope.columns);
+  } else {
+    $log.warn('"columns" object not found in ngTabled scope!');
+  }
+
+  // Object that holds search terms
+  $scope.searchTerms = {};
+
+  // Array and Object for sort order+direction
+  $scope.sortOrder = [];
+  $scope.sortDirection = {};
 
 }])
 
@@ -389,7 +420,7 @@ angular.module('andyperlitch.ngTabled', [])
                     '<tr>' +
                       '<th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" class="{{ column.sort ? \'sortable-column\' : \'\'}}">' +
                         '{{column.label || column.id}}' +
-                        '<span ng-if="column.sort" class="sorting-icon {{getSortClass(sortDirection[column.id])}}"></span>' +
+                        '<span ng-if="column.sort" class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>' +
                         '<div class="column-resizer"></div>' +
                       '</th>' +
                     '</tr>' +
@@ -400,8 +431,8 @@ angular.module('andyperlitch.ngTabled', [])
                     '</tr>' +
                   '</thead>' +
                   '<tbody>' +
-                    '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms | tabledRowSorter:columns ">' +
-                      '<td ng-repeat="column in columns">' +
+                    '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms | tabledRowSorter:columns:sortOrder:sortDirection ">' +
+                      '<td ng-repeat="column in columns" >' +
                         '{{ row | tabledCellFilter:column }}' +
                       '</td>' +
                     '</tr>' +

@@ -1,6 +1,6 @@
 describe('Filter: tabledRowSorter', function() {
 
-  var sandbox, sorter, columns, rows, numSort, numSort2, stringSort;
+  var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder, sortDirection;
 
   beforeEach(module('andyperlitch.ngTabled'));
 
@@ -19,10 +19,10 @@ describe('Filter: tabledRowSorter', function() {
       { id: 'key3', key: 'key3', sort: numSort }
     ];
     rows = [
-      { key1:'c', key2:2, key3: 4 },
-      { key1:'b', key2:1, key3: 4 },
-      { key1:'a', key2:3, key3: 2 },
-      { key1:'b', key2:3, key3: 3 }
+      { index: 0, key1:'c', key2:2, key3: 4 },
+      { index: 1, key1:'b', key2:1, key3: 4 },
+      { index: 2, key1:'a', key2:3, key3: 2 },
+      { index: 3, key1:'b', key2:3, key3: 3 }
     ];
   }));
 
@@ -35,17 +35,18 @@ describe('Filter: tabledRowSorter', function() {
   });
 
   it('should return all rows if no sorting is active', function() {
-    expect(sorter(rows,columns)).to.equal(rows);
+    expect(sorter(rows,columns,[],{})).to.equal(rows);
   });
 
-  // it('should sort ascending by a column whose "sorting" field is "+"', function() {
-  //   columns[0].sorting = '+';
-  //   expect(sorter(rows,columns)).to.eql([
-  //     rows[2],
-  //     rows[1],
-  //     rows[0],
-  //     rows[3]
-  //   ]);
-  // });
+  it('should sort ascending by a column whose "sorting" field is "+"', function() {
+    
+    sortOrder = ['key1'];
+    sortDirection = {key1:'+'};
+
+    var result = sorter(rows,columns,sortOrder,sortDirection);
+    var idxs = result.map(function(r){ return r.index; });
+    expect(idxs).to.eql([2,1,3,0]);
+
+  });
 
 });

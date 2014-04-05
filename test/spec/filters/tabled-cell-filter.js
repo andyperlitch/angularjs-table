@@ -1,6 +1,6 @@
 describe('Filter: tabledCellFilter', function() {
 
-  var filter, sandbox, mockFormatFunctions, mockLog;
+  var filter, sandbox, mockFormatFunctions;
 
   beforeEach(function() {
       sandbox = sinon.sandbox.create();
@@ -12,10 +12,7 @@ describe('Filter: tabledCellFilter', function() {
       testFormat: sinon.stub().returns('Formatted.')
     };
 
-    mockLog = { warn: sinon.stub() };
-
     $provide.value('tabledFormatFunctions', mockFormatFunctions);
-    $provide.value('$log', mockLog);
   }));
 
   beforeEach(inject(['tabledCellFilterFilter', function(f){
@@ -70,18 +67,10 @@ describe('Filter: tabledCellFilter', function() {
     expect(column.format).to.have.been.calledWith('c',row,column);
   });
 
-  it('should check for and use predefined format function if column.format is a key on tabledFormatFunctions', function() {
-    var row = { a:'a', b:'b', c:'c' };
-    var column = { key: 'c', format: 'testFormat' };
-    filter(row, column);
-    expect(mockFormatFunctions.testFormat).to.have.been.calledWith('c',row,column);
-  });
-
-  it('should call $log.warn and return the raw value if a predefined format was not found', function() {
+  it('should return the raw value if a predefined format was not found', function() {
     var row = { a:'a', b:'b', c:'c' };
     var column = { id: 'test', key: 'c', format: 'notRealFormat' };
     expect(filter(row, column)).to.equal('c');
-    expect(mockLog.warn).to.have.been.calledOnce;
   });
 
 });
