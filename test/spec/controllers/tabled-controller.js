@@ -1,27 +1,27 @@
-describe('Controller: TabledController', function() {
+describe('Controller: TableController', function() {
 
-  var sandbox, $scope, mockTabledFormatFunctions, mockTabledSortFunctions, mockTabledFilterFunctions, mockLog;
+  var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog;
 
-  beforeEach(module('andyperlitch.ngTabled'));
+  beforeEach(module('andyperlitch.apTable'));
 
   beforeEach(inject(function($rootScope, $controller){
     sandbox = sinon.sandbox.create();
     $scope = $rootScope.$new();
     $scope.columns = [];
     $scope.rows = [];
-    mockTabledFormatFunctions = {
+    mockTableFormatFunctions = {
       test: sandbox.spy(function(value) {
         return value.toString().toUpperCase();
       })
     };
-    mockTabledSortFunctions = {
+    mockTableSortFunctions = {
       test: sandbox.spy(function(key) {
         return function(a,b) {
           return a[key] - b[key];
         }
       })
     };
-    mockTabledFilterFunctions = {
+    mockTableFilterFunctions = {
       test: sandbox.spy(function(searchTerm, value) {
         return value.indexOf(searchTerm) !== -1;
       })
@@ -29,11 +29,11 @@ describe('Controller: TabledController', function() {
     mockLog = {
       warn: sandbox.spy()
     };
-    $controller('TabledController', {
+    $controller('TableController', {
       $scope: $scope,
-      tabledFormatFunctions: mockTabledFormatFunctions,
-      tabledSortFunctions: mockTabledSortFunctions,
-      tabledFilterFunctions: mockTabledFilterFunctions,
+      tableFormatFunctions: mockTableFormatFunctions,
+      tableSortFunctions: mockTableSortFunctions,
+      tableFilterFunctions: mockTableFilterFunctions,
       $log: mockLog
     })
   }));
@@ -45,11 +45,11 @@ describe('Controller: TabledController', function() {
   it('should call warn if no columns array was found on the scope', inject(function($rootScope, $controller) {
     var $scope2 = $rootScope.$new();
     $scope2.rows = [];
-    $controller('TabledController', {
+    $controller('TableController', {
       $scope: $scope2,
-      tabledFormatFunctions: mockTabledFormatFunctions,
-      tabledSortFunctions: mockTabledSortFunctions,
-      tabledFilterFunctions: mockTabledFilterFunctions,
+      tableFormatFunctions: mockTableFormatFunctions,
+      tableSortFunctions: mockTableSortFunctions,
+      tableFilterFunctions: mockTableFilterFunctions,
       $log: mockLog
     });
     expect(mockLog.warn).to.have.been.calledOnce;
@@ -58,11 +58,11 @@ describe('Controller: TabledController', function() {
   it('should call warn if no rows array was found on the scope', inject(function($rootScope, $controller) {
     var $scope2 = $rootScope.$new();
     $scope2.columns = [];
-    $controller('TabledController', {
+    $controller('TableController', {
       $scope: $scope2,
-      tabledFormatFunctions: mockTabledFormatFunctions,
-      tabledSortFunctions: mockTabledSortFunctions,
-      tabledFilterFunctions: mockTabledFilterFunctions,
+      tableFormatFunctions: mockTableFormatFunctions,
+      tableSortFunctions: mockTableSortFunctions,
+      tableFilterFunctions: mockTableFilterFunctions,
       $log: mockLog
     });
     expect(mockLog.warn).to.have.been.calledOnce;
@@ -316,8 +316,8 @@ describe('Controller: TabledController', function() {
       ];
       $scope.setColumns(columns);
       expect(col.sort).to.be.a('function');
-      expect(col.filter).to.equal(mockTabledFilterFunctions.test);
-      expect(col.format).to.equal(mockTabledFormatFunctions.test);
+      expect(col.filter).to.equal(mockTableFilterFunctions.test);
+      expect(col.format).to.equal(mockTableFormatFunctions.test);
     });
 
     it('should delete references to invalid built-in functions and call $log.warn', function() {

@@ -1,13 +1,13 @@
-describe('Filter: tabledRowSorter', function() {
+describe('Filter: tableRowSorter', function() {
 
   var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder, sortDirection;
 
-  beforeEach(module('andyperlitch.ngTabled'));
+  beforeEach(module('andyperlitch.apTable'));
 
-  beforeEach(inject(function(tabledRowSorterFilter) {
+  beforeEach(inject(function(tableRowSorterFilter) {
     sandbox = sinon.sandbox.create();
 
-    sorter = tabledRowSorterFilter;
+    sorter = tableRowSorterFilter;
 
     stringSort = sandbox.spy(function(a,b) { return a.key1 < b.key1 ? -1 : a.key1 > b.key1 ? 1 : 0 });
     numSort = sandbox.spy(function(a,b) { return a.key2 - b.key2});

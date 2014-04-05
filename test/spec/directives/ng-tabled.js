@@ -1,9 +1,9 @@
 'use strict';
 
-describe('Directive: ngTabled', function () {
+describe('Directive: apTable', function () {
 
   // load the directive's module
-  beforeEach(module('andyperlitch.ngTabled'));
+  beforeEach(module('andyperlitch.apTable'));
 
   var element,
   scope;
@@ -68,7 +68,7 @@ describe('Directive: ngTabled', function () {
   }));
 
   it('should create a table', inject(['$compile', '$rootScope', function ($compile) {
-    element = angular.element('<ng-tabled columns="my_table_columns" rows="my_table_data" class="table"></ng-tabled>');
+    element = angular.element('<ap-table columns="my_table_columns" rows="my_table_data" class="table"></ap-table>');
     element = $compile(element)(scope);
     scope.$digest();
     expect(element.find('table').length).to.equal(1);

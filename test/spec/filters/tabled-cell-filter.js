@@ -1,4 +1,4 @@
-describe('Filter: tabledCellFilter', function() {
+describe('Filter: tableCellFilter', function() {
 
   var filter, sandbox, mockFormatFunctions;
 
@@ -6,16 +6,16 @@ describe('Filter: tabledCellFilter', function() {
       sandbox = sinon.sandbox.create();
   });
 
-  beforeEach(module('andyperlitch.ngTabled', function($provide) {
+  beforeEach(module('andyperlitch.apTable', function($provide) {
 
     mockFormatFunctions = {
       testFormat: sinon.stub().returns('Formatted.')
     };
 
-    $provide.value('tabledFormatFunctions', mockFormatFunctions);
+    $provide.value('tableFormatFunctions', mockFormatFunctions);
   }));
 
-  beforeEach(inject(['tabledCellFilterFilter', function(f){
+  beforeEach(inject(['tableCellFilterFilter', function(f){
     filter = f;
   }]));
 

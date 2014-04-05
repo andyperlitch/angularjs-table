@@ -1,4 +1,4 @@
-describe('Filter: tabledRowFilter', function() {
+describe('Filter: tableRowFilter', function() {
 
   var columns, rows, searchTerms, filter, fakeSearchFn1, fakeSearchFn2, sandbox, mockLog;
 
@@ -7,12 +7,12 @@ describe('Filter: tabledRowFilter', function() {
   });
 
   // load the filter's module
-  beforeEach(module('andyperlitch.ngTabled', function($provide) {
+  beforeEach(module('andyperlitch.apTable', function($provide) {
     mockLog = { warn: sandbox.spy() };
     $provide.value('$log', mockLog);
   }));
 
-  beforeEach(inject(['tabledRowFilterFilter', function(f){
+  beforeEach(inject(['tableRowFilterFilter', function(f){
     filter = f;
 
     fakeSearchFn1 = function(term, value, computedValue, row) {

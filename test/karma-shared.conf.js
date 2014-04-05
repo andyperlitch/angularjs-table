@@ -25,7 +25,7 @@ module.exports = function() {
       'app/bower_components/angular-route/angular-route.js',
 
       //App-specific Code
-      'app/scripts/directives/ng-tabled.js',
+      'app/scripts/directives/ap-table.js',
       'app/scripts/app.js',
 
 

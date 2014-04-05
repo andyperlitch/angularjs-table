@@ -1,11 +1,11 @@
 'use strict';
 
-angular.module('andyperlitch.ngTabled.ghPage', [
+angular.module('andyperlitch.apTable.ghPage', [
   'ngCookies',
   'ngResource',
   'ngSanitize',
   'ngRoute',
-  'andyperlitch.ngTabled'
+  'andyperlitch.apTable'
 ])
   .config(function ($routeProvider) {
     $routeProvider

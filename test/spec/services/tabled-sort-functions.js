@@ -1,4 +1,4 @@
-describe('Service: tabledSortFunctions', function() {
+describe('Service: tableSortFunctions', function() {
 
   var sandbox, sorts;
 
@@ -6,9 +6,9 @@ describe('Service: tabledSortFunctions', function() {
     sandbox = sinon.sandbox.create();
   });
 
-  beforeEach(module('andyperlitch.ngTabled'));
+  beforeEach(module('andyperlitch.apTable'));
 
-  beforeEach(inject(['tabledSortFunctions', function(s) {
+  beforeEach(inject(['tableSortFunctions', function(s) {
     sorts = s;
   }]));
 
