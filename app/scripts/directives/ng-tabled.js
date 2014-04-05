@@ -263,7 +263,6 @@ angular.module('andyperlitch.ngTabled', [])
         return columns[i];
       }
     }
-    return false;
   }
   return function tabledRowSorter(rows, columns, sortOrder, sortDirection) {
     if (!sortOrder.length) {
@@ -381,18 +380,24 @@ angular.module('andyperlitch.ngTabled', [])
         if (typeof attr === 'function') {
           return;
         }
-        if (typeof attr === 'string' && typeof builtins[attr] === 'function') {
-          column[key] = key === 'sort' ? builtins[attr](column.key) : builtins[attr];
-        } else {
-          delete column[key];
-          $log.warn(key + ' function reference in column(id=' + column.id + ') ' +
+        if (typeof attr === 'string') {
+          if (typeof builtins[attr] === 'function') {
+            column[key] = key === 'sort' ? builtins[attr](column.key) : builtins[attr];  
+          }
+          else {
+            delete column[key];
+            $log.warn(key + ' function reference in column(id=' + column.id + ') ' +
                   'was not found in built-in ' + key + ' functions. ' +
                   key + ' function given: "' + attr + '". ' +
-                  'Available built-ins: ' + Object.keys(builtins).join(','));
+                  'Available built-ins: ' + Object.keys(builtins).join(','));  
+          }
+          
+        } else {
+          delete column[key];
         }
       });
     });
-  }
+  };
 
   // Set configuration options
   $scope.options = {
