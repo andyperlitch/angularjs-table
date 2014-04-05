@@ -16,7 +16,7 @@ module.exports = function(config) {
 
   // here we specify which of the files we want to appear in the coverage report
   conf.preprocessors = {
-      'app/scripts/directives/ng-tabled.js': ['coverage']
+      'app/scripts/directives/ap-table.js': ['coverage']
   };
 
   config.set(conf);

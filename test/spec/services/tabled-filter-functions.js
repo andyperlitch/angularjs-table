@@ -1,12 +1,12 @@
 'use strict';
-describe('Service: tabledFilterFunctions', function() {
+describe('Service: tableFilterFunctions', function() {
 
-  beforeEach(module('andyperlitch.ngTabled'));
+  beforeEach(module('andyperlitch.apTable'));
 
   var tff;
 
-  beforeEach(inject(['tabledFilterFunctions', function(tabledFilterFunctions) {
-    tff = tabledFilterFunctions;
+  beforeEach(inject(['tableFilterFunctions', function(tableFilterFunctions) {
+    tff = tableFilterFunctions;
   }]));
 
   it('should return an object containing functions', function() {

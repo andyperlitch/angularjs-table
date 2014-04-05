@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('andyperlitch.ngTabled', [])
+angular.module('andyperlitch.apTable', [])
 
-.service('tabledFilterFunctions', function() {
+.service('tableFilterFunctions', function() {
 
   function like(term, value) {
     term = term.toLowerCase().trim();
@@ -152,11 +152,11 @@ angular.module('andyperlitch.ngTabled', [])
   };
 })
 
-.service('tabledFormatFunctions', function() {
+.service('tableFormatFunctions', function() {
   return {};
 })
 
-.service('tabledSortFunctions', function() {
+.service('tableSortFunctions', function() {
   return {
     number: function(field){
       return function(row1,row2) {
@@ -174,8 +174,8 @@ angular.module('andyperlitch.ngTabled', [])
   };
 })
 
-.filter('tabledRowFilter', ['tabledFilterFunctions', '$log', function(tabledFilterFunctions, $log) {
-  return function tabledRowFilter(rows, columns, searchTerms) {
+.filter('tableRowFilter', ['tableFilterFunctions', '$log', function(tableFilterFunctions, $log) {
+  return function tableRowFilter(rows, columns, searchTerms) {
 
     var enabledFilterColumns, result = rows;
 
@@ -195,15 +195,15 @@ angular.module('andyperlitch.ngTabled', [])
           return true;
         }
         // not a function, check for predefined filter function
-        var predefined = tabledFilterFunctions[column.filter];
+        var predefined = tableFilterFunctions[column.filter];
         if (typeof predefined === 'function') {
           column.filter = predefined;
           return true;
         }
-        $log.warn('ngTabled: The filter function "'+column.filter+'" ' +
+        $log.warn('apTable: The filter function "'+column.filter+'" ' +
           'specified by column(id='+column.id+').filter ' +
-          'was not found in predefined tabledFilterFunctions. ' +
-          'Available filters: "'+Object.keys(tabledFilterFunctions).join('","')+'"');
+          'was not found in predefined tableFilterFunctions. ' +
+          'Available filters: "'+Object.keys(tableFilterFunctions).join('","')+'"');
       }
       return false;
     });
@@ -229,8 +229,8 @@ angular.module('andyperlitch.ngTabled', [])
   };
 }])
 
-.filter('tabledCellFilter', function() {
-  return function tabledCellFilter(row, column) {
+.filter('tableCellFilter', function() {
+  return function tableCellFilter(row, column) {
 
     // check if property is available on the row    
     var hasProp = row.hasOwnProperty(column.key);
@@ -251,7 +251,7 @@ angular.module('andyperlitch.ngTabled', [])
   };
 })
 
-.filter('tabledRowSorter', function() {
+.filter('tableRowSorter', function() {
   var column_cache = {};
   function getColumn(columns,id) {
     if (column_cache.hasOwnProperty(id)) {
@@ -264,7 +264,7 @@ angular.module('andyperlitch.ngTabled', [])
       }
     }
   }
-  return function tabledRowSorter(rows, columns, sortOrder, sortDirection) {
+  return function tableRowSorter(rows, columns, sortOrder, sortDirection) {
     if (!sortOrder.length) {
       return rows;
     }
@@ -290,7 +290,7 @@ angular.module('andyperlitch.ngTabled', [])
   };
 })
 
-.controller('TabledController', ['$scope','tabledFormatFunctions','tabledSortFunctions','tabledFilterFunctions','$log', function($scope, formats, sorts, filters, $log) {
+.controller('TableController', ['$scope','tableFormatFunctions','tableSortFunctions','tableFilterFunctions','$log', function($scope, formats, sorts, filters, $log) {
 
   // SCOPE FUNCTIONS
   $scope.addSort = function(id, dir) {
@@ -411,12 +411,12 @@ angular.module('andyperlitch.ngTabled', [])
   if ($scope.columns instanceof Array) {
     $scope.setColumns($scope.columns);
   } else {
-    $log.warn('"columns" array not found in ngTabled scope!');
+    $log.warn('"columns" array not found in apTable scope!');
   }
 
   // Check for rows
   if ( !($scope.rows instanceof Array) ) {
-    $log.warn('"rows" array not found in ngTabled scope!'); 
+    $log.warn('"rows" array not found in apTable scope!'); 
   }
 
   // Object that holds search terms
@@ -428,9 +428,9 @@ angular.module('andyperlitch.ngTabled', [])
 
 }])
 
-.directive('ngTabled', function () {
+.directive('apTable', function () {
   return {
-    // templateUrl: 'views/ng-tabled.html',
+    // templateUrl: 'views/ap-table.html',
     template:  '<table class="{{classes}}">' +
                   '<thead>' +
                     '<tr>' +
@@ -447,9 +447,9 @@ angular.module('andyperlitch.ngTabled', [])
                     '</tr>' +
                   '</thead>' +
                   '<tbody>' +
-                    '<tr ng-repeat="row in rows | tabledRowFilter:columns:searchTerms | tabledRowSorter:columns:sortOrder:sortDirection ">' +
+                    '<tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection ">' +
                       '<td ng-repeat="column in columns" >' +
-                        '{{ row | tabledCellFilter:column }}' +
+                        '{{ row | tableCellFilter:column }}' +
                       '</td>' +
                     '</tr>' +
                   '</tbody>' +
@@ -461,6 +461,6 @@ angular.module('andyperlitch.ngTabled', [])
       rows: '=',
       classes: '@class'
     },
-    controller: 'TabledController'
+    controller: 'TableController'
   };
 });

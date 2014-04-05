@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('andyperlitch.ngTabled.ghPage')
+angular.module('andyperlitch.apTable.ghPage')
   .controller('MainCtrl', function ($scope) {
 
     // Format functions
