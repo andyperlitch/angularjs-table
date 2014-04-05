@@ -49,4 +49,24 @@ describe('Filter: tabledRowSorter', function() {
 
   });
 
+  it('should sort descending by a column whose "sorting" field is "-"', function() {
+    
+    sortOrder = ['key1'];
+    sortDirection = {key1:'-'};
+
+    var result = sorter(rows,columns,sortOrder,sortDirection);
+    var idxs = result.map(function(r){ return r.index; });
+    expect(idxs).to.eql([0,1,3,2]);
+
+  });
+
+  it('should ignore sort columns in sortOrder that do not exist', function() {
+    sortOrder = ['not_a_column','key1'];
+    sortDirection = {key1:'-'};
+
+    var result = sorter(rows,columns,sortOrder,sortDirection);
+    var idxs = result.map(function(r){ return r.index; });
+    expect(idxs).to.eql([0,1,3,2]);
+  });
+
 });

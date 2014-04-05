@@ -411,7 +411,12 @@ angular.module('andyperlitch.ngTabled', [])
   if ($scope.columns instanceof Array) {
     $scope.setColumns($scope.columns);
   } else {
-    $log.warn('"columns" object not found in ngTabled scope!');
+    $log.warn('"columns" array not found in ngTabled scope!');
+  }
+
+  // Check for rows
+  if ( !($scope.rows instanceof Array) ) {
+    $log.warn('"rows" array not found in ngTabled scope!'); 
   }
 
   // Object that holds search terms

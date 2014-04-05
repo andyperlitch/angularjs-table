@@ -1,12 +1,71 @@
 describe('Controller: TabledController', function() {
 
-  var $scope;
+  var sandbox, $scope, mockTabledFormatFunctions, mockTabledSortFunctions, mockTabledFilterFunctions, mockLog;
 
   beforeEach(module('andyperlitch.ngTabled'));
 
   beforeEach(inject(function($rootScope, $controller){
+    sandbox = sinon.sandbox.create();
     $scope = $rootScope.$new();
-    $controller('TabledController', {$scope: $scope})
+    $scope.columns = [];
+    $scope.rows = [];
+    mockTabledFormatFunctions = {
+      test: sandbox.spy(function(value) {
+        return value.toString().toUpperCase();
+      })
+    };
+    mockTabledSortFunctions = {
+      test: sandbox.spy(function(key) {
+        return function(a,b) {
+          return a[key] - b[key];
+        }
+      })
+    };
+    mockTabledFilterFunctions = {
+      test: sandbox.spy(function(searchTerm, value) {
+        return value.indexOf(searchTerm) !== -1;
+      })
+    };
+    mockLog = {
+      warn: sandbox.spy()
+    };
+    $controller('TabledController', {
+      $scope: $scope,
+      tabledFormatFunctions: mockTabledFormatFunctions,
+      tabledSortFunctions: mockTabledSortFunctions,
+      tabledFilterFunctions: mockTabledFilterFunctions,
+      $log: mockLog
+    })
+  }));
+
+  afterEach(function() {
+      sandbox.restore();
+  });
+
+  it('should call warn if no columns array was found on the scope', inject(function($rootScope, $controller) {
+    var $scope2 = $rootScope.$new();
+    $scope2.rows = [];
+    $controller('TabledController', {
+      $scope: $scope2,
+      tabledFormatFunctions: mockTabledFormatFunctions,
+      tabledSortFunctions: mockTabledSortFunctions,
+      tabledFilterFunctions: mockTabledFilterFunctions,
+      $log: mockLog
+    });
+    expect(mockLog.warn).to.have.been.calledOnce;
+  }));
+
+  it('should call warn if no rows array was found on the scope', inject(function($rootScope, $controller) {
+    var $scope2 = $rootScope.$new();
+    $scope2.columns = [];
+    $controller('TabledController', {
+      $scope: $scope2,
+      tabledFormatFunctions: mockTabledFormatFunctions,
+      tabledSortFunctions: mockTabledSortFunctions,
+      tabledFilterFunctions: mockTabledFilterFunctions,
+      $log: mockLog
+    });
+    expect(mockLog.warn).to.have.been.calledOnce;
   }));
 
   it('should attach a searchTerms object to the scope', function() {
@@ -19,6 +78,59 @@ describe('Controller: TabledController', function() {
 
   it('should attach a sortDirection object to the scope', function() {
     expect($scope.sortDirection).to.be.an('object');
+  });
+  
+  describe('method: addSort', function() {
+
+    it('should add the column id to $scope.sortOrder and sort direction to $scope.sortDirection', function() {
+      $scope.addSort('myId', '+');
+      expect($scope.sortOrder).to.contain('myId');
+      expect($scope.sortDirection.myId).to.equal('+');
+    });
+
+    it('should only add the direction to sortDirection if it already exists in the sortOrder array', function() {
+      $scope.sortOrder = ['myId'];
+      $scope.sortDirection.myId = '+';
+      $scope.addSort('myId', '-');
+      expect($scope.sortDirection.myId).to.equal('-');
+    });
+
+    it('should add the id to the end of the sortOrder array', function() {
+      $scope.sortOrder = ['otherId'];
+      $scope.addSort('myId', '+');
+      expect($scope.sortOrder).to.eql(['otherId', 'myId'])
+    });
+
+  });
+  
+  describe('method: removeSort', function() {
+
+    it('should remove the id from the sortOrder array and delete it from sortDirection', function() {
+      $scope.sortOrder = ['myId'];
+      $scope.sortDirection.myId = '+'
+      $scope.removeSort('myId');
+      expect($scope.sortOrder).not.to.contain('myId');
+      expect($scope.sortDirection.myId).to.be.undefined;
+    });
+
+    it('should only delete the sortDirection key if nothing is found in sortOrder', function() {
+      $scope.sortDirection.myId = '+'
+      $scope.removeSort('myId');
+      expect($scope.sortDirection.myId).to.be.undefined;
+    });
+
+  });
+  
+  describe('method: clearSort', function() {
+
+    it('should clear sortOrder and sortDirection', function() {
+      $scope.sortOrder = ['testing'];
+      $scope.sortDirection = {'testing': '+'};
+      $scope.clearSort();
+      expect($scope.sortOrder).to.eql([]);
+      expect($scope.sortDirection).to.eql({});
+    });
+
   });
 
   describe('method: hasFilterFields', function() {
@@ -190,6 +302,36 @@ describe('Controller: TabledController', function() {
     it('should be a function', function() {
       expect(fn).to.be.a('function');
     });
+
+    it('should set the passed columns as $scope.columns', function() {
+      var columns = [];
+      $scope.setColumns(columns);
+      expect($scope.columns).to.equal(columns);
+    });
+
+    it('should replace all filter, format, and sort strings on each column with the built-in functions', function() {
+      var col;
+      var columns = [
+        col = { id: 'k1', key: 'k1', sort: 'test', filter: 'test', format: 'test'}
+      ];
+      $scope.setColumns(columns);
+      expect(col.sort).to.be.a('function');
+      expect(col.filter).to.equal(mockTabledFilterFunctions.test);
+      expect(col.format).to.equal(mockTabledFormatFunctions.test);
+    });
+
+    it('should delete references to invalid built-in functions and call $log.warn', function() {
+      var col;
+      var columns = [
+        col = { id: 'k1', key: 'k1', sort: 'not_a_real_fn', filter: 'not_a_real_fn', format: 'not_a_real_fn'}
+      ];
+      $scope.setColumns(columns);
+      expect(mockLog.warn).to.have.been.calledThrice;
+      expect(col.sort).to.be.undefined;
+      expect(col.filter).to.be.undefined;
+      expect(col.format).to.be.undefined;
+    });
+
   });
 
 });
