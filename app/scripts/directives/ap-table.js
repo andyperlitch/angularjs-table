@@ -399,6 +399,10 @@ angular.module('andyperlitch.apTable', [])
     });
   };
 
+  $scope.startColumnResize = function() {
+    
+  };
+
   // Set configuration options
   $scope.options = {
     sort_classes: [
@@ -437,7 +441,7 @@ angular.module('andyperlitch.apTable', [])
                       '<th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" class="{{ column.sort ? \'sortable-column\' : \'\'}}">' +
                         '{{column.label || column.id}}' +
                         '<span ng-if="column.sort" class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>' +
-                        '<div class="column-resizer"></div>' +
+                        // '<span class="column-resizer" ng-mousedown="startColumnResize($event)">&nbsp;</span>' +
                       '</th>' +
                     '</tr>' +
                     '<tr ng-if="hasFilterFields()">' +
@@ -461,6 +465,9 @@ angular.module('andyperlitch.apTable', [])
       rows: '=',
       classes: '@class'
     },
-    controller: 'TableController'
+    controller: 'TableController',
+    link: function(scope, element, attrs) {
+      scope.$watch('rows');
+    }
   };
 });

@@ -2,11 +2,36 @@ table {
   table-layout: fixed;
 }
 
+table th, table td {
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+table th {
+  position: relative;
+}
+
 table th input {
   max-width: 100%;
   border-radius: 5px;
   border: 1px solid #CCC;
   outline: none;
+}
+
+table th .column-resizer {
+  position: absolute;
+  right:0;
+  width:5px;
+  height:100%;
+  background-color:#DEDEDE;
+  cursor:col-resize;
+}
+
+table th .column-resizer-marquee {
+  left: 0;
+  top: 0;
+  height: 100%;
+  border: 1px dotted #DEDEDE;
 }
 
 table th span.sorting-icon {

@@ -6,9 +6,11 @@ describe('Directive: apTable', function () {
   beforeEach(module('andyperlitch.apTable'));
 
   var element,
-  scope;
+  scope,
+  compile,
+  genRows;
 
-  beforeEach(inject(function ($rootScope) {
+  beforeEach(inject(function ($compile, $rootScope) {
     // Format functions
     function inches2feet(inches, model){
       var feet = Math.floor(inches/12);
@@ -22,7 +24,7 @@ describe('Directive: apTable', function () {
     }
 
     // Random data generator
-    function genRows(num){
+    genRows = function(num){
       var retVal = [];
       for (var i=0; i < num; i++) {
         retVal.push(genRow(i));
@@ -50,6 +52,7 @@ describe('Directive: apTable', function () {
     }
     
     scope = $rootScope.$new();
+    compile = $compile;
 
     // Table columns
     scope.my_table_columns = [
@@ -65,13 +68,27 @@ describe('Directive: apTable', function () {
     // Table data
     scope.my_table_data = genRows(30);
 
+    element = angular.element('<ap-table columns="my_table_columns" rows="my_table_data" class="table"></ap-table>');
+    element = compile(element)(scope);
+    scope.$digest();
   }));
 
-  it('should create a table', inject(['$compile', '$rootScope', function ($compile) {
-    element = angular.element('<ap-table columns="my_table_columns" rows="my_table_data" class="table"></ap-table>');
-    element = $compile(element)(scope);
-    scope.$digest();
+  it('should create a table', function () {
     expect(element.find('table').length).to.equal(1);
-  }]));
+  });
+
+  it('should display the data passed to it', function () {
+    var expected = scope.my_table_data[0].first_name;
+    var actual = element.find('table').find('tbody').find('tr').find('td')[2].innerHTML;
+    expect(actual).to.equal(expected);
+  });
+
+  it('should update displayed values when data has been updated', function() {
+    scope.my_table_data = genRows(30);
+    scope.$apply();
+    var expected = scope.my_table_data[0].first_name;
+    var actual = element.find('table').find('tbody').find('tr').find('td')[2].innerHTML;
+    expect(actual).to.equal(expected);
+  });
 
 });
