@@ -1,8 +1,6 @@
 'use strict';
 
 angular.module('andyperlitch.apTable.ghPage', [
-  'ngCookies',
-  'ngResource',
   'ngSanitize',
   'ngRoute',
   'andyperlitch.apTable'

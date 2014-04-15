@@ -45,6 +45,10 @@ module.exports = function (grunt) {
       gruntfile: {
         files: ['Gruntfile.js']
       },
+      html2js: {
+        files: ['<%= yeoman.app %>/scripts/directives/*.tpl.html'],
+        tasks: ['html2js:development']
+      },
       livereload: {
         options: {
           livereload: '<%= connect.options.livereload %>'
@@ -55,6 +59,19 @@ module.exports = function (grunt) {
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
+    },
+
+    html2js: {
+      options: {
+        base: '<%= yeoman.app %>'
+      },
+      development: {
+        options: {
+          module: 'ap-table-templates'
+        },
+        src: ['<%= yeoman.app %>/**/*.tpl.html'],
+        dest: '.tmp/scripts/templates.js'
+      },
     },
 
     // The actual grunt server settings
@@ -169,10 +186,6 @@ module.exports = function (grunt) {
         ignorePath: '<%= yeoman.app %>/'
       }
     },
-
-
-
-
 
     // Renames files for browser caching purposes
     rev: {
@@ -374,11 +387,22 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
+      // clears out .tmp folder
       'clean:server',
-      'bower-install',
-      'concurrent:server',
+
+      // Copies styles from <app>/styles into .tmp/styles
+      'copy:styles',
+
+      // Adds browser prefixes to CSS3 properties
       'autoprefixer',
+
+      // Convert templates to js
+      'html2js:development',
+
+      // Serves from .tmp and <app>
       'connect:livereload',
+
+      // Watches for changes, runs tasks based on changes
       'watch'
     ]);
   });

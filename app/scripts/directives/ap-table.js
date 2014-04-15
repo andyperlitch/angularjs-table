@@ -1,6 +1,8 @@
 'use strict';
 
-angular.module('andyperlitch.apTable', [])
+angular.module('andyperlitch.apTable', [
+  'ap-table-templates'
+])
 
 .service('tableFilterFunctions', function() {
 
@@ -435,29 +437,7 @@ angular.module('andyperlitch.apTable', [])
 .directive('apTable', function () {
   return {
     // templateUrl: 'views/ap-table.html',
-    template:  '<table class="{{classes}}">' +
-                  '<thead>' +
-                    '<tr>' +
-                      '<th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" class="{{ column.sort ? \'sortable-column\' : \'\'}}">' +
-                        '{{column.label || column.id}}' +
-                        '<span ng-if="column.sort" class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>' +
-                        // '<span class="column-resizer" ng-mousedown="startColumnResize($event)">&nbsp;</span>' +
-                      '</th>' +
-                    '</tr>' +
-                    '<tr ng-if="hasFilterFields()">' +
-                      '<th ng-repeat="column in columns">' +
-                        '<input type="search" ng-if="(column.filter)" ng-model="searchTerms[column.id]">' +
-                      '</th>' +
-                    '</tr>' +
-                  '</thead>' +
-                  '<tbody>' +
-                    '<tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection ">' +
-                      '<td ng-repeat="column in columns" >' +
-                        '{{ row | tableCellFilter:column }}' +
-                      '</td>' +
-                    '</tr>' +
-                  '</tbody>' +
-                '</table>',
+    templateUrl: 'scripts/directives/ap-table.tpl.html',
     restrict: 'E',
 
     scope: {
