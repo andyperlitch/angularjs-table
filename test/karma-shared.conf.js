@@ -1,3 +1,11 @@
+var path = require('path');
+var fs = require('fs');
+var index = fs.readFileSync(path.normalize(__dirname + '/../app/index.html'), 'utf8');
+var re = /src="bower_components[^"]+"/g;
+var bower_scripts = index.match(re).map(function(src) {
+  return src.replace('src="','app/').replace('"','');
+});
+
 module.exports = function() {
   return {
     basePath: '../',
@@ -19,10 +27,7 @@ module.exports = function() {
     singleRun: false,
     colors: true,
     
-    files : [
-      //3rd Party Code
-      'app/bower_components/angular/angular.js',
-      'app/bower_components/angular-route/angular-route.js',
+    files : bower_scripts.concat([
 
       //App-specific Code
       'app/scripts/directives/ap-table.js',
@@ -34,6 +39,6 @@ module.exports = function() {
       'node_modules/sinon/pkg/sinon.js',
       'test/lib/chai-should.js',
       'test/lib/chai-expect.js'
-    ]
+    ])
   }
 };

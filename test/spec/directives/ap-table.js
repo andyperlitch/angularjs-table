@@ -79,7 +79,8 @@ describe('Directive: apTable', function () {
 
   it('should display the data passed to it', function () {
     var expected = scope.my_table_data[0].first_name;
-    var actual = element.find('table').find('tbody').find('tr').find('td')[2].innerHTML;
+    var actual = element.find('table tbody tr:eq(0) td:eq(2)').text();
+    actual = $.trim(actual);
     expect(actual).to.equal(expected);
   });
 
@@ -87,7 +88,8 @@ describe('Directive: apTable', function () {
     scope.my_table_data = genRows(30);
     scope.$apply();
     var expected = scope.my_table_data[0].first_name;
-    var actual = element.find('table').find('tbody').find('tr').find('td')[2].innerHTML;
+    var actual = element.find('table tbody tr:eq(0) td:eq(2)').text();
+    actual = $.trim(actual);
     expect(actual).to.equal(expected);
   });
 
