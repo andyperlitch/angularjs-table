@@ -384,14 +384,14 @@ angular.module('andyperlitch.apTable', [
         }
         if (typeof attr === 'string') {
           if (typeof builtins[attr] === 'function') {
-            column[key] = key === 'sort' ? builtins[attr](column.key) : builtins[attr];  
+            column[key] = key === 'sort' ? builtins[attr](column.key) : builtins[attr];
           }
           else {
             delete column[key];
             $log.warn(key + ' function reference in column(id=' + column.id + ') ' +
                   'was not found in built-in ' + key + ' functions. ' +
                   key + ' function given: "' + attr + '". ' +
-                  'Available built-ins: ' + Object.keys(builtins).join(','));  
+                  'Available built-ins: ' + Object.keys(builtins).join(','));
           }
           
         } else {
@@ -422,7 +422,7 @@ angular.module('andyperlitch.apTable', [
 
   // Check for rows
   if ( !($scope.rows instanceof Array) ) {
-    $log.warn('"rows" array not found in apTable scope!'); 
+    $log.warn('"rows" array not found in apTable scope!');
   }
 
   // Object that holds search terms
@@ -436,10 +436,8 @@ angular.module('andyperlitch.apTable', [
 
 .directive('apTable', function () {
   return {
-    // templateUrl: 'views/ap-table.html',
     templateUrl: 'scripts/directives/ap-table.tpl.html',
     restrict: 'E',
-
     scope: {
       columns: '=',
       rows: '=',
