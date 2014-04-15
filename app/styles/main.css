@@ -20,11 +20,13 @@ table th input {
 
 table th .column-resizer {
   position: absolute;
-  right:0;
-  width:5px;
-  height:100%;
-  background-color:#DEDEDE;
-  cursor:col-resize;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  border-width: 0 1px;
+  cursor: col-resize;
+  border-color: #DDD;
+  border-style: solid;
 }
 
 table th .column-resizer-marquee {

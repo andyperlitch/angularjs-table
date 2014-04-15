@@ -11,13 +11,29 @@ module.exports = function(config) {
     // 'test/mocha.conf.js',
 
     //test files
-    './test/spec/**/*.js'
+    './test/spec/**/*.js',
+
+    // template files
+    'app/scripts/directives/*.tpl.html'
   ]);
 
-  // here we specify which of the files we want to appear in the coverage report
+  
   conf.preprocessors = {
-      'app/scripts/directives/ap-table.js': ['coverage']
+    // which html templates to be converted to js
+    'app/scripts/directives/ap-table.tpl.html': ['ng-html2js'],
+    // files we want to appear in the coverage report
+    'app/scripts/directives/ap-table.js': ['coverage']
   };
+
+  conf.ngHtml2JsPreprocessor = {
+    // strip this from the file path
+    stripPrefix: 'app/',
+
+    // setting this option will create only a single module that contains templates
+    // from all the files, so you can load them all with module('foo')
+    moduleName: 'ap-table-templates'
+  }
+
 
   config.set(conf);
 };
