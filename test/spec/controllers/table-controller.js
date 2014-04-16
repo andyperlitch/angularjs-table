@@ -1,3 +1,4 @@
+'use strict';
 describe('Controller: TableController', function() {
 
   var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog;
@@ -18,7 +19,7 @@ describe('Controller: TableController', function() {
       test: sandbox.spy(function(key) {
         return function(a,b) {
           return a[key] - b[key];
-        }
+        };
       })
     };
     mockTableFilterFunctions = {
@@ -35,11 +36,11 @@ describe('Controller: TableController', function() {
       tableSortFunctions: mockTableSortFunctions,
       tableFilterFunctions: mockTableFilterFunctions,
       $log: mockLog
-    })
+    });
   }));
 
   afterEach(function() {
-      sandbox.restore();
+    sandbox.restore();
   });
 
   it('should call warn if no columns array was found on the scope', inject(function($rootScope, $controller) {
@@ -333,5 +334,9 @@ describe('Controller: TableController', function() {
     });
 
   });
+
+  // describe('method: ', function() {
+      
+  // });
 
 });

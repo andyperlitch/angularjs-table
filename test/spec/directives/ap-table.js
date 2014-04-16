@@ -12,12 +12,12 @@ describe('Directive: apTable', function () {
 
   beforeEach(inject(function ($compile, $rootScope) {
     // Format functions
-    function inches2feet(inches, model){
+    function inches2feet(inches){
       var feet = Math.floor(inches/12);
       inches = inches % 12;
       return feet + '\'' + inches + '"';
     }
-    function feet_filter(term, value, formatted, model) {
+    function feet_filter(term, value) {
       if (term === 'tall') { return value > 70; }
       if (term === 'short') { return value < 69; }
       return true;
@@ -30,7 +30,7 @@ describe('Directive: apTable', function () {
         retVal.push(genRow(i));
       }
       return retVal;
-    }
+    };
     function genRow(id){
 
       var fnames = ['joe','fred','frank','jim','mike','gary','aziz'];
@@ -56,8 +56,8 @@ describe('Directive: apTable', function () {
 
     // Table columns
     scope.my_table_columns = [
-      { id: 'selector', key: 'selected', label: '', select: true, width: 30, lock_width: true },
-      { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
+      { id: 'selector', key: 'selected', label: '', select: true, width: '30px', lock_width: true },
+      { id: 'ID', key: 'id', sort: 'number', filter: 'number' },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like',  },
       { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like',  },
       { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' },
@@ -91,6 +91,37 @@ describe('Directive: apTable', function () {
     var actual = element.find('table tbody tr:eq(0) td:eq(2)').text();
     actual = $.trim(actual);
     expect(actual).to.equal(expected);
+  });
+
+  describe('column header', function() {
+    
+    it('should have a .column-resizer element if lock_width is not set', function() {
+      expect(element.find('table th:eq(1) .column-resizer').length).to.equal(1);
+    });
+
+    it('should not have a .column-resizer element if lock_width is set to true', function() {
+      expect(element.find('table th:eq(0) .column-resizer').length).to.equal(0);
+    });
+
+    it('should set the style to column.width if supplied in column definition', function() {
+      expect(element.find('table th:eq(0)').css('width')).to.equal(scope.my_table_columns[0].width);
+    });
+
+    it('should display column.id if column.label is not specified', function() {
+      var actual = $.trim(element.find('table th:eq(1) .column-text').text());
+      expect(actual).to.equal(scope.my_table_columns[1].id);
+    });
+
+    it('should display column.label if it is present', function() {
+      var actual = $.trim(element.find('table th:eq(2) .column-text').text());
+      expect(actual).to.equal(scope.my_table_columns[2].label);
+    });
+
+    it('should display column.label if it is present, even if it is a falsey value', function() {
+      var actual = $.trim(element.find('table th:eq(0) .column-text').text());
+      expect(actual).to.equal(scope.my_table_columns[0].label);
+    });
+
   });
 
 });

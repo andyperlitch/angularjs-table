@@ -2,7 +2,11 @@ table {
   table-layout: fixed;
 }
 
-table th, table td {
+table th {
+  white-space: nowrap;
+}
+
+table td {
   word-wrap: break-word;
   overflow: hidden;
 }
@@ -34,6 +38,7 @@ table th .column-resizer-marquee {
   top: 0;
   height: 100%;
   border: 1px dotted #DEDEDE;
+  position: absolute;
 }
 
 table th span.sorting-icon {

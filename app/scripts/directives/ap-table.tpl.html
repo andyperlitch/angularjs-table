@@ -1,10 +1,12 @@
 <table class="{{classes}}">
   <thead>
     <tr>
-      <th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" class="{{ column.sort ? 'sortable-column' : ''}}">
-        {{column.label || column.id}}
-        <span ng-if="column.sort" class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>
-        <span class="column-resizer" ng-mousedown="startColumnResize($event)">&nbsp;</span>
+      <th scope="col" ng-repeat="column in columns" ng-click="toggleSort($event,column)" ng-class="{'sortable-column' : column.sort}" ng-style="{ width: column.width }">
+        <span class="column-text">
+          {{column.hasOwnProperty('label') ? column.label : column.id }}
+          <span ng-if="column.sort" class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>
+        </span>
+        <span ng-if="!column.lock_width" class="column-resizer" ng-mousedown="startColumnResize($event, column)">&nbsp;</span>
       </th>
     </tr>
     <tr ng-if="hasFilterFields()">

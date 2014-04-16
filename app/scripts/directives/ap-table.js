@@ -292,7 +292,9 @@ angular.module('andyperlitch.apTable', [
   };
 })
 
-.controller('TableController', ['$scope','tableFormatFunctions','tableSortFunctions','tableFilterFunctions','$log', function($scope, formats, sorts, filters, $log) {
+.controller(
+  'TableController',
+  ['$scope','tableFormatFunctions','tableSortFunctions','tableFilterFunctions','$log', '$window', function($scope, formats, sorts, filters, $log, $window) {
 
   // SCOPE FUNCTIONS
   $scope.addSort = function(id, dir) {
@@ -401,8 +403,57 @@ angular.module('andyperlitch.apTable', [
     });
   };
 
-  $scope.startColumnResize = function() {
+  $scope.startColumnResize = function($event, column) {
+
+    // Stop default so text does not get selected
+    $event.preventDefault();
+    $event.originalEvent.preventDefault();
     
+    // init variable for new width
+    var new_width;
+    
+    // store initial mouse position
+    var initial_x = $event.pageX;
+    
+    // create marquee element
+    var $m = $('<div class="column-resizer-marquee"></div>');
+
+    // append to th
+    var $th = $($event.target).parent('th');
+    $th.append($m);
+
+    // set initial marquee dimensions
+    var initial_width = $th.outerWidth();
+
+    function mousemove(e) {
+      // calculate changed width
+      var current_x = e.pageX;
+      var diff = current_x - initial_x;
+      new_width = initial_width + diff;
+      
+      // update marquee dimensions
+      $m.css('width', new_width + 'px');
+    }
+
+    $m.css({
+      width: initial_width + 'px',
+      height: $th.outerHeight() + 'px'
+    });
+
+    // set mousemove listener
+    $(window).on('mousemove', mousemove);
+
+    // set mouseup/mouseout listeners
+    $(window).one('mouseup', function(e) {
+      e.stopPropagation();
+      // remove marquee, remove window mousemove listener
+      $m.remove();
+      $(window).off('mousemove', mousemove);
+      
+      // set new width on th
+      column.width = new_width + 'px';
+      $scope.$apply();
+    });
   };
 
   // Set configuration options
