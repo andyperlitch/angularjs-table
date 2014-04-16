@@ -24,6 +24,7 @@ table th input {
 
 table th .column-resizer {
   position: absolute;
+  top:0;
   right: 0;
   width: 5px;
   height: 100%;
