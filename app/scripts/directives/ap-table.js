@@ -453,6 +453,10 @@ angular.module('andyperlitch.apTable', [
       // set new width on th
       column.width = new_width + 'px';
       $scope.$apply();
+
+      console.log($.map($th.parent().find('th'), function(e) {
+        return $(e).attr('style') || 'no';
+      }));
     });
   };
 

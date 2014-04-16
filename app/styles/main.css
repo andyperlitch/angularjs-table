@@ -1,18 +1,15 @@
-table {
+table.table {
   table-layout: fixed;
 }
 
 table th {
   white-space: nowrap;
+  position: relative;
 }
 
 table td {
   word-wrap: break-word;
   overflow: hidden;
-}
-
-table th {
-  position: relative;
 }
 
 table th input {
@@ -32,6 +29,12 @@ table th .column-resizer {
   cursor: col-resize;
   border-color: #DDD;
   border-style: solid;
+}
+
+table th .column-text {
+  max-width: 100%;
+  overflow: hidden;
+  display: block;
 }
 
 table th .column-resizer-marquee {
