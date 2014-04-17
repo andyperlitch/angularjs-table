@@ -419,6 +419,7 @@ angular.module('andyperlitch.apTable', [
     // Stop default so text does not get selected
     $event.preventDefault();
     $event.originalEvent.preventDefault();
+    $event.stopPropagation();
     
     // init variable for new width
     var new_width;
@@ -466,7 +467,7 @@ angular.module('andyperlitch.apTable', [
       if (!new_width) {
         delete column.width;
       } else {
-        column.width = new_width + 'px';  
+        column.width = new_width;
       }
       
       $scope.$apply();
@@ -479,6 +480,10 @@ angular.module('andyperlitch.apTable', [
         return c.width;
       }));
     });
+  };
+  $scope.sortableOptions = {
+    axis: 'x',
+    handle: '.column-text'
   };
 
   // Set configuration options
