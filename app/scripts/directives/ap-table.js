@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('andyperlitch.apTable', [
-  'ap-table-templates'
+  'ap-table-templates',
+  'ui.sortable'
 ])
 
 .service('tableFilterFunctions', function() {
