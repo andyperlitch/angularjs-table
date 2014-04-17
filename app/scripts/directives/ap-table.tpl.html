@@ -19,7 +19,7 @@
         </span>
         <span 
           ng-if="!column.lock_width"
-          class="column-resizer" 
+          ng-class="{'discreet-width': !!column.width, 'column-resizer': true}"
           title="Click and drag to set discreet width. Click once to clear discreet width."
           ng-mousedown="startColumnResize($event, column)"
         >

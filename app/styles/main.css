@@ -31,6 +31,10 @@ table th .column-resizer {
   border-style: solid;
 }
 
+table th .column-resizer.discreet-width {
+  background-color: #DDD;
+}
+
 table th .column-text {
   max-width: 100%;
   overflow: hidden;

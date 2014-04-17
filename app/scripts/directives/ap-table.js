@@ -462,11 +462,21 @@ angular.module('andyperlitch.apTable', [
       $($window).off('mousemove', mousemove);
       
       // set new width on th
-      column.width = new_width + 'px';
+      // if a new width was set
+      if (!new_width) {
+        delete column.width;
+      } else {
+        column.width = new_width + 'px';  
+      }
+      
       $scope.$apply();
 
       console.log($.map($th.parent().find('th'), function(e) {
-        return $(e).attr('style') || 'no';
+        return $(e).attr('style');
+      }));
+
+      console.log($.map($scope.columns, function(c){
+        return c.width;
       }));
     });
   };
