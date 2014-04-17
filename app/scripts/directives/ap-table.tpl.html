@@ -29,7 +29,13 @@
     </tr>
     <tr ng-if="hasFilterFields()">
       <th ng-repeat="column in columns">
-        <input type="search" ng-if="(column.filter)" ng-model="searchTerms[column.id]">
+        <input 
+          type="search"
+          ng-if="(column.filter)"
+          ng-model="searchTerms[column.id]"
+          ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"
+          ng-attr-title="{{ column.filter && column.filter.title }}"
+        >
       </th>
     </tr>
   </thead>

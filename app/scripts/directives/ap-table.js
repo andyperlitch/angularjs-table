@@ -32,9 +32,13 @@ angular.module('andyperlitch.apTable', [
 
     return value.indexOf(term) !== -1;
   }
+
   function likeFormatted(term, value, computedValue, row) {
     return like(term,computedValue,computedValue, row);
   }
+  like.placeholder = likeFormatted.placeholder = 'string search';
+  like.title = likeFormatted.title = 'Search by text, eg. "foo". Use "!" to exclude and "=" to match exact text, e.g. "!bar" or "=baz".';
+
   function number(term, value) {
     value = parseFloat(value);
     term = term.trim();
@@ -65,6 +69,10 @@ angular.module('andyperlitch.apTable', [
   function numberFormatted(term, value, computedValue) {
     return number(term, computedValue);
   }
+  number.placeholder = numberFormatted.placeholder = 'number search';
+  number.title = numberFormatted.title = 'Search by number, e.g. "123". Optionally use comparator expressions like ">=10" or "<1000". Use "~" for approx. int values, eg. "~3" will match "3.2"';
+
+
   var unitmap = {};
   unitmap.second = unitmap.sec = unitmap.s = 1000;
   unitmap.minute = unitmap.min = unitmap.m = unitmap.second * 60;
@@ -144,6 +152,8 @@ angular.module('andyperlitch.apTable', [
 
     return false;
   }
+  date.placeholder = 'date search';
+  date.title = 'Search by date. Enter a date string (RFC2822 or ISO 8601 date). You can also type "today", "yesterday", "> 2 days ago", "< 1 day 2 hours ago", etc.';
 
   return {
     like: like,
@@ -441,14 +451,14 @@ angular.module('andyperlitch.apTable', [
     });
 
     // set mousemove listener
-    $(window).on('mousemove', mousemove);
+    $($window).on('mousemove', mousemove);
 
     // set mouseup/mouseout listeners
-    $(window).one('mouseup', function(e) {
+    $($window).one('mouseup', function(e) {
       e.stopPropagation();
       // remove marquee, remove window mousemove listener
       $m.remove();
-      $(window).off('mousemove', mousemove);
+      $($window).off('mousemove', mousemove);
       
       // set new width on th
       column.width = new_width + 'px';
@@ -498,9 +508,6 @@ angular.module('andyperlitch.apTable', [
       rows: '=',
       classes: '@class'
     },
-    controller: 'TableController',
-    link: function(scope, element, attrs) {
-      scope.$watch('rows');
-    }
+    controller: 'TableController'
   };
 });

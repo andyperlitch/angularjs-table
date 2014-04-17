@@ -10,6 +10,8 @@ describe('Directive: apTable', function () {
   compile,
   genRows,
   columns,
+  filter_title,
+  filter_placeholder,
   data;
 
   beforeEach(inject(function ($compile, $rootScope) {
@@ -20,10 +22,12 @@ describe('Directive: apTable', function () {
       return feet + '\'' + inches + '"';
     }
     function feet_filter(term, value) {
-      if (term === 'tall') { return value > 70; }
+      if (term === 'tall') { return value >= 69; }
       if (term === 'short') { return value < 69; }
       return true;
     }
+    feet_filter.title = filter_title = 'Type in "short" or "tall"';
+    feet_filter.placeholder = filter_placeholder = '"short", "tall"';
 
     // Random data generator
     genRows = function(num){
@@ -61,7 +65,7 @@ describe('Directive: apTable', function () {
       { id: 'selector',   key: 'selected',   label: '',                                            select: true, width: '30px', lock_width: true },
       { id: 'ID',         key: 'id',                              sort: 'number', filter: 'number'                                               },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like',  title: 'First names are cool'                 },
-      { id: 'last_name',  key: 'last_name',  label: 'Last Name',  sort: 'string', filter: 'like',                                                },
+      { id: 'last_name',  key: 'last_name',  label: 'Last Name',  sort: 'string', filter: 'like',  filter_placeholder: 'last name'               },
       { id: 'age',        key: 'age',        label: 'Age',        sort: 'number', filter: 'number'                                               },
       { id: 'height',     key: 'height',     label: 'Height',     sort: 'number', filter: feet_filter, format: inches2feet                       },
       { id: 'weight',     key: 'weight',     label: 'Weight',     sort: 'number', filter: 'number'                                               }
@@ -127,6 +131,22 @@ describe('Directive: apTable', function () {
     it('should attach a title (tooltip) to <th>s where title was specified in column definition', function() {
       var actual = element.find('table th:eq(2)').attr('title');
       var expected = columns[2].title;
+      expect(actual).to.equal(expected);
+    });
+
+  });
+
+  describe('column filter', function() {
+    
+    it('should have a placeholder if specified as a property on the filter function', function() {
+      var actual = element.find('table tr:eq(1) th:eq(5) input').attr('placeholder');
+      var expected = filter_placeholder;
+      expect(actual).to.equal(expected);
+    });
+
+    it('should have a title if specified as a property on the filter function', function() {
+      var actual = element.find('table tr:eq(1) th:eq(5) input').attr('title');
+      var expected = filter_title;
       expect(actual).to.equal(expected);
     });
 

@@ -14,6 +14,7 @@ angular.module('andyperlitch.apTable.ghPage')
       if (term === 'short') { return value < 69; }
       return true;
     }
+    feet_filter.title = 'Type in "short" or "tall"';
 
     // Random data generator
     function genRows(num){
@@ -47,8 +48,8 @@ angular.module('andyperlitch.apTable.ghPage')
     $scope.my_table_columns = [
       { id: 'selector', key: 'selected', label: '', select: true, width: 30, lock_width: true },
       { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
-      { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like',  },
-      { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like',  },
+      { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like' },
+      { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like' },
       { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' },
       { id: 'height', key: 'height', label: 'Height', format: inches2feet, filter: feet_filter, sort: 'number' },
       { id: 'weight', key: 'weight', label: 'Weight', filter: 'number', sort: 'number' }
