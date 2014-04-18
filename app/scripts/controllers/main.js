@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('andyperlitch.apTable.ghPage')
-  .controller('MainCtrl', function ($scope) {
+  .controller('MainCtrl', function ($scope, HashKeyCopier) {
 
     // Format functions
     function inches2feet(inches, model){
@@ -46,7 +46,7 @@ angular.module('andyperlitch.apTable.ghPage')
         
     // Table columns
     $scope.my_table_columns = [
-      { id: 'selector', key: 'selected', label: '', select: true, width: 30, lock_width: true },
+      { id: 'selected', key: 'selected', label: '', width: 30, lock_width: true, format: 'selector' },
       { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like' },
       { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like' },
@@ -58,8 +58,13 @@ angular.module('andyperlitch.apTable.ghPage')
     // Table data
     $scope.my_table_data = genRows(30);
 
+
+    // Selected rows
+    $scope.my_selected_rows = {};
+
     setInterval(function() {
-      $scope.my_table_data = genRows(30);
+      $scope.my_table_data = HashKeyCopier.copyHashKeys( $scope.my_table_data, genRows(30) );
+      // $scope.my_table_data = genRows(30);
       $scope.$apply();
     }, 1000);
 
