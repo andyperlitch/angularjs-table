@@ -516,13 +516,14 @@ angular.module('andyperlitch.apTable', [
 }])
 
 .directive('apTable', function () {
+
   return {
     templateUrl: 'scripts/directives/ap-table.tpl.html',
     restrict: 'E',
     scope: {
       columns: '=',
       rows: '=',
-      classes: '@class'
+      classes: '@tableClass'
     },
     controller: 'TableController'
   };

@@ -1,25 +1,26 @@
-table.table {
+.ap-table {
   table-layout: fixed;
+  width: 100%;
 }
 
-table th {
+.ap-table th {
   white-space: nowrap;
   position: relative;
 }
 
-table td {
+.ap-table td {
   word-wrap: break-word;
   overflow: hidden;
 }
 
-table th input {
+.ap-table th input {
   max-width: 100%;
   border-radius: 5px;
   border: 1px solid #CCC;
   outline: none;
 }
 
-table th .column-resizer {
+.ap-table th .column-resizer {
   position: absolute;
   top:0;
   right: 0;
@@ -31,17 +32,17 @@ table th .column-resizer {
   border-style: solid;
 }
 
-table th .column-resizer.discreet-width {
+.ap-table th .column-resizer.discreet-width {
   background-color: #DDD;
 }
 
-table th .column-text {
+.ap-table th .column-text {
   max-width: 100%;
   overflow: hidden;
   display: block;
 }
 
-table th .column-resizer-marquee {
+.ap-table th .column-resizer-marquee {
   left: 0;
   top: 0;
   height: 100%;
@@ -49,17 +50,17 @@ table th .column-resizer-marquee {
   position: absolute;
 }
 
-table th span.sorting-icon {
+.ap-table th span.sorting-icon {
   font-size: 10px;
   margin-left: 10px;
 }
 
-table th span.glyphicon-sort {
+.ap-table th span.glyphicon-sort {
   opacity: 0.2;
 }
 
-table th.sortable-column {
-    
+.ap-table th.sortable-column {
+
   cursor: pointer;
   -moz-user-select: none;
   -moz-user-select: none;
