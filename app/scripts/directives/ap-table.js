@@ -540,12 +540,6 @@ angular.module('andyperlitch.apTable', [
 
 .directive('apTable', function () {
 
-  function postLink(scope, element, attrs) {
-    // if (typeof scope.selected !== 'object') {
-    //   scope.selected = {};
-    // }
-  }
-
   return {
     templateUrl: 'scripts/directives/ap-table.tpl.html',
     restrict: 'E',
@@ -555,7 +549,6 @@ angular.module('andyperlitch.apTable', [
       classes: '@tableClass',
       selected: '='
     },
-    controller: 'TableController',
-    link: postLink
+    controller: 'TableController'
   };
 });
