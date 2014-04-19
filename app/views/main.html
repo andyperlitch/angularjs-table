@@ -1,7 +1,12 @@
-{{my_selected_rows}}
+Selected rows: 
+
 <ap-table 
   columns="my_table_columns" 
   rows="my_table_data"
   selected="my_selected_rows"
+  class="col-sm-9"
   table-class="table">
 </ap-table>
+
+
+<pre class="col-sm-3">{{my_selected_rows | json}}</pre>

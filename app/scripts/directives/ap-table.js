@@ -168,7 +168,7 @@ angular.module('andyperlitch.apTable', [
 .service('tableFormatFunctions', function() {
 
   function selector(value, row) {
-    return '<input type="checkbox" ng-checked="selected[row[column.key]]" ng-click="selected[row[column.key]] = !selected[row[column.key]];" />';
+    return '<input type="checkbox" ng-checked="selected.indexOf(row) >= 0" ap-table-selector />';
   }
   selector.trustAsHtml = true;
 
@@ -513,9 +513,6 @@ angular.module('andyperlitch.apTable', [
   $scope.sortOrder = [];
   $scope.sortDirection = {};
 
-  // For selections
-  $scope.selections = {};
-
 }])
 
 .directive('dtDynamic', function ($compile) {
@@ -537,6 +534,32 @@ angular.module('andyperlitch.apTable', [
   };
 })
 
+.directive('apTableSelector', function() {
+  return {
+    restrict: 'A',
+    scope: false,
+    link: function postLink(scope, element, attrs) {
+      var selected = scope.selected;
+      var row = scope.row;
+      element.on('click', function() {
+
+        // Retrieve position in selected list
+        var idx = selected.indexOf(row);
+
+        // it is selected, deselect it:
+        if (idx >= 0) {
+          selected.splice(idx,1);
+        } 
+
+        // it is not selected, push to list
+        else { 
+          selected.push(row);
+        }
+        scope.$apply();
+      });
+    }
+  }
+})
 
 .directive('apTable', function () {
 
