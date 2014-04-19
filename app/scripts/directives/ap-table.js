@@ -2,7 +2,8 @@
 
 angular.module('andyperlitch.apTable', [
   'ap-table-templates',
-  'ui.sortable'
+  'ui.sortable',
+  'ngSanitize'
 ])
 
 .service('tableFilterFunctions', function() {
@@ -430,7 +431,7 @@ angular.module('andyperlitch.apTable', [
     $event.stopPropagation();
     
     // init variable for new width
-    var new_width;
+    var new_width = false;
     
     // store initial mouse position
     var initial_x = $event.pageX;
@@ -472,10 +473,10 @@ angular.module('andyperlitch.apTable', [
       
       // set new width on th
       // if a new width was set
-      if (!new_width) {
+      if (new_width === false) {
         delete column.width;
       } else {
-        column.width = new_width;
+        column.width = Math.max(new_width, 0);
       }
       
       $scope.$apply();
