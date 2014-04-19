@@ -479,14 +479,6 @@ angular.module('andyperlitch.apTable', [
       }
       
       $scope.$apply();
-
-      console.log($.map($th.parent().find('th'), function(e) {
-        return $(e).attr('style');
-      }));
-
-      console.log($.map($scope.columns, function(c){
-        return c.width;
-      }));
     });
   };
   $scope.sortableOptions = {
@@ -537,7 +529,6 @@ angular.module('andyperlitch.apTable', [
       selected: '='
     },
     link: function postLink(scope, element, attrs) {
-      console.log(typeof scope.selected);
       scope.$watch( 'dynamic' , function(html){
         element.html(html);
         $compile(element.contents())(scope);
