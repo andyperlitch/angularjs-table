@@ -166,7 +166,15 @@ angular.module('andyperlitch.apTable', [
 })
 
 .service('tableFormatFunctions', function() {
-  return {};
+
+  function selector(value, row) {
+    return '<input type="checkbox" ng-checked="selected[row[column.key]]" ng-click="selected[row[column.key]] = !selected[row[column.key]];" />';
+  }
+  selector.trustAsHtml = true;
+
+  return {
+    selector: selector
+  };
 })
 
 .service('tableSortFunctions', function() {
@@ -242,7 +250,7 @@ angular.module('andyperlitch.apTable', [
   };
 }])
 
-.filter('tableCellFilter', function() {
+.filter('tableCellFilter', ['$sce', '$sanitize', function($sce, $sanitize) {
   return function tableCellFilter(row, column) {
 
     // check if property is available on the row    
@@ -262,7 +270,7 @@ angular.module('andyperlitch.apTable', [
 
     return value;
   };
-})
+}])
 
 .filter('tableRowSorter', function() {
   var column_cache = {};
@@ -513,9 +521,39 @@ angular.module('andyperlitch.apTable', [
   $scope.sortOrder = [];
   $scope.sortDirection = {};
 
+  // For selections
+  $scope.selections = {};
+
 }])
 
+.directive('dtDynamic', function ($compile) {
+  return {
+    restrict: 'A',
+    replace: true,
+    scope: {
+      dynamic: '=dtDynamic',
+      row: '=',
+      column: '=',
+      selected: '='
+    },
+    link: function postLink(scope, element, attrs) {
+      console.log(typeof scope.selected);
+      scope.$watch( 'dynamic' , function(html){
+        element.html(html);
+        $compile(element.contents())(scope);
+      });
+    }
+  };
+})
+
+
 .directive('apTable', function () {
+
+  function postLink(scope, element, attrs) {
+    // if (typeof scope.selected !== 'object') {
+    //   scope.selected = {};
+    // }
+  }
 
   return {
     templateUrl: 'scripts/directives/ap-table.tpl.html',
@@ -523,8 +561,10 @@ angular.module('andyperlitch.apTable', [
     scope: {
       columns: '=',
       rows: '=',
-      classes: '@tableClass'
+      classes: '@tableClass',
+      selected: '='
     },
-    controller: 'TableController'
+    controller: 'TableController',
+    link: postLink
   };
 });

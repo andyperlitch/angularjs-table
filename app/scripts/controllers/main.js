@@ -46,7 +46,7 @@ angular.module('andyperlitch.apTable.ghPage')
         
     // Table columns
     $scope.my_table_columns = [
-      { id: 'selected', key: 'selected', label: '', width: 30, lock_width: true, format: 'selector' },
+      { id: 'selected', key: 'id', label: '', width: 30, lock_width: true, format: 'selector' },
       { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like' },
       { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like' },

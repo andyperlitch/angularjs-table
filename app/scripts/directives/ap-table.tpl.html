@@ -41,8 +41,9 @@
   </thead>
   <tbody>
     <tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection ">
-      <td ng-repeat="column in columns" >
-        {{ row | tableCellFilter:column }}
+      <td ng-repeat="column in columns">
+        <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>
+        <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>
       </td>
     </tr>
   </tbody>
