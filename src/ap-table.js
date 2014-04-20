@@ -565,7 +565,7 @@ angular.module('andyperlitch.apTable', [
 .directive('apTable', function () {
 
   return {
-    templateUrl: 'scripts/directives/ap-table.tpl.html',
+    templateUrl: 'src/ap-table.tpl.html',
     restrict: 'E',
     scope: {
       columns: '=',

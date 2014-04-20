@@ -88,7 +88,7 @@ module.exports = function (grunt) {
           base: [
             '.tmp',
             '<%= yeoman.app %>',
-            '<%= yeoman.src %>'
+            '.'
           ]
         }
       },
@@ -305,9 +305,9 @@ module.exports = function (grunt) {
       },
       styles: {
         expand: true,
-        cwd: '<%= yeoman.app %>/styles',
+        cwd: '<%= yeoman.src %>',
         dest: '.tmp/styles/',
-        src: '{,*/}*.css'
+        src: 'ap-table.css'
       }
     },
 
