@@ -22,13 +22,14 @@ module.exports = function (grunt) {
     yeoman: {
       // configurable paths
       app: require('./bower.json').appPath || 'app',
+      src: 'src',
       dist: 'dist'
     },
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
       js: {
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
+        files: ['<%= yeoman.app %>/scripts/{,*/}*.js', '<%= yeoman.src %>/*.js'],
         tasks: ['newer:jshint:all'],
         options: {
           livereload: true
@@ -39,14 +40,14 @@ module.exports = function (grunt) {
         tasks: ['newer:jshint:test', 'karma:unit']
       },
       styles: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
+        files: ['<%= yeoman.src %>/ap-table.css'],
         tasks: ['newer:copy:styles', 'autoprefixer']
       },
       gruntfile: {
         files: ['Gruntfile.js']
       },
       html2js: {
-        files: ['<%= yeoman.app %>/scripts/directives/*.tpl.html'],
+        files: ['<%= yeoman.src %>/*.tpl.html'],
         tasks: ['html2js:development']
       },
       livereload: {
@@ -69,7 +70,7 @@ module.exports = function (grunt) {
         options: {
           module: 'ap-table-templates'
         },
-        src: ['<%= yeoman.app %>/**/*.tpl.html'],
+        src: ['<%= yeoman.src %>/*.tpl.html'],
         dest: '.tmp/scripts/templates.js'
       },
     },
@@ -86,7 +87,8 @@ module.exports = function (grunt) {
         options: {
           base: [
             '.tmp',
-            '<%= yeoman.app %>'
+            '<%= yeoman.app %>',
+            '<%= yeoman.src %>'
           ]
         }
       },
