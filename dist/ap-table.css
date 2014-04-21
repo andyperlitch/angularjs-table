@@ -1,0 +1,72 @@
+.ap-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.ap-table th {
+  white-space: nowrap;
+  position: relative;
+}
+
+.ap-table td {
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.ap-table th input {
+  max-width: 100%;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  outline: none;
+}
+
+.ap-table th .column-resizer {
+  position: absolute;
+  top:0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  border-width: 0 1px;
+  cursor: col-resize;
+  border-color: #DDD;
+  border-style: solid;
+}
+
+.ap-table th .column-resizer.discreet-width {
+  background-color: #DDD;
+}
+
+.ap-table th .column-text {
+  max-width: 100%;
+  overflow: hidden;
+  display: block;
+}
+
+.ap-table th .column-resizer-marquee {
+  left: 0;
+  top: 0;
+  height: 100%;
+  border: 1px dotted #DEDEDE;
+  position: absolute;
+}
+
+.ap-table th span.sorting-icon {
+  font-size: 10px;
+  margin-left: 10px;
+}
+
+.ap-table th span.glyphicon-sort {
+  opacity: 0.2;
+}
+
+.ap-table th.sortable-column {
+
+  cursor: pointer;
+  -moz-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none
+}
