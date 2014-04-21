@@ -68,11 +68,19 @@ module.exports = function (grunt) {
       },
       development: {
         options: {
-          module: 'ap-table-templates'
+          module: 'andyperlitch.apTable.templates'
         },
         src: ['<%= yeoman.src %>/*.tpl.html'],
         dest: '.tmp/scripts/templates.js'
       },
+      dist: {
+        options: {
+          base: '.',
+          module: 'andyperlitch.apTable.templates'
+        },
+        src: ['<%= yeoman.src %>/*.tpl.html'],
+        dest: '<%= yeoman.dist %>/templates.js'
+      }
     },
 
     // The actual grunt server settings
@@ -162,7 +170,16 @@ module.exports = function (grunt) {
           ]
         }]
       },
-      server: '.tmp'
+      server: '.tmp',
+      templates: {
+        files: [{
+          dot: true,
+          src: [
+            '<%= yeoman.dist %>/templates.js',
+            '<%= yeoman.dist %>/*.tpl.html'
+          ]
+        }]
+      }
     },
 
     // Add vendor prefixed styles
@@ -173,9 +190,9 @@ module.exports = function (grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: '.tmp/styles/',
-          src: '{,*/}*.css',
-          dest: '.tmp/styles/'
+          cwd: '<%= yeoman.dist %>/',
+          src: 'ap-table.css',
+          dest: 'ap-table.css'
         }]
       }
     },
@@ -265,9 +282,9 @@ module.exports = function (grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: '.tmp/concat/scripts',
-          src: '*.js',
-          dest: '.tmp/concat/scripts'
+          cwd: '<%= yeoman.dist %>/',
+          src: 'ap-table.js',
+          dest: 'ap-table.js'
         }]
       }
     },
@@ -282,26 +299,10 @@ module.exports = function (grunt) {
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
-        files: [{
-          expand: true,
-          dot: true,
-          cwd: '<%= yeoman.app %>',
-          dest: '<%= yeoman.dist %>',
-          src: [
-            '*.{ico,png,txt}',
-            '.htaccess',
-            '*.html',
-            'views/{,*/}*.html',
-            'bower_components/**/*',
-            'images/{,*/}*.{webp}',
-            'fonts/*'
-          ]
-        }, {
-          expand: true,
-          cwd: '.tmp/images',
-          dest: '<%= yeoman.dist %>/images',
-          src: ['generated/*']
-        }]
+        expand: true,
+        cwd: '<%= yeoman.src %>',
+        dest: '<%= yeoman.dist %>/',
+        src: '*'
       },
       styles: {
         expand: true,
@@ -312,45 +313,47 @@ module.exports = function (grunt) {
     },
 
     // Run some tasks in parallel to speed up the build process
-    concurrent: {
-      server: [
-        'copy:styles'
-      ],
-      test: [
-        'copy:styles'
-      ],
-      dist: [
-        'copy:styles',
-        'imagemin',
-        'svgmin'
-      ]
-    },
+    // concurrent: {
+    //   server: [
+    //     'copy:styles'
+    //   ],
+    //   test: [
+    //     'copy:styles'
+    //   ],
+    //   dist: [
+    //     'copy:styles',
+    //     'imagemin',
+    //     'svgmin'
+    //   ]
+    // },
 
     // By default, your `index.html`'s <!-- Usemin block --> will take care of
     // minification. These next options are pre-configured if you do not wish
     // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css',
-    //         '<%= yeoman.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/scripts/scripts.js': [
-    //         '<%= yeoman.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
+    cssmin: {
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/ap-table.min.css': [
+            '<%= yeoman.dist %>/ap-table.css'
+          ]
+        }
+      }
+    },
+    uglify: {
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/ap-table.min.js': [
+            '<%= yeoman.dist %>/ap-table.js'
+          ]
+        }
+      }
+    },
+    concat: {
+      dist: {
+        src: ['<%= yeoman.dist %>/ap-table.js', '<%= yeoman.dist %>/templates.js'],
+        dest: '<%= yeoman.dist %>/ap-table.js'
+      }
+    },
 
     // Test settings
     karma: {
@@ -395,7 +398,7 @@ module.exports = function (grunt) {
       'copy:styles',
 
       // Adds browser prefixes to CSS3 properties
-      'autoprefixer',
+      // 'autoprefixer', // not for dev
 
       // Convert templates to js
       'html2js:development',
@@ -406,11 +409,6 @@ module.exports = function (grunt) {
       // Watches for changes, runs tasks based on changes
       'watch'
     ]);
-  });
-
-  grunt.registerTask('server', function () {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve']);
   });
 
   grunt.registerTask('test', ['connect:testserver','karma:unit','karma:midway', 'karma:e2e']);
@@ -425,20 +423,24 @@ module.exports = function (grunt) {
   grunt.registerTask('autotest:e2e', ['connect:testserver','karma:e2e_auto']);
 
   grunt.registerTask('build', [
+    // Clears out dist and .tmp folders
     'clean:dist',
-    'bower-install',
-    'useminPrepare',
-    'concurrent:dist',
-    'autoprefixer',
-    'concat',
-    'ngmin',
+    // copy css, js
     'copy:dist',
-    'cdnify',
-    'cssmin',
-    'uglify',
-    'rev',
-    'usemin',
-    'htmlmin'
+    // prefixer
+    'autoprefixer:dist',
+    // minify css
+    'cssmin:dist',
+    // html2js
+    'html2js:dist',
+    // concat files
+    'concat:dist',
+    // remove templates.js
+    'clean:templates',
+    // ngmin js
+    'ngmin:dist',
+    // minify
+    'uglify:dist'
   ]);
 
   grunt.registerTask('default', [
