@@ -39,8 +39,17 @@
       </th>
     </tr>
   </thead>
+  <tfoot>
+    <tr>
+      <td colspan="0"  ng-attr-colspan="{{ getActiveColCount() }}">
+        <label>row limit:</label> <input type="text" ng-model="options.rowLimit" value="{{ options.rowLimit }}">&nbsp;&nbsp;
+        <input type="radio" ng-model="options.pagingScheme" value="scroll"> <label>scroll</label>&nbsp;&nbsp;
+        <input type="radio" ng-model="options.pagingScheme" value="page"> <label>paginate</label>&nbsp;&nbsp;
+      </td>
+    </tr>
+  </tfoot>
   <tbody>
-    <tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection ">
+    <tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection | limitTo:options.rowLimit">
       <td ng-repeat="column in columns">
         <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>
         <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>

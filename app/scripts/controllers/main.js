@@ -62,6 +62,11 @@ angular.module('andyperlitch.apTable.ghPage')
     // Selected rows
     $scope.my_selected_rows = [];
 
+    // table options
+    $scope.my_table_options = {
+      rowLimit: 10
+    };
+
     setInterval(function() {
       $scope.my_table_data = HashKeyCopier.copyHashKeys( $scope.my_table_data, genRows(30) );
       // $scope.my_table_data = genRows(30);

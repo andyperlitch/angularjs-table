@@ -487,32 +487,15 @@ angular.module('andyperlitch.apTable', [
     handle: '.column-text'
   };
 
-  // Set configuration options
-  $scope.options = {
-    sort_classes: [
-      'glyphicon glyphicon-sort',
-      'glyphicon glyphicon-chevron-up',
-      'glyphicon glyphicon-chevron-down'
-    ]
-  };
-  // Look for built-in filter, sort, and format functions
-  if ($scope.columns instanceof Array) {
-    $scope.setColumns($scope.columns);
-  } else {
-    $log.warn('"columns" array not found in apTable scope!');
+  $scope.getActiveColCount = function() {
+    var count = 0;
+    $scope.columns.forEach(function(col) {
+      if (!col.disabled) {
+        count++;
+      }
+    });
+    return count;
   }
-
-  // Check for rows
-  if ( !($scope.rows instanceof Array) ) {
-    $log.warn('"rows" array not found in apTable scope!');
-  }
-
-  // Object that holds search terms
-  $scope.searchTerms = {};
-
-  // Array and Object for sort order+direction
-  $scope.sortOrder = [];
-  $scope.sortDirection = {};
 
 }])
 
@@ -564,6 +547,38 @@ angular.module('andyperlitch.apTable', [
 
 .directive('apTable', function () {
 
+  function link(scope, elem, attrs) {
+
+    // Look for built-in filter, sort, and format functions
+    if (scope.columns instanceof Array) {
+      scope.setColumns(scope.columns);
+    } else {
+      $log.warn('"columns" array not found in apTable scope!');
+    }
+
+    // Check for rows
+    if ( !(scope.rows instanceof Array) ) {
+      $log.warn('"rows" array not found in apTable scope!');
+    }
+
+    // Object that holds search terms
+    scope.searchTerms = {};
+
+    // Array and Object for sort order+direction
+    scope.sortOrder = [];
+    scope.sortDirection = {};
+
+    scope.options = angular.extend({}, {
+      rowLimit: 50,
+      pagingScheme: 'page',
+      sort_classes: [
+        'glyphicon glyphicon-sort',
+        'glyphicon glyphicon-chevron-up',
+        'glyphicon glyphicon-chevron-down'
+      ]
+    }, scope.options);
+  }
+
   return {
     templateUrl: 'src/ap-table.tpl.html',
     restrict: 'E',
@@ -571,8 +586,10 @@ angular.module('andyperlitch.apTable', [
       columns: '=',
       rows: '=',
       classes: '@tableClass',
-      selected: '='
+      selected: '=',
+      options: '=?'
     },
-    controller: 'TableController'
+    controller: 'TableController',
+    link: link
   };
 });
