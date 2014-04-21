@@ -169,8 +169,8 @@ angular.module('andyperlitch.apTable', [
 
 .service('tableFormatFunctions', function() {
 
-  function selector(value, row) {
-    return '<input type="checkbox" ng-checked="selected.indexOf(row) >= 0" ap-table-selector />';
+  function selector(value, row, column) {
+    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" ap-table-selector />';
   }
   selector.trustAsHtml = true;
 
@@ -541,10 +541,11 @@ angular.module('andyperlitch.apTable', [
     link: function postLink(scope, element, attrs) {
       var selected = scope.selected;
       var row = scope.row;
+      var column = scope.column;
       element.on('click', function() {
 
         // Retrieve position in selected list
-        var idx = selected.indexOf(row);
+        var idx = selected.indexOf(row[column.key]);
 
         // it is selected, deselect it:
         if (idx >= 0) {
@@ -553,7 +554,7 @@ angular.module('andyperlitch.apTable', [
 
         // it is not selected, push to list
         else { 
-          selected.push(row);
+          selected.push(row[column.key]);
         }
         scope.$apply();
       });
