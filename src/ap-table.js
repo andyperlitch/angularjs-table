@@ -496,7 +496,22 @@ angular.module('andyperlitch.apTable', [
       }
     });
     return count;
-  }
+  };
+
+  $scope.onScroll = function($event) {
+    if ($scope.options.pagingScheme !== 'scroll') return;
+    var distance = $event.wheelDeltaY / 120;
+    var curOffset, newOffset;
+    curOffset = newOffset = $scope.options.rowOffset;
+    newOffset -= distance;
+    newOffset = Math.max(newOffset, 0);
+    newOffset = Math.min($scope.rows.length - $scope.options.rowLimit, newOffset);
+    if (newOffset != curOffset) {
+      $event.preventDefault();
+      $event.stopPropagation();
+    }
+    $scope.options.rowOffset = newOffset;
+  };
 
 }])
 
@@ -572,7 +587,8 @@ angular.module('andyperlitch.apTable', [
     // Default Options, extend provided ones
     scope.options = angular.extend({}, {
       rowLimit: 50,
-      pagingScheme: 'page',
+      rowOffset: 0,
+      pagingScheme: 'scroll',
       sort_classes: [
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
