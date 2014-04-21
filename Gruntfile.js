@@ -192,7 +192,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%= yeoman.dist %>/',
           src: 'ap-table.css',
-          dest: 'ap-table.css'
+          dest: '<%= yeoman.dist %>/'
         }]
       }
     },
