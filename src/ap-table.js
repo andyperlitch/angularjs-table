@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('andyperlitch.apTable', [
-  'ap-table-templates',
+  'andyperlitch.apTable.templates',
   'ui.sortable',
   'ngSanitize'
 ])
