@@ -568,6 +568,7 @@ angular.module('andyperlitch.apTable', [
     scope.sortOrder = [];
     scope.sortDirection = {};
 
+    // Default Options, extend provided ones
     scope.options = angular.extend({}, {
       rowLimit: 50,
       pagingScheme: 'page',
