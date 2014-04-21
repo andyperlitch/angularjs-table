@@ -3,7 +3,8 @@
 angular.module('andyperlitch.apTable', [
   'andyperlitch.apTable.templates',
   'ui.sortable',
-  'ngSanitize'
+  'ngSanitize',
+  'monospaced.mousewheel'
 ])
 
 .service('tableFilterFunctions', function() {
