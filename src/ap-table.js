@@ -581,7 +581,7 @@ angular.module('andyperlitch.apTable', [
 
   return {
     templateUrl: 'src/ap-table.tpl.html',
-    restrict: 'E',
+    restrict: 'EA',
     scope: {
       columns: '=',
       rows: '=',
