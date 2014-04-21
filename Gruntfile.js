@@ -284,7 +284,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%= yeoman.dist %>/',
           src: 'ap-table.js',
-          dest: 'ap-table.js'
+          dest: '<%= yeoman.dist %>/'
         }]
       }
     },
