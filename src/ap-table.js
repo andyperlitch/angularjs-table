@@ -547,6 +547,10 @@ angular.module('andyperlitch.apTable', [
     });
   };
 
+  $scope.saveState = function() {
+
+  };
+
 }])
 
 .directive('dtDynamic', function ($compile) {
@@ -683,7 +687,7 @@ angular.module('andyperlitch.apTable', [
 
     // Default Options, extend provided ones
     scope.options = angular.extend({}, {
-      rowLimit: 50,
+      rowLimit: 30,
       rowOffset: 0,
       pagingScheme: 'scroll',
       sort_classes: [
@@ -697,6 +701,11 @@ angular.module('andyperlitch.apTable', [
     scope.thead = elem.find('thead');
     scope.tbody = elem.find('tbody');
     scope.scroller = elem.find('.ap-table-scroller');
+
+    // Check for localStorage persistence
+    if (options.storage) {
+
+    }
 
     // Watch for changes to update scroll position
     scope.$watch('filterState.filterCount', function() {
