@@ -18,11 +18,12 @@
   border-radius: 5px;
   border: 1px solid #CCC;
   outline: none;
+  text-indent: 2px;
 }
 
 .ap-table th .column-resizer {
   position: absolute;
-  top:0;
+  top: 0;
   right: 0;
   width: 5px;
   height: 100%;
@@ -60,13 +61,9 @@
 }
 
 .ap-table th.sortable-column {
-
   cursor: pointer;
-  -moz-user-select: none;
-  -moz-user-select: none;
-  -o-user-select: none;
-  -khtml-user-select: none;
   -webkit-user-select: none;
+  -moz-user-select: none;
   -ms-user-select: none;
-  user-select: none
+  user-select: none;
 }

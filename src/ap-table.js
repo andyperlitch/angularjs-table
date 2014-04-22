@@ -3,7 +3,8 @@
 angular.module('andyperlitch.apTable', [
   'andyperlitch.apTable.templates',
   'ui.sortable',
-  'ngSanitize'
+  'ngSanitize',
+  'monospaced.mousewheel'
 ])
 
 .service('tableFilterFunctions', function() {
@@ -168,8 +169,11 @@ angular.module('andyperlitch.apTable', [
 
 .service('tableFormatFunctions', function() {
 
-  function selector(value, row) {
-    return '<input type="checkbox" ng-checked="selected.indexOf(row) >= 0" ap-table-selector />';
+  function selector(value, row, column) {
+    if (!row.hasOwnProperty(column.key)) {
+      throw new Error('"selector" format function failed: The key: ' + column.key + ' was not found in row: ' + JSON.stringify(row) + '!'); 
+    }
+    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" ap-table-selector />';
   }
   selector.trustAsHtml = true;
 
@@ -197,7 +201,7 @@ angular.module('andyperlitch.apTable', [
 })
 
 .filter('tableRowFilter', ['tableFilterFunctions', '$log', function(tableFilterFunctions, $log) {
-  return function tableRowFilter(rows, columns, searchTerms) {
+  return function tableRowFilter(rows, columns, searchTerms, filterState) {
 
     var enabledFilterColumns, result = rows;
 
@@ -246,12 +250,12 @@ angular.module('andyperlitch.apTable', [
         return true;
       });
     }
-
+    filterState.filterCount = result.length;
     return result;
   };
 }])
 
-.filter('tableCellFilter', ['$sce', '$sanitize', function($sce, $sanitize) {
+.filter('tableCellFilter', function() {
   return function tableCellFilter(row, column) {
 
     // check if property is available on the row    
@@ -271,7 +275,7 @@ angular.module('andyperlitch.apTable', [
 
     return value;
   };
-}])
+})
 
 .filter('tableRowSorter', function() {
   var column_cache = {};
@@ -487,32 +491,61 @@ angular.module('andyperlitch.apTable', [
     handle: '.column-text'
   };
 
-  // Set configuration options
-  $scope.options = {
-    sort_classes: [
-      'glyphicon glyphicon-sort',
-      'glyphicon glyphicon-chevron-up',
-      'glyphicon glyphicon-chevron-down'
-    ]
+  $scope.getActiveColCount = function() {
+    var count = 0;
+    $scope.columns.forEach(function(col) {
+      if (!col.disabled) {
+        count++;
+      }
+    });
+    return count;
   };
-  // Look for built-in filter, sort, and format functions
-  if ($scope.columns instanceof Array) {
-    $scope.setColumns($scope.columns);
-  } else {
-    $log.warn('"columns" array not found in apTable scope!');
-  }
 
-  // Check for rows
-  if ( !($scope.rows instanceof Array) ) {
-    $log.warn('"rows" array not found in apTable scope!');
-  }
+  $scope.onScroll = function($event) {
+    if ($scope.options.pagingScheme !== 'scroll') {
+      return;
+    }
+    if ($scope.options.rowLimit >= $scope.filterState.filterCount) {
+      return;
+    }
+    var distance = $event.wheelDeltaY / 120;
+    var curOffset, newOffset;
+    curOffset = newOffset = $scope.options.rowOffset;
+    newOffset -= distance;
+    newOffset = Math.max(newOffset, 0);
+    newOffset = Math.min($scope.filterState.filterCount - $scope.options.rowLimit, newOffset);
+    if (newOffset !== curOffset) {
+      $event.preventDefault();
+      $event.stopPropagation();
+      $scope.options.rowOffset = newOffset;
+      $scope.updateScrollerPosition();
+    }
+    
+  };
 
-  // Object that holds search terms
-  $scope.searchTerms = {};
+  $scope.updateScrollerPosition = function() {
+    var height = $scope.tbody.height();
+    var offset = $scope.options.rowOffset;
+    var limit = $scope.options.rowLimit;
+    var max = $scope.filterState.filterCount; 
+    var theadHeight = $scope.thead.height();
+    var heightRatio = height/max;
+    var newTop = theadHeight + heightRatio*offset;
+    var newHeight = heightRatio * limit;
 
-  // Array and Object for sort order+direction
-  $scope.sortOrder = [];
-  $scope.sortDirection = {};
+    if (newHeight >= height || max <= limit) {
+      $scope.scroller.css({
+        display: 'none',
+        top: theadHeight + 'px'
+      });
+      return;
+    }
+    $scope.scroller.css({
+      display: 'block',
+      top: newTop,
+      height: newHeight + 'px'
+    });
+  };
 
 }])
 
@@ -526,7 +559,7 @@ angular.module('andyperlitch.apTable', [
       column: '=',
       selected: '='
     },
-    link: function postLink(scope, element, attrs) {
+    link: function postLink(scope, element) {
       scope.$watch( 'dynamic' , function(html){
         element.html(html);
         $compile(element.contents())(scope);
@@ -539,13 +572,14 @@ angular.module('andyperlitch.apTable', [
   return {
     restrict: 'A',
     scope: false,
-    link: function postLink(scope, element, attrs) {
+    link: function postLink(scope, element) {
       var selected = scope.selected;
       var row = scope.row;
+      var column = scope.column;
       element.on('click', function() {
 
         // Retrieve position in selected list
-        var idx = selected.indexOf(row);
+        var idx = selected.indexOf(row[column.key]);
 
         // it is selected, deselect it:
         if (idx >= 0) {
@@ -554,25 +588,141 @@ angular.module('andyperlitch.apTable', [
 
         // it is not selected, push to list
         else { 
-          selected.push(row);
+          selected.push(row[column.key]);
         }
         scope.$apply();
       });
     }
-  }
+  };
 })
 
-.directive('apTable', function () {
+.directive('apPaginate', ['$compile', function($compile) {
+  function link(scope, elm, attrs) {
+
+    var update = function(oldValue, newValue) {
+      var count = scope.filterState.filterCount;
+      var limit = scope.options.rowLimit;
+      if (limit <= 0) {
+        elm.html('');
+        return;
+      }
+
+      var pages = Math.ceil( count / limit );
+      var curPage = Math.floor(scope.options.rowOffset / limit);
+      var string = '<button class="ap-table-page-link" ng-disabled="isCurrentPage(0)" ng-click="decrementPage()">&laquo;</button>';
+
+      for (var i = 0; i < pages; i++) {
+        string += ' <a class="ap-table-page-link" ng-show="!isCurrentPage(' + i + ')" ng-click="goToPage(' + i + ')">' + i + '</a><span class="ap-table-page-link" ng-show="isCurrentPage(' + i + ')">' + i + '</span>';
+      }
+
+      string += '<button class="ap-table-page-link" ng-disabled="isCurrentPage(' + (pages - 1) + ')" ng-click="incrementPage()">&raquo;</button>';
+
+      elm.html(string);
+      $compile(elm.contents())(scope);
+
+    }
+
+    scope.incrementPage = function() {
+      scope.options.rowOffset += scope.options.rowLimit*1;
+    }
+    scope.decrementPage = function() {
+      scope.options.rowOffset -= scope.options.rowLimit*1; 
+    }
+    scope.goToPage = function(i) {
+      scope.options.rowOffset = scope.options.rowLimit*i;
+    }
+    scope.isCurrentPage = function(i) {
+      var limit = scope.options.rowLimit;
+      if (limit <= 0) {
+        return false;
+      }
+      var pageOffset = i * limit;
+      return pageOffset === scope.options.rowOffset*1;
+    }
+
+    scope.$watch('options.rowLimit', update);
+    scope.$watch('filterState.filterCount', update);
+
+  }
+  return {
+    scope: {
+      options: '=apPaginate',
+      filterState: '='
+    },
+    link: link
+  };
+}])
+
+.directive('apTable', ['$log', '$timeout', function ($log, $timeout) {
+
+  function link(scope, elem) {
+
+    // Look for built-in filter, sort, and format functions
+    if (scope.columns instanceof Array) {
+      scope.setColumns(scope.columns);
+    } else {
+      throw new Error('"columns" array not found in apTable scope!');
+    }
+
+    // Check for rows
+    if ( !(scope.rows instanceof Array) ) {
+      throw new Error('"rows" array not found in apTable scope!');
+    }
+
+    // Object that holds search terms
+    scope.searchTerms = {};
+
+    // Array and Object for sort order+direction
+    scope.sortOrder = [];
+    scope.sortDirection = {};
+
+    // Holds filtered rows count
+    scope.filterState = {
+      filterCount: scope.rows.length
+    };
+
+    // Default Options, extend provided ones
+    scope.options = angular.extend({}, {
+      rowLimit: 50,
+      rowOffset: 0,
+      pagingScheme: 'scroll',
+      sort_classes: [
+        'glyphicon glyphicon-sort',
+        'glyphicon glyphicon-chevron-up',
+        'glyphicon glyphicon-chevron-down'
+      ]
+    }, scope.options);
+
+    // Cache elements
+    scope.thead = elem.find('thead');
+    scope.tbody = elem.find('tbody');
+    scope.scroller = elem.find('.ap-table-scroller');
+
+    // Watch for changes to update scroll position
+    scope.$watch('filterState.filterCount', function() {
+      scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, scope.filterState.filterCount - scope.options.rowLimit));
+      $timeout(scope.updateScrollerPosition, 0);
+    });
+    scope.$watch('options.rowLimit', function() {
+      $timeout(scope.updateScrollerPosition, 0);
+    });
+    scope.$watch('options.pagingScheme', function() {
+      scope.options.rowOffset = 0;
+      $timeout(scope.updateScrollerPosition, 0);
+    });
+  }
 
   return {
     templateUrl: 'src/ap-table.tpl.html',
-    restrict: 'E',
+    restrict: 'EA',
     scope: {
       columns: '=',
       rows: '=',
       classes: '@tableClass',
-      selected: '='
+      selected: '=',
+      options: '=?'
     },
-    controller: 'TableController'
+    controller: 'TableController',
+    link: link
   };
-});
+}]);

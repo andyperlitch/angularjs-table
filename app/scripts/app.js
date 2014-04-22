@@ -17,16 +17,10 @@ angular.module('andyperlitch.apTable.ghPage', [
   });
 
 (function( ng ) {
-  "use strict";
-
   // We're going to package this as its own module. Not sure how else to distribute
   // an AngularJS class since it depends on an actual application name at the code-
   // time of the class definition.
-  var module = ng.module( "andyperlitch.apTable.ghPage");
-
-  // Define the injectable. We're using "value" because the result is a construtor,
-  // NOT the result of a constructor instantiation. 
-  module.value( "HashKeyCopier", HashKeyCopier );
+  var module = ng.module( 'andyperlitch.apTable.ghPage');
 
   // I am the constructor.
   function HashKeyCopier( source, destination, uniqueIdentifiers ) {
@@ -37,7 +31,7 @@ angular.module('andyperlitch.apTable.ghPage', [
 
 
     // I am the key that AngularJS uses to store the expando property.
-    var hashKeyPropertyName = "$$hashKey";
+    var hashKeyPropertyName = '$$hashKey';
 
     // I am the index of hashKeys in the source object. This provides a pseudo-
     // location of each hashKey value based on the structure of the source object.
@@ -51,12 +45,12 @@ angular.module('andyperlitch.apTable.ghPage', [
     // If nothing is provided, default to the most common - ID.
     if ( ! uniqueIdentifiers ) {
 
-      uniqueIdentifiers = [ "id" ];
+      uniqueIdentifiers = [ 'id' ];
 
     }
 
     // I am the RegEx pattern that determins if a given string represents a proprietary
-    // AngularJS name - they all being with "$". We don't need to waste our time 
+    // AngularJS name - they all being with '$'. We don't need to waste our time 
     // looking at these properties when it comes to iterating over our targets.
     var angularJSPropertyPattern = /^$/i;
 
@@ -67,7 +61,7 @@ angular.module('andyperlitch.apTable.ghPage', [
 
 
     // I execute the copy operation from the source object to the destination object.
-    function copyHashKeys() { 
+    function copyHashKeys() {
 
       // If either the existing or the source objects are empty, there's nothing to
       // do - just return the destination.
@@ -99,11 +93,11 @@ angular.module('andyperlitch.apTable.ghPage', [
 
       if ( ng.isArray( destination ) ) {
 
-        applyHashKeyIndexToArray( "[]", destination );
+        applyHashKeyIndexToArray( '[]', destination );
 
       } else if ( ng.isObject( destination ) ) {
 
-        applyHashKeyIndexToObject( ".", destination );
+        applyHashKeyIndexToObject( '.', destination );
 
       }
 
@@ -119,11 +113,11 @@ angular.module('andyperlitch.apTable.ghPage', [
 
         if ( ng.isArray( targetItem ) ) {
 
-          applyHashKeyIndexToArray( ( path + "[]" ), targetItem );
+          applyHashKeyIndexToArray( ( path + '[]' ), targetItem );
 
         } else if ( ng.isObject( targetItem ) ) {
 
-          applyHashKeyIndexToObject( ( path + "." ), targetItem );
+          applyHashKeyIndexToObject( ( path + '.' ), targetItem );
 
         }
 
@@ -157,11 +151,11 @@ angular.module('andyperlitch.apTable.ghPage', [
 
           if ( ng.isArray( targetItem ) ) {
 
-            applyHashKeyIndexToArray( ( path + key + "[]" ), targetItem );
+            applyHashKeyIndexToArray( ( path + key + '[]' ), targetItem );
 
           } else if ( ng.isObject( targetItem ) ) {
 
-            applyHashKeyIndexToObject( ( path + key + "." ), targetItem );
+            applyHashKeyIndexToObject( ( path + key + '.' ), targetItem );
 
           }
 
@@ -177,11 +171,11 @@ angular.module('andyperlitch.apTable.ghPage', [
 
       if ( ng.isArray( source ) ) {
 
-        buildHashKeyIndexFromArray( "[]", source );
+        buildHashKeyIndexFromArray( '[]', source );
 
       } else if ( ng.isObject( source ) ) {
 
-        buildHashKeyIndexFromObject( ".", source );
+        buildHashKeyIndexFromObject( '.', source );
 
       }
 
@@ -197,11 +191,11 @@ angular.module('andyperlitch.apTable.ghPage', [
 
         if ( ng.isArray( targetItem ) ) {
 
-          buildHashKeyIndexFromArray( ( path + "[]" ), targetItem );
+          buildHashKeyIndexFromArray( ( path + '[]' ), targetItem );
 
         } else if ( ng.isObject( targetItem ) ) {
 
-          buildHashKeyIndexFromObject( ( path + "." ), targetItem );
+          buildHashKeyIndexFromObject( ( path + '.' ), targetItem );
 
         }
 
@@ -233,11 +227,11 @@ angular.module('andyperlitch.apTable.ghPage', [
 
           if ( ng.isArray( targetItem ) ) {
 
-            buildHashKeyIndexFromArray( ( path + key + "[]" ), targetItem );
+            buildHashKeyIndexFromArray( ( path + key + '[]' ), targetItem );
 
           } else if ( ng.isObject( targetItem ) ) {
 
-            buildHashKeyIndexFromObject( ( path + key + "." ) , targetItem );
+            buildHashKeyIndexFromObject( ( path + key + '.' ) , targetItem );
 
           }
 
@@ -320,7 +314,7 @@ angular.module('andyperlitch.apTable.ghPage', [
 
   }
 
-  // I provide a "static" method that encapsulates the proper instantation and 
+  // I provide a 'static' method that encapsulates the proper instantation and 
   // execution of the copy operation.
   HashKeyCopier.copyHashKeys = function( source, destination, uniqueIdentifiers ) {
 
@@ -331,6 +325,10 @@ angular.module('andyperlitch.apTable.ghPage', [
     return( destination );
 
   };
+
+  // Define the injectable. We're using 'value' because the result is a construtor,
+  // NOT the result of a constructor instantiation. 
+  module.value( 'HashKeyCopier', HashKeyCopier );
 
 })( angular );
   

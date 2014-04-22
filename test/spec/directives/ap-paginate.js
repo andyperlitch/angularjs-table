@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: dt-dynamic', function () {
+describe('Directive: apPaginate', function () {
 
   var element, scope, rootScope, isoScope, compile, sandbox;
 
@@ -26,14 +26,11 @@ describe('Directive: dt-dynamic', function () {
 
     // Set up the outer scope
     scope = $rootScope.$new();
-    // scope.checker = false;
-    scope.injectedHtml = '<div ng-init="row.foo = \'bar\';"></div>';
-    scope.row = {};
-    scope.column = {};
-    scope.selected = [];
+    scope.filterState = {};
+    scope.options = {};
 
     // Define and compile the element
-    element = angular.element('<div dt-dynamic="injectedHtml" row="row" column="column" selected="selected"></div>');
+    element = angular.element('<div ap-paginate="options" filter-state="filterState"></div>');
     element = compile(element)(scope);
     scope.$digest();
     isoScope = element.isolateScope();
@@ -43,14 +40,8 @@ describe('Directive: dt-dynamic', function () {
     sandbox.restore();
   });
 
-  it('should compile the injected html', function() {
-    expect(scope.row.foo).to.equal('bar');
-  });
-
-  it('should watch for changes on injected html', function() {
-    scope.injectedHtml = '<div ng-init="row.foo = \'baz\';"></div>';
-    scope.$digest();
-    expect(scope.row.foo).to.equal('baz');
-  });
+  // it('should do something', function() {
+    
+  // });
 
 });

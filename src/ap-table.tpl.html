@@ -1,50 +1,68 @@
-<table ng-class="classes" class="ap-table">
-  <thead>
-    <tr ui-sortable="sortableOptions" ng-model="columns">
-      <th 
-        scope="col" 
-        ng-repeat="column in columns" 
-        ng-click="toggleSort($event,column)" 
-        ng-class="{'sortable-column' : column.sort}" 
-        ng-attr-title="{{ column.title || '' }}"
-        ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
-      >
-        <span class="column-text">
-          {{column.hasOwnProperty('label') ? column.label : column.id }}
+<div class="ap-table-wrapper">
+  <table ng-class="classes" class="ap-table">
+    <thead>
+      <tr ui-sortable="sortableOptions" ng-model="columns">
+        <th 
+          scope="col" 
+          ng-repeat="column in columns" 
+          ng-click="toggleSort($event,column)" 
+          ng-class="{'sortable-column' : column.sort}" 
+          ng-attr-title="{{ column.title || '' }}"
+          ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
+        >
+          <span class="column-text">
+            {{column.hasOwnProperty('label') ? column.label : column.id }}
+            <span 
+              ng-if="column.sort" 
+              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."
+              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"
+            ></span>
+          </span>
           <span 
-            ng-if="column.sort" 
-            title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."
-            class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"
-          ></span>
-        </span>
-        <span 
-          ng-if="!column.lock_width"
-          ng-class="{'discreet-width': !!column.width, 'column-resizer': true}"
-          title="Click and drag to set discreet width. Click once to clear discreet width."
-          ng-mousedown="startColumnResize($event, column)"
-        >
-          &nbsp;
-        </span>
-      </th>
-    </tr>
-    <tr ng-if="hasFilterFields()">
-      <th ng-repeat="column in columns">
-        <input 
-          type="search"
-          ng-if="(column.filter)"
-          ng-model="searchTerms[column.id]"
-          ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"
-          ng-attr-title="{{ column.filter && column.filter.title }}"
-        >
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection ">
-      <td ng-repeat="column in columns">
-        <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>
-        <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>
-      </td>
-    </tr>
-  </tbody>
-</table>
+            ng-if="!column.lock_width"
+            ng-class="{'discreet-width': !!column.width, 'column-resizer': true}"
+            title="Click and drag to set discreet width. Click once to clear discreet width."
+            ng-mousedown="startColumnResize($event, column)"
+          >
+            &nbsp;
+          </span>
+        </th>
+      </tr>
+      <tr ng-if="hasFilterFields()">
+        <th ng-repeat="column in columns">
+          <input 
+            type="search"
+            ng-if="(column.filter)"
+            ng-model="searchTerms[column.id]"
+            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"
+            ng-attr-title="{{ column.filter && column.filter.title }}"
+          >
+        </th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr>
+        <td colspan="0"  ng-attr-colspan="{{ getActiveColCount() }}">
+          <label>row limit:</label> <input type="text" ng-model="options.rowLimit" value="{{ options.rowLimit }}">&nbsp;&nbsp;
+          <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;
+          <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;
+          <span ng-if="options.pagingScheme === 'page'" ap-paginate="options" filter-state="filterState"></span>
+        </td>
+      </tr>
+    </tfoot>
+    <tbody msd-wheel="onScroll($event)">
+      <tr ng-repeat="
+        row in rows 
+          | tableRowFilter:columns:searchTerms:filterState 
+          | tableRowSorter:columns:sortOrder:sortDirection 
+          | limitTo:options.rowOffset - filterState.filterCount 
+          | limitTo:options.rowLimit">
+        <td ng-repeat="column in columns">
+          <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>
+          <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div ng-show="options.pagingScheme === 'scroll'" class="ap-table-scroller"></div>
+</div>
