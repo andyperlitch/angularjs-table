@@ -601,12 +601,12 @@ angular.module('andyperlitch.apTable', [
     if (scope.columns instanceof Array) {
       scope.setColumns(scope.columns);
     } else {
-      $log.warn('"columns" array not found in apTable scope!');
+      throw new Error('"columns" array not found in apTable scope!');
     }
 
     // Check for rows
     if ( !(scope.rows instanceof Array) ) {
-      $log.warn('"rows" array not found in apTable scope!');
+      throw new Error('"rows" array not found in apTable scope!');
     }
 
     // Object that holds search terms

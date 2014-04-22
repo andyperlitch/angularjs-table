@@ -14,15 +14,15 @@ module.exports = function(config) {
     './test/spec/**/*.js',
 
     // template files
-    'app/scripts/directives/*.tpl.html'
+    'src/*.tpl.html'
   ]);
 
   
   conf.preprocessors = {
     // which html templates to be converted to js
-    'app/scripts/directives/ap-table.tpl.html': ['ng-html2js'],
+    'src/ap-table.tpl.html': ['ng-html2js'],
     // files we want to appear in the coverage report
-    'app/scripts/directives/ap-table.js': ['coverage']
+    'src/ap-table.js': ['coverage']
   };
 
   conf.ngHtml2JsPreprocessor = {
@@ -31,7 +31,7 @@ module.exports = function(config) {
 
     // setting this option will create only a single module that contains templates
     // from all the files, so you can load them all with module('foo')
-    moduleName: 'ap-table-templates'
+    moduleName: 'andyperlitch.apTable.templates'
   }
 
 

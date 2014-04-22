@@ -30,6 +30,31 @@ describe('Controller: TableController', function() {
     mockLog = {
       warn: sandbox.spy()
     };
+
+    // Object that holds search terms
+    $scope.searchTerms = {};
+
+    // Array and Object for sort order+direction
+    $scope.sortOrder = [];
+    $scope.sortDirection = {};
+
+    // Holds filtered rows count
+    $scope.filterState = {
+      filterCount: $scope.rows.length
+    };
+
+    // Default Options, extend provided ones
+    $scope.options = angular.extend({}, {
+      rowLimit: 50,
+      rowOffset: 0,
+      pagingScheme: 'scroll',
+      sort_classes: [
+        'glyphicon glyphicon-sort',
+        'glyphicon glyphicon-chevron-up',
+        'glyphicon glyphicon-chevron-down'
+      ]
+    });
+
     $controller('TableController', {
       $scope: $scope,
       tableFormatFunctions: mockTableFormatFunctions,
@@ -43,44 +68,6 @@ describe('Controller: TableController', function() {
     sandbox.restore();
   });
 
-  it('should call warn if no columns array was found on the scope', inject(function($rootScope, $controller) {
-    var $scope2 = $rootScope.$new();
-    $scope2.rows = [];
-    $controller('TableController', {
-      $scope: $scope2,
-      tableFormatFunctions: mockTableFormatFunctions,
-      tableSortFunctions: mockTableSortFunctions,
-      tableFilterFunctions: mockTableFilterFunctions,
-      $log: mockLog
-    });
-    expect(mockLog.warn).to.have.been.calledOnce;
-  }));
-
-  it('should call warn if no rows array was found on the scope', inject(function($rootScope, $controller) {
-    var $scope2 = $rootScope.$new();
-    $scope2.columns = [];
-    $controller('TableController', {
-      $scope: $scope2,
-      tableFormatFunctions: mockTableFormatFunctions,
-      tableSortFunctions: mockTableSortFunctions,
-      tableFilterFunctions: mockTableFilterFunctions,
-      $log: mockLog
-    });
-    expect(mockLog.warn).to.have.been.calledOnce;
-  }));
-
-  it('should attach a searchTerms object to the scope', function() {
-    expect($scope.searchTerms).to.be.an('object');
-  });
-
-  it('should attach a sortOrder array to the scope', function() {
-    expect($scope.sortOrder).to.be.instanceof(Array);
-  });
-
-  it('should attach a sortDirection object to the scope', function() {
-    expect($scope.sortDirection).to.be.an('object');
-  });
-  
   describe('method: addSort', function() {
 
     it('should add the column id to $scope.sortOrder and sort direction to $scope.sortDirection', function() {

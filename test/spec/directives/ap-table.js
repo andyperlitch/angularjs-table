@@ -2,17 +2,29 @@
 
 describe('Directive: apTable', function () {
 
-  // load the directive's module
-  beforeEach(module('andyperlitch.apTable'));
-
   var element,
   scope,
+  isoScope,
   compile,
   genRows,
   columns,
   filter_title,
   filter_placeholder,
-  data;
+  data,
+  mockLog,
+  sandbox;
+
+  beforeEach(function() {
+    sandbox = sinon.sandbox.create();
+    mockLog = {
+      warn: sandbox.spy()
+    };
+  });
+
+  // load the directive's module
+  beforeEach(module('andyperlitch.apTable', function($provide) {
+    $provide.value('$log', mockLog);
+  }));
 
   beforeEach(inject(function ($compile, $rootScope) {
     // Format functions
@@ -77,7 +89,12 @@ describe('Directive: apTable', function () {
     element = angular.element('<ap-table columns="my_table_columns" rows="my_table_data" class="table"></ap-table>');
     element = compile(element)(scope);
     scope.$digest();
+    isoScope = element.isolateScope();
   }));
+
+  afterEach(function() {
+    sandbox.restore();
+  });
 
   it('should create a table', function () {
     expect(element.find('table').length).to.equal(1);
@@ -97,6 +114,40 @@ describe('Directive: apTable', function () {
     var actual = element.find('table tbody tr:eq(0) td:eq(2)').text();
     actual = $.trim(actual);
     expect(actual).to.equal(expected);
+  });
+
+  it('should throw if no columns array was found on the scope', inject(function($rootScope, $controller) {
+    var scope2 = $rootScope.$new();
+    scope2.rows = [];
+    var el2 = angular.element('<ap-table columns="nonexistent_columns" rows="rows" class="table"></ap-table>');
+    var fn = function() {
+      el2 = compile(el2)(scope2);
+      scope.$digest();
+    }
+    expect(fn).to.throw();
+  }));
+
+  it('should throw if no rows array was found on the scope', inject(function($rootScope, $controller) {
+    var $scope2 = $rootScope.$new();
+    $scope2.columns = [];
+    var el2 = angular.element('<ap-table columns="columns" rows="nonexistent_rows" class="table"></ap-table>');
+    var fn = function() {
+      el2 = compile(el2)(scope2);
+      scope.$digest();
+    }
+    expect(fn).to.throw();
+  }));
+
+  it('should attach a searchTerms object to the scope', function() {
+    expect(isoScope.searchTerms).to.be.an('object');
+  });
+
+  it('should attach a sortOrder array to the scope', function() {
+    expect(isoScope.sortOrder).to.be.instanceof(Array);
+  });
+
+  it('should attach a sortDirection object to the scope', function() {
+    expect(isoScope.sortDirection).to.be.an('object');
   });
 
   describe('column header', function() {
