@@ -28,7 +28,7 @@ Attributes
 | `options`   | object | no  | An object containing various options for the table. See *Options Object* below for details|
 | `columns` | Array | yes | An array of column definition objects. See *Column Definitions* below. |
 | `rows`    | Array | yes | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates |
-| `table-class` | String | no | A string of classes to be added to the actual `<table>` element that gets created |
+| `table-class` | String | no | A string of classes to be attached to the actual `<table>` element that gets created |
 
 
 Options Object
