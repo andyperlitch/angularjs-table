@@ -65,3 +65,15 @@
   cursor: pointer;
   user-select: none
 }
+.ap-table-wrapper {
+  position: relative;
+}
+.ap-table-wrapper .ap-table-scroller {
+  position: absolute;
+  width: 15px;
+  height: 30px;
+  background-color: rgba(0,0,0,0.5);
+  right: 0;
+  top: 0;
+
+}

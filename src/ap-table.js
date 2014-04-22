@@ -198,7 +198,7 @@ angular.module('andyperlitch.apTable', [
 })
 
 .filter('tableRowFilter', ['tableFilterFunctions', '$log', function(tableFilterFunctions, $log) {
-  return function tableRowFilter(rows, columns, searchTerms) {
+  return function tableRowFilter(rows, columns, searchTerms, filterState) {
 
     var enabledFilterColumns, result = rows;
 
@@ -247,12 +247,12 @@ angular.module('andyperlitch.apTable', [
         return true;
       });
     }
-
+    filterState.filterCount = result.length;
     return result;
   };
 }])
 
-.filter('tableCellFilter', ['$sce', '$sanitize', function($sce, $sanitize) {
+.filter('tableCellFilter', function() {
   return function tableCellFilter(row, column) {
 
     // check if property is available on the row    
@@ -272,7 +272,7 @@ angular.module('andyperlitch.apTable', [
 
     return value;
   };
-}])
+})
 
 .filter('tableRowSorter', function() {
   var column_cache = {};
@@ -499,18 +499,49 @@ angular.module('andyperlitch.apTable', [
   };
 
   $scope.onScroll = function($event) {
-    if ($scope.options.pagingScheme !== 'scroll') return;
+    if ($scope.options.pagingScheme !== 'scroll') {
+      return;
+    }
+    if ($scope.options.rowLimit >= $scope.filterState.filterCount) {
+      return;
+    }
     var distance = $event.wheelDeltaY / 120;
     var curOffset, newOffset;
     curOffset = newOffset = $scope.options.rowOffset;
     newOffset -= distance;
     newOffset = Math.max(newOffset, 0);
-    newOffset = Math.min($scope.rows.length - $scope.options.rowLimit, newOffset);
-    if (newOffset != curOffset) {
+    newOffset = Math.min($scope.filterState.filterCount - $scope.options.rowLimit, newOffset);
+    if (newOffset !== curOffset) {
       $event.preventDefault();
       $event.stopPropagation();
+      $scope.options.rowOffset = newOffset;
+      $scope.updateScrollerPosition();
     }
-    $scope.options.rowOffset = newOffset;
+    
+  };
+
+  $scope.updateScrollerPosition = function() {
+    var height = $scope.tbody.height();
+    var offset = $scope.options.rowOffset;
+    var limit = $scope.options.rowLimit;
+    var max = $scope.filterState.filterCount; 
+    var theadHeight = $scope.thead.height();
+    var heightRatio = height/max;
+    var newTop = theadHeight + heightRatio*offset;
+    var newHeight = heightRatio * limit;
+
+    if (newHeight >= height || max <= limit) {
+      $scope.scroller.css({
+        display: 'none',
+        top: theadHeight + 'px'
+      });
+      return;
+    }
+    $scope.scroller.css({
+      display: 'block',
+      top: newTop,
+      height: newHeight + 'px'
+    });
   };
 
 }])
@@ -525,7 +556,7 @@ angular.module('andyperlitch.apTable', [
       column: '=',
       selected: '='
     },
-    link: function postLink(scope, element, attrs) {
+    link: function postLink(scope, element) {
       scope.$watch( 'dynamic' , function(html){
         element.html(html);
         $compile(element.contents())(scope);
@@ -538,7 +569,7 @@ angular.module('andyperlitch.apTable', [
   return {
     restrict: 'A',
     scope: false,
-    link: function postLink(scope, element, attrs) {
+    link: function postLink(scope, element) {
       var selected = scope.selected;
       var row = scope.row;
       var column = scope.column;
@@ -559,12 +590,12 @@ angular.module('andyperlitch.apTable', [
         scope.$apply();
       });
     }
-  }
+  };
 })
 
-.directive('apTable', function () {
+.directive('apTable', ['$log', '$timeout', function ($log, $timeout) {
 
-  function link(scope, elem, attrs) {
+  function link(scope, elem) {
 
     // Look for built-in filter, sort, and format functions
     if (scope.columns instanceof Array) {
@@ -585,6 +616,11 @@ angular.module('andyperlitch.apTable', [
     scope.sortOrder = [];
     scope.sortDirection = {};
 
+    // Holds filtered rows count
+    scope.filterState = {
+      filterCount: scope.rows.length
+    };
+
     // Default Options, extend provided ones
     scope.options = angular.extend({}, {
       rowLimit: 50,
@@ -596,6 +632,22 @@ angular.module('andyperlitch.apTable', [
         'glyphicon glyphicon-chevron-down'
       ]
     }, scope.options);
+
+    // Cache elements
+    scope.thead = elem.find('thead');
+    scope.tbody = elem.find('tbody');
+    scope.scroller = elem.find('.ap-table-scroller');
+
+    // Watch for changes to update scroll position
+    scope.$watch('filterState.filterCount', function() {
+      scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, scope.filterState.filterCount - scope.options.rowLimit));
+    });
+    scope.$watch('options.rowLimit', function() {
+      $timeout(scope.updateScrollerPosition, 0);
+    });
+    scope.$watch('filterState.filterCount', function() {
+      $timeout(scope.updateScrollerPosition, 0);
+    });
   }
 
   return {
@@ -611,4 +663,4 @@ angular.module('andyperlitch.apTable', [
     controller: 'TableController',
     link: link
   };
-});
+}]);
