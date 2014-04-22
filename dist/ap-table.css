@@ -67,3 +67,28 @@
   -ms-user-select: none;
   user-select: none;
 }
+
+.ap-table-wrapper {
+  position: relative;
+}
+
+.ap-table-wrapper .ap-table-scroller {
+  position: absolute;
+  width: 15px;
+  height: 30px;
+  background-color: rgba(0,0,0,0.5);
+  right: 0;
+  top: 0;
+}
+
+.ap-table tfoot .ap-table-page-link {
+  margin: 0 0.25em;
+}
+
+.ap-table tfoot a.ap-table-page-link {
+  cursor: pointer;
+}
+
+.ap-table tfoot span.ap-table-page-link {
+  font-weight: bold;
+}

@@ -2,7 +2,8 @@
 angular.module('andyperlitch.apTable', [
   'andyperlitch.apTable.templates',
   'ui.sortable',
-  'ngSanitize'
+  'ngSanitize',
+  'monospaced.mousewheel'
 ]).service('tableFilterFunctions', function () {
   function like(term, value) {
     term = term.toLowerCase().trim();
@@ -144,8 +145,11 @@ angular.module('andyperlitch.apTable', [
     date: date
   };
 }).service('tableFormatFunctions', function () {
-  function selector(value, row) {
-    return '<input type="checkbox" ng-checked="selected.indexOf(row) >= 0" ap-table-selector />';
+  function selector(value, row, column) {
+    if (!row.hasOwnProperty(column.key)) {
+      throw new Error('"selector" format function failed: The key: ' + column.key + ' was not found in row: ' + JSON.stringify(row) + '!');
+    }
+    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" ap-table-selector />';
   }
   selector.trustAsHtml = true;
   return { selector: selector };
@@ -169,7 +173,7 @@ angular.module('andyperlitch.apTable', [
   'tableFilterFunctions',
   '$log',
   function (tableFilterFunctions, $log) {
-    return function tableRowFilter(rows, columns, searchTerms) {
+    return function tableRowFilter(rows, columns, searchTerms, filterState) {
       var enabledFilterColumns, result = rows;
       // gather enabled filter functions
       enabledFilterColumns = columns.filter(function (column) {
@@ -210,30 +214,27 @@ angular.module('andyperlitch.apTable', [
           return true;
         });
       }
+      filterState.filterCount = result.length;
       return result;
     };
   }
-]).filter('tableCellFilter', [
-  '$sce',
-  '$sanitize',
-  function ($sce, $sanitize) {
-    return function tableCellFilter(row, column) {
-      // check if property is available on the row    
-      var hasProp = row.hasOwnProperty(column.key);
-      if (!hasProp) {
-        return column.defaultValue || '';
-      }
-      // cache raw data value
-      var value = row[column.key];
-      // check for format
-      var format = column.format;
-      if (typeof format === 'function') {
-        return format(value, row, column);
-      }
-      return value;
-    };
-  }
-]).filter('tableRowSorter', function () {
+]).filter('tableCellFilter', function () {
+  return function tableCellFilter(row, column) {
+    // check if property is available on the row    
+    var hasProp = row.hasOwnProperty(column.key);
+    if (!hasProp) {
+      return column.defaultValue || '';
+    }
+    // cache raw data value
+    var value = row[column.key];
+    // check for format
+    var format = column.format;
+    if (typeof format === 'function') {
+      return format(value, row, column);
+    }
+    return value;
+  };
+}).filter('tableRowSorter', function () {
   var column_cache = {};
   function getColumn(columns, id) {
     if (column_cache.hasOwnProperty(id)) {
@@ -428,29 +429,57 @@ angular.module('andyperlitch.apTable', [
       axis: 'x',
       handle: '.column-text'
     };
-    // Set configuration options
-    $scope.options = {
-      sort_classes: [
-        'glyphicon glyphicon-sort',
-        'glyphicon glyphicon-chevron-up',
-        'glyphicon glyphicon-chevron-down'
-      ]
+    $scope.getActiveColCount = function () {
+      var count = 0;
+      $scope.columns.forEach(function (col) {
+        if (!col.disabled) {
+          count++;
+        }
+      });
+      return count;
     };
-    // Look for built-in filter, sort, and format functions
-    if ($scope.columns instanceof Array) {
-      $scope.setColumns($scope.columns);
-    } else {
-      $log.warn('"columns" array not found in apTable scope!');
-    }
-    // Check for rows
-    if (!($scope.rows instanceof Array)) {
-      $log.warn('"rows" array not found in apTable scope!');
-    }
-    // Object that holds search terms
-    $scope.searchTerms = {};
-    // Array and Object for sort order+direction
-    $scope.sortOrder = [];
-    $scope.sortDirection = {};
+    $scope.onScroll = function ($event) {
+      if ($scope.options.pagingScheme !== 'scroll') {
+        return;
+      }
+      if ($scope.options.rowLimit >= $scope.filterState.filterCount) {
+        return;
+      }
+      var distance = $event.wheelDeltaY / 120;
+      var curOffset, newOffset;
+      curOffset = newOffset = $scope.options.rowOffset;
+      newOffset -= distance;
+      newOffset = Math.max(newOffset, 0);
+      newOffset = Math.min($scope.filterState.filterCount - $scope.options.rowLimit, newOffset);
+      if (newOffset !== curOffset) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        $scope.options.rowOffset = newOffset;
+        $scope.updateScrollerPosition();
+      }
+    };
+    $scope.updateScrollerPosition = function () {
+      var height = $scope.tbody.height();
+      var offset = $scope.options.rowOffset;
+      var limit = $scope.options.rowLimit;
+      var max = $scope.filterState.filterCount;
+      var theadHeight = $scope.thead.height();
+      var heightRatio = height / max;
+      var newTop = theadHeight + heightRatio * offset;
+      var newHeight = heightRatio * limit;
+      if (newHeight >= height || max <= limit) {
+        $scope.scroller.css({
+          display: 'none',
+          top: theadHeight + 'px'
+        });
+        return;
+      }
+      $scope.scroller.css({
+        display: 'block',
+        top: newTop,
+        height: newHeight + 'px'
+      });
+    };
   }
 ]).directive('dtDynamic', function ($compile) {
   return {
@@ -462,7 +491,7 @@ angular.module('andyperlitch.apTable', [
       column: '=',
       selected: '='
     },
-    link: function postLink(scope, element, attrs) {
+    link: function postLink(scope, element) {
       scope.$watch('dynamic', function (html) {
         element.html(html);
         $compile(element.contents())(scope);
@@ -473,47 +502,142 @@ angular.module('andyperlitch.apTable', [
   return {
     restrict: 'A',
     scope: false,
-    link: function postLink(scope, element, attrs) {
+    link: function postLink(scope, element) {
       var selected = scope.selected;
       var row = scope.row;
+      var column = scope.column;
       element.on('click', function () {
         // Retrieve position in selected list
-        var idx = selected.indexOf(row);
+        var idx = selected.indexOf(row[column.key]);
         // it is selected, deselect it:
         if (idx >= 0) {
           selected.splice(idx, 1);
         }  // it is not selected, push to list
         else {
-          selected.push(row);
+          selected.push(row[column.key]);
         }
         scope.$apply();
       });
     }
   };
-}).directive('apTable', function () {
-  return {
-    templateUrl: 'src/ap-table.tpl.html',
-    restrict: 'E',
-    scope: {
-      columns: '=',
-      rows: '=',
-      classes: '@tableClass',
-      selected: '='
-    },
-    controller: 'TableController'
-  };
-});
-angular.module('andyperlitch.apTable.templates', ['src/ap-table.tpl.html']);
-angular.module('src/ap-table.tpl.html', []).run([
-  '$templateCache',
-  function ($templateCache) {
-    $templateCache.put('src/ap-table.tpl.html', '<table ng-class="classes" class="ap-table">\n' + '  <thead>\n' + '    <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '      <th \n' + '        scope="col" \n' + '        ng-repeat="column in columns" \n' + '        ng-click="toggleSort($event,column)" \n' + '        ng-class="{\'sortable-column\' : column.sort}" \n' + '        ng-attr-title="{{ column.title || \'\' }}"\n' + '        ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '      >\n' + '        <span class="column-text">\n' + '          {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '          <span \n' + '            ng-if="column.sort" \n' + '            title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '            class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '          ></span>\n' + '        </span>\n' + '        <span \n' + '          ng-if="!column.lock_width"\n' + '          ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '          title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '          ng-mousedown="startColumnResize($event, column)"\n' + '        >\n' + '          &nbsp;\n' + '        </span>\n' + '      </th>\n' + '    </tr>\n' + '    <tr ng-if="hasFilterFields()">\n' + '      <th ng-repeat="column in columns">\n' + '        <input \n' + '          type="search"\n' + '          ng-if="(column.filter)"\n' + '          ng-model="searchTerms[column.id]"\n' + '          ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '          ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '        >\n' + '      </th>\n' + '    </tr>\n' + '  </thead>\n' + '  <tbody>\n' + '    <tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection ">\n' + '      <td ng-repeat="column in columns">\n' + '        <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>\n' + '        <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>\n' + '      </td>\n' + '    </tr>\n' + '  </tbody>\n' + '</table>');
+}).directive('apPaginate', [
+  '$compile',
+  function ($compile) {
+    function link(scope, elm, attrs) {
+      var update = function (oldValue, newValue) {
+        var count = scope.filterState.filterCount;
+        var limit = scope.options.rowLimit;
+        if (limit <= 0) {
+          elm.html('');
+          return;
+        }
+        var pages = Math.ceil(count / limit);
+        var curPage = Math.floor(scope.options.rowOffset / limit);
+        var string = '<button class="ap-table-page-link" ng-disabled="isCurrentPage(0)" ng-click="decrementPage()">&laquo;</button>';
+        for (var i = 0; i < pages; i++) {
+          string += ' <a class="ap-table-page-link" ng-show="!isCurrentPage(' + i + ')" ng-click="goToPage(' + i + ')">' + i + '</a><span class="ap-table-page-link" ng-show="isCurrentPage(' + i + ')">' + i + '</span>';
+        }
+        string += '<button class="ap-table-page-link" ng-disabled="isCurrentPage(' + (pages - 1) + ')" ng-click="incrementPage()">&raquo;</button>';
+        elm.html(string);
+        $compile(elm.contents())(scope);
+      };
+      scope.incrementPage = function () {
+        scope.options.rowOffset += scope.options.rowLimit * 1;
+      };
+      scope.decrementPage = function () {
+        scope.options.rowOffset -= scope.options.rowLimit * 1;
+      };
+      scope.goToPage = function (i) {
+        scope.options.rowOffset = scope.options.rowLimit * i;
+      };
+      scope.isCurrentPage = function (i) {
+        var limit = scope.options.rowLimit;
+        if (limit <= 0) {
+          return false;
+        }
+        var pageOffset = i * limit;
+        return pageOffset === scope.options.rowOffset * 1;
+      };
+      scope.$watch('options.rowLimit', update);
+      scope.$watch('filterState.filterCount', update);
+    }
+    return {
+      scope: {
+        options: '=apPaginate',
+        filterState: '='
+      },
+      link: link
+    };
+  }
+]).directive('apTable', [
+  '$log',
+  '$timeout',
+  function ($log, $timeout) {
+    function link(scope, elem) {
+      // Look for built-in filter, sort, and format functions
+      if (scope.columns instanceof Array) {
+        scope.setColumns(scope.columns);
+      } else {
+        throw new Error('"columns" array not found in apTable scope!');
+      }
+      // Check for rows
+      if (!(scope.rows instanceof Array)) {
+        throw new Error('"rows" array not found in apTable scope!');
+      }
+      // Object that holds search terms
+      scope.searchTerms = {};
+      // Array and Object for sort order+direction
+      scope.sortOrder = [];
+      scope.sortDirection = {};
+      // Holds filtered rows count
+      scope.filterState = { filterCount: scope.rows.length };
+      // Default Options, extend provided ones
+      scope.options = angular.extend({}, {
+        rowLimit: 50,
+        rowOffset: 0,
+        pagingScheme: 'scroll',
+        sort_classes: [
+          'glyphicon glyphicon-sort',
+          'glyphicon glyphicon-chevron-up',
+          'glyphicon glyphicon-chevron-down'
+        ]
+      }, scope.options);
+      // Cache elements
+      scope.thead = elem.find('thead');
+      scope.tbody = elem.find('tbody');
+      scope.scroller = elem.find('.ap-table-scroller');
+      // Watch for changes to update scroll position
+      scope.$watch('filterState.filterCount', function () {
+        scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, scope.filterState.filterCount - scope.options.rowLimit));
+        $timeout(scope.updateScrollerPosition, 0);
+      });
+      scope.$watch('options.rowLimit', function () {
+        $timeout(scope.updateScrollerPosition, 0);
+      });
+      scope.$watch('options.pagingScheme', function () {
+        scope.options.rowOffset = 0;
+        $timeout(scope.updateScrollerPosition, 0);
+      });
+    }
+    return {
+      templateUrl: 'src/ap-table.tpl.html',
+      restrict: 'EA',
+      scope: {
+        columns: '=',
+        rows: '=',
+        classes: '@tableClass',
+        selected: '=',
+        options: '=?'
+      },
+      controller: 'TableController',
+      link: link
+    };
   }
 ]);
 angular.module('andyperlitch.apTable.templates', ['src/ap-table.tpl.html']);
 angular.module('src/ap-table.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/ap-table.tpl.html', '<table ng-class="classes" class="ap-table">\n' + '  <thead>\n' + '    <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '      <th \n' + '        scope="col" \n' + '        ng-repeat="column in columns" \n' + '        ng-click="toggleSort($event,column)" \n' + '        ng-class="{\'sortable-column\' : column.sort}" \n' + '        ng-attr-title="{{ column.title || \'\' }}"\n' + '        ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '      >\n' + '        <span class="column-text">\n' + '          {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '          <span \n' + '            ng-if="column.sort" \n' + '            title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '            class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '          ></span>\n' + '        </span>\n' + '        <span \n' + '          ng-if="!column.lock_width"\n' + '          ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '          title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '          ng-mousedown="startColumnResize($event, column)"\n' + '        >\n' + '          &nbsp;\n' + '        </span>\n' + '      </th>\n' + '    </tr>\n' + '    <tr ng-if="hasFilterFields()">\n' + '      <th ng-repeat="column in columns">\n' + '        <input \n' + '          type="search"\n' + '          ng-if="(column.filter)"\n' + '          ng-model="searchTerms[column.id]"\n' + '          ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '          ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '        >\n' + '      </th>\n' + '    </tr>\n' + '  </thead>\n' + '  <tbody>\n' + '    <tr ng-repeat="row in rows | tableRowFilter:columns:searchTerms | tableRowSorter:columns:sortOrder:sortDirection ">\n' + '      <td ng-repeat="column in columns">\n' + '        <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>\n' + '        <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>\n' + '      </td>\n' + '    </tr>\n' + '  </tbody>\n' + '</table>');
+    $templateCache.put('src/ap-table.tpl.html', '<div class="ap-table-wrapper">\n' + '  <table ng-class="classes" class="ap-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lock_width"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()">\n' + '        <th ng-repeat="column in columns">\n' + '          <input \n' + '            type="search"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '          >\n' + '        </th>\n' + '      </tr>\n' + '    </thead>\n' + '    <tfoot>\n' + '      <tr>\n' + '        <td colspan="0"  ng-attr-colspan="{{ getActiveColCount() }}">\n' + '          <label>row limit:</label> <input type="text" ng-model="options.rowLimit" value="{{ options.rowLimit }}">&nbsp;&nbsp;\n' + '          <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;\n' + '          <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;\n' + '          <span ng-if="options.pagingScheme === \'page\'" ap-paginate="options" filter-state="filterState"></span>\n' + '        </td>\n' + '      </tr>\n' + '    </tfoot>\n' + '    <tbody msd-wheel="onScroll($event)">\n' + '      <tr ng-repeat="\n' + '        row in rows \n' + '          | tableRowFilter:columns:searchTerms:filterState \n' + '          | tableRowSorter:columns:sortOrder:sortDirection \n' + '          | limitTo:options.rowOffset - filterState.filterCount \n' + '          | limitTo:options.rowLimit">\n' + '        <td ng-repeat="column in columns">\n' + '          <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>\n' + '          <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>\n' + '        </td>\n' + '      </tr>\n' + '    </tbody>\n' + '  </table>\n' + '  <div ng-show="options.pagingScheme === \'scroll\'" class="ap-table-scroller"></div>\n' + '</div>');
   }
 ]);
