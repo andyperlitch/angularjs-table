@@ -170,6 +170,9 @@ angular.module('andyperlitch.apTable', [
 .service('tableFormatFunctions', function() {
 
   function selector(value, row, column) {
+    if (!row.hasOwnProperty(column.key)) {
+      throw new Error('"selector" format function failed: The key: ' + column.key + ' was not found in row: ' + JSON.stringify(row) + '!'); 
+    }
     return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" ap-table-selector />';
   }
   selector.trustAsHtml = true;

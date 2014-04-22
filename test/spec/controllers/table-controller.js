@@ -1,7 +1,7 @@
 'use strict';
 describe('Controller: TableController', function() {
 
-  var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog;
+  var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog, mockWindow;
 
   beforeEach(module('andyperlitch.apTable'));
 
@@ -30,6 +30,7 @@ describe('Controller: TableController', function() {
     mockLog = {
       warn: sandbox.spy()
     };
+    mockWindow = angular.element('<div></div')[0];
 
     // Object that holds search terms
     $scope.searchTerms = {};
@@ -60,7 +61,8 @@ describe('Controller: TableController', function() {
       tableFormatFunctions: mockTableFormatFunctions,
       tableSortFunctions: mockTableSortFunctions,
       tableFilterFunctions: mockTableFilterFunctions,
-      $log: mockLog
+      $log: mockLog,
+      $window: mockWindow
     });
   }));
 
@@ -322,8 +324,38 @@ describe('Controller: TableController', function() {
 
   });
 
-  // describe('method: ', function() {
+  describe('method: startColumnResize', function() {
+    var fn, $event, column, $markup, $el;
+
+    beforeEach(function() {
+      fn = $scope.startColumnResize;
+      $markup = angular.element('<th><span></span></th>');
+      $el = $markup.find('span');
+
+      $event = {
+        target: $el[0],
+        preventDefault: sandbox.spy(),
+        originalEvent: {
+          preventDefault: sandbox.spy()
+        },
+        stopPropagation: sandbox.spy()
+      };
+
+      fn($event);
+
+    });
+
+    it('should call preventDefault, originalEvent.preventDefault, and stopPropagation on the $event object', function() {
       
-  // });
+      expect($event.preventDefault).to.have.been.calledOnce;
+      expect($event.originalEvent.preventDefault).to.have.been.calledOnce;
+      expect($event.stopPropagation).to.have.been.calledOnce;
+    });
+
+    it('should add a marquee element to the $th', function() {
+      expect($markup.find('.column-resizer-marquee').length).to.equal(1);
+    });
+
+  });
 
 });
