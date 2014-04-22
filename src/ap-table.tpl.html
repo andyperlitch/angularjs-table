@@ -46,6 +46,7 @@
           <label>row limit:</label> <input type="text" ng-model="options.rowLimit" value="{{ options.rowLimit }}">&nbsp;&nbsp;
           <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;
           <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;
+          <span ng-if="options.pagingScheme === 'page'" ap-paginate="options" filter-state="filterState"></span>
         </td>
       </tr>
     </tfoot>

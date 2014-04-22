@@ -596,6 +596,63 @@ angular.module('andyperlitch.apTable', [
   };
 })
 
+.directive('apPaginate', ['$compile', function($compile) {
+  function link(scope, elm, attrs) {
+
+    var update = function(oldValue, newValue) {
+      var count = scope.filterState.filterCount;
+      var limit = scope.options.rowLimit;
+      if (limit <= 0) {
+        elm.html('');
+        return;
+      }
+
+      var pages = Math.ceil( count / limit );
+      var curPage = Math.floor(scope.options.rowOffset / limit);
+      var string = '<button class="ap-table-page-link" ng-disabled="isCurrentPage(0)" ng-click="decrementPage()">&laquo;</button>';
+
+      for (var i = 0; i < pages; i++) {
+        string += ' <a class="ap-table-page-link" ng-show="!isCurrentPage(' + i + ')" ng-click="goToPage(' + i + ')">' + i + '</a><span class="ap-table-page-link" ng-show="isCurrentPage(' + i + ')">' + i + '</span>';
+      }
+
+      string += '<button class="ap-table-page-link" ng-disabled="isCurrentPage(' + (pages - 1) + ')" ng-click="incrementPage()">&raquo;</button>';
+
+      elm.html(string);
+      $compile(elm.contents())(scope);
+
+    }
+
+    scope.incrementPage = function() {
+      scope.options.rowOffset += scope.options.rowLimit*1;
+    }
+    scope.decrementPage = function() {
+      scope.options.rowOffset -= scope.options.rowLimit*1; 
+    }
+    scope.goToPage = function(i) {
+      scope.options.rowOffset = scope.options.rowLimit*i;
+    }
+    scope.isCurrentPage = function(i) {
+      var limit = scope.options.rowLimit;
+      if (limit <= 0) {
+        return false;
+      }
+      var pageOffset = i * limit;
+      return pageOffset === scope.options.rowOffset*1;
+    }
+
+    scope.$watch('options.rowLimit', update);
+    scope.$watch('filterState.filterCount', update);
+
+  }
+  return {
+    scope: {
+      options: '=apPaginate',
+      filterState: '='
+    },
+    link: link
+  };
+}])
+
 .directive('apTable', ['$log', '$timeout', function ($log, $timeout) {
 
   function link(scope, elem) {
@@ -644,11 +701,13 @@ angular.module('andyperlitch.apTable', [
     // Watch for changes to update scroll position
     scope.$watch('filterState.filterCount', function() {
       scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, scope.filterState.filterCount - scope.options.rowLimit));
+      $timeout(scope.updateScrollerPosition, 0);
     });
     scope.$watch('options.rowLimit', function() {
       $timeout(scope.updateScrollerPosition, 0);
     });
-    scope.$watch('filterState.filterCount', function() {
+    scope.$watch('options.pagingScheme', function() {
+      scope.options.rowOffset = 0;
       $timeout(scope.updateScrollerPosition, 0);
     });
   }
