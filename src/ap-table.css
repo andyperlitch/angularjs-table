@@ -21,6 +21,12 @@
   text-indent: 2px;
 }
 
+.ap-table th input.active {
+  background-color: #3D82C2;
+  color: #FFF;
+  border-color: #747474;
+}
+
 .ap-table .ap-table-column-placeholder {
   background-color: #DDD;
 }

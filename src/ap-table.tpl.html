@@ -36,6 +36,7 @@
             ng-model="searchTerms[column.id]"
             ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"
             ng-attr-title="{{ column.filter && column.filter.title }}"
+            ng-class="{'active': searchTerms[column.id] }"
           >
         </th>
       </tr>
