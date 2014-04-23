@@ -387,6 +387,8 @@ angular.module('andyperlitch.apTable', [
       }
       
     }
+
+    $scope.saveToStorage();
   };
   // Retrieve className for given sorting state
   $scope.getSortClass = function(sorting) {
@@ -488,7 +490,9 @@ angular.module('andyperlitch.apTable', [
   };
   $scope.sortableOptions = {
     axis: 'x',
-    handle: '.column-text'
+    handle: '.column-text',
+    helper: 'clone',
+    placeholder: 'ap-table-column-placeholder'
   };
 
   $scope.getActiveColCount = function() {
@@ -545,6 +549,84 @@ angular.module('andyperlitch.apTable', [
       top: newTop,
       height: newHeight + 'px'
     });
+  };
+
+  $scope.saveToStorage = function() {
+    if (!$scope.storage) {
+      return;
+    }
+    // init object to stringify/save
+    var state = {};
+
+    // save state objects
+    ['sortOrder', 'sortDirection', 'searchTerms'].forEach(function(prop) {
+      state[prop] = $scope[prop];
+    });
+
+    // serialize columns
+    state.columns = $scope.columns.map(function(col) {
+      return {
+        id: col.id,
+        disabled: !!col.disabled
+      }
+    });
+
+    // save non-transient options
+    state.options = {};
+    ['rowLimit', 'pagingScheme'].forEach(function(prop){
+      state.options[prop] = $scope.options[prop];
+    });
+
+    // Save to storage
+    $scope.storage.setItem($scope.storage_key, JSON.stringify(state));
+  };
+
+  $scope.loadFromStorage = function() {
+    if (!$scope.storage) {
+      return;
+    }
+
+    // Attempt to parse the storage
+    var stateString = $scope.storage.getItem($scope.storage_key);
+
+    // Was it there?
+    if (!stateString) {
+      return;
+    }
+
+    // Try to parse it
+    var state;
+    try {
+      state = JSON.parse(stateString);
+
+      // load state objects
+      ['sortOrder', 'sortDirection', 'searchTerms'].forEach(function(prop){
+        $scope[prop] = state[prop];
+      });
+
+      // validate (compare ids)
+
+      // reorder columns and merge
+      var column_ids = state.columns.map(function(col) {
+        return col.id;
+      });
+      $scope.columns.sort(function(a,b) {
+        return column_ids.indexOf(a.id) - column_ids.indexOf(b.id);
+      });
+      $scope.columns.forEach(function(col, i) {
+        ['disabled'].forEach(function(prop) {
+          col[prop] = state.columns[i][prop];
+        });
+      });
+
+      // load options
+      ['rowLimit', 'pagingScheme'].forEach(function(prop) {
+        $scope.options[prop] = state.options[prop];
+      });
+
+    } catch (e) {
+      $log.warn('Loading from storage failed!')
+    }
   };
 
 }])
@@ -683,7 +765,7 @@ angular.module('andyperlitch.apTable', [
 
     // Default Options, extend provided ones
     scope.options = angular.extend({}, {
-      rowLimit: 50,
+      rowLimit: 30,
       rowOffset: 0,
       pagingScheme: 'scroll',
       sort_classes: [
@@ -697,6 +779,31 @@ angular.module('andyperlitch.apTable', [
     scope.thead = elem.find('thead');
     scope.tbody = elem.find('tbody');
     scope.scroller = elem.find('.ap-table-scroller');
+
+    // Check for localStorage persistence
+    if (scope.options.storage && scope.options.storage_key) {
+      // Set the storage object on the scope
+      scope.storage = scope.options.storage;
+      scope.storage_key = scope.options.storage_key;
+
+      // Try loading from storage
+      scope.loadFromStorage();
+
+      // Watch various things to save state
+      //  Save state on the following action:
+      //  - sort change
+      //  occurs in $scope.toggleSort
+      //  - column order change 
+      scope.$watchCollection('columns', scope.saveToStorage);
+      //  - search terms change
+      scope.$watchCollection('searchTerms', scope.saveToStorage);
+      //  - paging scheme
+      scope.$watch('options.pagingScheme', scope.saveToStorage);
+      //  - row limit
+      scope.$watch('options.rowLimit', scope.saveToStorage);
+      //  - when column gets enabled or disabled
+      //  TODO
+    }
 
     // Watch for changes to update scroll position
     scope.$watch('filterState.filterCount', function() {
