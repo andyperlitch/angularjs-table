@@ -21,6 +21,10 @@
   text-indent: 2px;
 }
 
+.ap-table .ap-table-column-placeholder {
+  background-color: #DDD;
+}
+
 .ap-table th .column-resizer {
   position: absolute;
   top:0;
