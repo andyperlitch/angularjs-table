@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: apTable', function () {
+describe('Directive: mlhrTable', function () {
 
   var element,
   scope,
@@ -22,7 +22,7 @@ describe('Directive: apTable', function () {
   });
 
   // load the directive's module
-  beforeEach(module('andyperlitch.apTable', function($provide) {
+  beforeEach(module('datatorrent.mlhrTable', function($provide) {
     $provide.value('$log', mockLog);
   }));
 
@@ -86,7 +86,7 @@ describe('Directive: apTable', function () {
     // Table data
     scope.my_table_data = data = genRows(30);
 
-    element = angular.element('<ap-table columns="my_table_columns" rows="my_table_data" class="table"></ap-table>');
+    element = angular.element('<mlhr-table columns="my_table_columns" rows="my_table_data" class="table"></mlhr-table>');
     element = compile(element)(scope);
     scope.$digest();
     isoScope = element.isolateScope();
@@ -119,7 +119,7 @@ describe('Directive: apTable', function () {
   it('should throw if no columns array was found on the scope', inject(function($rootScope, $controller) {
     var scope2 = $rootScope.$new();
     scope2.rows = [];
-    var el2 = angular.element('<ap-table columns="nonexistent_columns" rows="rows" class="table"></ap-table>');
+    var el2 = angular.element('<mlhr-table columns="nonexistent_columns" rows="rows" class="table"></mlhr-table>');
     var fn = function() {
       el2 = compile(el2)(scope2);
       scope.$digest();
@@ -130,7 +130,7 @@ describe('Directive: apTable', function () {
   it('should throw if no rows array was found on the scope', inject(function($rootScope, $controller) {
     var $scope2 = $rootScope.$new();
     $scope2.columns = [];
-    var el2 = angular.element('<ap-table columns="columns" rows="nonexistent_rows" class="table"></ap-table>');
+    var el2 = angular.element('<mlhr-table columns="columns" rows="nonexistent_rows" class="table"></mlhr-table>');
     var fn = function() {
       el2 = compile(el2)($scope2);
       scope.$digest();

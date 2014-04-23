@@ -1,7 +1,7 @@
 'use strict';
 describe('Service: tableFormatFunctions', function() {
 
-  beforeEach(module('andyperlitch.apTable'));
+  beforeEach(module('datatorrent.mlhrTable'));
 
   var formats;
 

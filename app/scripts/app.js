@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('andyperlitch.apTable.ghPage', [
+angular.module('datatorrent.mlhrTable.ghPage', [
   'ngSanitize',
   'ngRoute',
-  'andyperlitch.apTable'
+  'datatorrent.mlhrTable'
 ])
 .config(function ($routeProvider) {
     $routeProvider
@@ -20,7 +20,7 @@ angular.module('andyperlitch.apTable.ghPage', [
   // We're going to package this as its own module. Not sure how else to distribute
   // an AngularJS class since it depends on an actual application name at the code-
   // time of the class definition.
-  var module = ng.module( 'andyperlitch.apTable.ghPage');
+  var module = ng.module( 'datatorrent.mlhrTable.ghPage');
 
   // I am the constructor.
   function HashKeyCopier( source, destination, uniqueIdentifiers ) {

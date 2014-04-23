@@ -20,9 +20,9 @@ module.exports = function(config) {
   
   conf.preprocessors = {
     // which html templates to be converted to js
-    'src/ap-table.tpl.html': ['ng-html2js'],
+    'src/mlhr-table.tpl.html': ['ng-html2js'],
     // files we want to appear in the coverage report
-    'src/ap-table.js': ['coverage']
+    'src/mlhr-table.js': ['coverage']
   };
 
   conf.ngHtml2JsPreprocessor = {
@@ -31,7 +31,7 @@ module.exports = function(config) {
 
     // setting this option will create only a single module that contains templates
     // from all the files, so you can load them all with module('foo')
-    moduleName: 'andyperlitch.apTable.templates'
+    moduleName: 'datatorrent.mlhrTable.templates'
   }
 
 

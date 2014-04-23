@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('andyperlitch.apTable', [
-  'andyperlitch.apTable.templates',
+angular.module('datatorrent.mlhrTable', [
+  'datatorrent.mlhrTable.templates',
   'ui.sortable',
   'ngSanitize',
   'monospaced.mousewheel'
@@ -173,7 +173,7 @@ angular.module('andyperlitch.apTable', [
     if (!row.hasOwnProperty(column.key)) {
       throw new Error('"selector" format function failed: The key: ' + column.key + ' was not found in row: ' + JSON.stringify(row) + '!'); 
     }
-    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" ap-table-selector />';
+    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" mlhr-table-selector />';
   }
   selector.trustAsHtml = true;
 
@@ -226,7 +226,7 @@ angular.module('andyperlitch.apTable', [
           column.filter = predefined;
           return true;
         }
-        $log.warn('apTable: The filter function "'+column.filter+'" ' +
+        $log.warn('mlhrTable: The filter function "'+column.filter+'" ' +
           'specified by column(id='+column.id+').filter ' +
           'was not found in predefined tableFilterFunctions. ' +
           'Available filters: "'+Object.keys(tableFilterFunctions).join('","')+'"');
@@ -492,7 +492,7 @@ angular.module('andyperlitch.apTable', [
     axis: 'x',
     handle: '.column-text',
     helper: 'clone',
-    placeholder: 'ap-table-column-placeholder'
+    placeholder: 'mlhr-table-column-placeholder'
   };
 
   $scope.getActiveColCount = function() {
@@ -631,12 +631,12 @@ angular.module('andyperlitch.apTable', [
 
 }])
 
-.directive('dtDynamic', function ($compile) {
+.directive('mlhrTableDynamic', function ($compile) {
   return {
     restrict: 'A',
     replace: true,
     scope: {
-      dynamic: '=dtDynamic',
+      dynamic: '=mlhrTableDynamic',
       row: '=',
       column: '=',
       selected: '='
@@ -650,7 +650,7 @@ angular.module('andyperlitch.apTable', [
   };
 })
 
-.directive('apTableSelector', function() {
+.directive('mlhrTableSelector', function() {
   return {
     restrict: 'A',
     scope: false,
@@ -678,7 +678,7 @@ angular.module('andyperlitch.apTable', [
   };
 })
 
-.directive('apPaginate', ['$compile', function($compile) {
+.directive('mlhrTablePaginate', ['$compile', function($compile) {
   function link(scope, elm, attrs) {
 
     var update = function(oldValue, newValue) {
@@ -691,13 +691,13 @@ angular.module('andyperlitch.apTable', [
 
       var pages = Math.ceil( count / limit );
       var curPage = Math.floor(scope.options.rowOffset / limit);
-      var string = '<button class="ap-table-page-link" ng-disabled="isCurrentPage(0)" ng-click="decrementPage()">&laquo;</button>';
+      var string = '<button class="mlhr-table-page-link" ng-disabled="isCurrentPage(0)" ng-click="decrementPage()">&laquo;</button>';
 
       for (var i = 0; i < pages; i++) {
-        string += ' <a class="ap-table-page-link" ng-show="!isCurrentPage(' + i + ')" ng-click="goToPage(' + i + ')">' + i + '</a><span class="ap-table-page-link" ng-show="isCurrentPage(' + i + ')">' + i + '</span>';
+        string += ' <a class="mlhr-table-page-link" ng-show="!isCurrentPage(' + i + ')" ng-click="goToPage(' + i + ')">' + i + '</a><span class="mlhr-table-page-link" ng-show="isCurrentPage(' + i + ')">' + i + '</span>';
       }
 
-      string += '<button class="ap-table-page-link" ng-disabled="isCurrentPage(' + (pages - 1) + ')" ng-click="incrementPage()">&raquo;</button>';
+      string += '<button class="mlhr-table-page-link" ng-disabled="isCurrentPage(' + (pages - 1) + ')" ng-click="incrementPage()">&raquo;</button>';
 
       elm.html(string);
       $compile(elm.contents())(scope);
@@ -733,14 +733,14 @@ angular.module('andyperlitch.apTable', [
   }
   return {
     scope: {
-      options: '=apPaginate',
+      options: '=mlhrTablePaginate',
       filterState: '='
     },
     link: link
   };
 }])
 
-.directive('apTable', ['$log', '$timeout', function ($log, $timeout) {
+.directive('mlhrTable', ['$log', '$timeout', function ($log, $timeout) {
 
   function link(scope, elem) {
 
@@ -748,12 +748,12 @@ angular.module('andyperlitch.apTable', [
     if (scope.columns instanceof Array) {
       scope.setColumns(scope.columns);
     } else {
-      throw new Error('"columns" array not found in apTable scope!');
+      throw new Error('"columns" array not found in mlhrTable scope!');
     }
 
     // Check for rows
     if ( !(scope.rows instanceof Array) ) {
-      throw new Error('"rows" array not found in apTable scope!');
+      throw new Error('"rows" array not found in mlhrTable scope!');
     }
 
     // Object that holds search terms
@@ -783,7 +783,7 @@ angular.module('andyperlitch.apTable', [
     // Cache elements
     scope.thead = elem.find('thead');
     scope.tbody = elem.find('tbody');
-    scope.scroller = elem.find('.ap-table-scroller');
+    scope.scroller = elem.find('.mlhr-table-scroller');
 
     // Check for localStorage persistence
     if (scope.options.storage && scope.options.storage_key) {
@@ -837,7 +837,7 @@ angular.module('andyperlitch.apTable', [
   }
 
   return {
-    templateUrl: 'src/ap-table.tpl.html',
+    templateUrl: 'src/mlhr-table.tpl.html',
     restrict: 'EA',
     scope: {
       columns: '=',

@@ -2,7 +2,7 @@ describe('Filter: tableRowSorter', function() {
 
   var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder, sortDirection;
 
-  beforeEach(module('andyperlitch.apTable'));
+  beforeEach(module('datatorrent.mlhrTable'));
 
   beforeEach(inject(function(tableRowSorterFilter) {
     sandbox = sinon.sandbox.create();

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('andyperlitch.apTable.ghPage')
+angular.module('datatorrent.mlhrTable.ghPage')
   .controller('MainCtrl', function ($scope, HashKeyCopier) {
 
     // Format functions

@@ -6,7 +6,7 @@ describe('Service: tableSortFunctions', function() {
     sandbox = sinon.sandbox.create();
   });
 
-  beforeEach(module('andyperlitch.apTable'));
+  beforeEach(module('datatorrent.mlhrTable'));
 
   beforeEach(inject(['tableSortFunctions', function(s) {
     sorts = s;

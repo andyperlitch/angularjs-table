@@ -1,4 +1,4 @@
-apTable
+malhar-angular-table
 ========
 A table component built with angular that is catered to real-time data.
 
@@ -15,10 +15,10 @@ Feature List
 Getting Started
 ---------------
 
-First, include ap-table.js and ap-table.css in your project. Then, in your markup, instantiate table instances with an `<ap-table>` tag:
+First, include mlhr-table.js and mlhr-table.css in your project. Then, in your markup, instantiate table instances with an `<mlhr-table>` tag:
 
 ```HTML
-<ap-table options="options" table-class="table" columns="columns" rows="rows"></ap-table>
+<mlhr-table options="options" table-class="table" columns="columns" rows="rows"></mlhr-table>
 ```
 
 Attributes
@@ -33,7 +33,7 @@ Attributes
 
 Options Object
 --------------
-The options object should be available on the parent scope of the `<ap-table>` element. It is optional (defaults are used) and has the following keys:
+The options object should be available on the parent scope of the `<mlhr-table>` element. It is optional (defaults are used) and has the following keys:
 
 | key | type | default | description |
 |-----|------|---------|-------------|

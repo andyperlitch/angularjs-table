@@ -7,7 +7,7 @@ describe('Filter: tableRowFilter', function() {
   });
 
   // load the filter's module
-  beforeEach(module('andyperlitch.apTable', function($provide) {
+  beforeEach(module('datatorrent.mlhrTable', function($provide) {
     mockLog = { warn: sandbox.spy() };
     $provide.value('$log', mockLog);
   }));

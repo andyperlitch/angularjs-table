@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: apPaginate', function () {
+describe('Directive: mlhrTablePaginate', function () {
 
   var element, scope, rootScope, isoScope, compile, sandbox;
 
@@ -11,7 +11,7 @@ describe('Directive: apPaginate', function () {
   });
 
   // load the directive's module
-  beforeEach(module('andyperlitch.apTable', function($provide) {
+  beforeEach(module('datatorrent.mlhrTable', function($provide) {
     // Inject dependencies like this:
     // $provide.value('', mockThing);
 
@@ -35,7 +35,7 @@ describe('Directive: apPaginate', function () {
     };
 
     // Define and compile the element
-    element = angular.element('<div ap-paginate="options" filter-state="filterState"></div>');
+    element = angular.element('<div mlhr-table-paginate="options" filter-state="filterState"></div>');
     element = compile(element)(scope);
     scope.$digest();
     isoScope = element.isolateScope();

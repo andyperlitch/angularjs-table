@@ -3,7 +3,7 @@ describe('Controller: TableController', function() {
 
   var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog, mockWindow;
 
-  beforeEach(module('andyperlitch.apTable'));
+  beforeEach(module('datatorrent.mlhrTable'));
 
   beforeEach(inject(function($rootScope, $controller){
     sandbox = sinon.sandbox.create();

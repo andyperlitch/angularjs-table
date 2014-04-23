@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: dt-dynamic', function () {
+describe('Directive: mlhr-table-dynamic', function () {
 
   var element, scope, rootScope, isoScope, compile, sandbox;
 
@@ -11,7 +11,7 @@ describe('Directive: dt-dynamic', function () {
   });
 
   // load the directive's module
-  beforeEach(module('andyperlitch.apTable', function($provide) {
+  beforeEach(module('datatorrent.mlhrTable', function($provide) {
     // Inject dependencies like this:
     // $provide.value('', mockThing);
 
@@ -33,7 +33,7 @@ describe('Directive: dt-dynamic', function () {
     scope.selected = [];
 
     // Define and compile the element
-    element = angular.element('<div dt-dynamic="injectedHtml" row="row" column="column" selected="selected"></div>');
+    element = angular.element('<div mlhr-table-dynamic="injectedHtml" row="row" column="column" selected="selected"></div>');
     element = compile(element)(scope);
     scope.$digest();
     isoScope = element.isolateScope();

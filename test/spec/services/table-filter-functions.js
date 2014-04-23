@@ -1,7 +1,7 @@
 'use strict';
 describe('Service: tableFilterFunctions', function() {
 
-  beforeEach(module('andyperlitch.apTable'));
+  beforeEach(module('datatorrent.mlhrTable'));
 
   var tff;
 

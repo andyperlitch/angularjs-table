@@ -1,7 +1,7 @@
 {
-  "name": "ap-table",
+  "name": "mlhr-table",
   "version": "0.0.2",
-  "main": "./dist/ap-table.js",
+  "main": "./dist/mlhr-table.js",
   "dependencies": {
     "angular": "1.2.6",
     "json3": "~3.2.6",

@@ -1,6 +1,6 @@
 'use strict';
-angular.module('andyperlitch.apTable', [
-  'andyperlitch.apTable.templates',
+angular.module('datatorrent.mlhrTable', [
+  'datatorrent.mlhrTable.templates',
   'ui.sortable',
   'ngSanitize',
   'monospaced.mousewheel'
@@ -149,7 +149,7 @@ angular.module('andyperlitch.apTable', [
     if (!row.hasOwnProperty(column.key)) {
       throw new Error('"selector" format function failed: The key: ' + column.key + ' was not found in row: ' + JSON.stringify(row) + '!');
     }
-    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" ap-table-selector />';
+    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" mlhr-table-selector />';
   }
   selector.trustAsHtml = true;
   return { selector: selector };
@@ -194,7 +194,7 @@ angular.module('andyperlitch.apTable', [
             column.filter = predefined;
             return true;
           }
-          $log.warn('apTable: The filter function "' + column.filter + '" ' + 'specified by column(id=' + column.id + ').filter ' + 'was not found in predefined tableFilterFunctions. ' + 'Available filters: "' + Object.keys(tableFilterFunctions).join('","') + '"');
+          $log.warn('mlhrTable: The filter function "' + column.filter + '" ' + 'specified by column(id=' + column.id + ').filter ' + 'was not found in predefined tableFilterFunctions. ' + 'Available filters: "' + Object.keys(tableFilterFunctions).join('","') + '"');
         }
         return false;
       });
@@ -341,6 +341,7 @@ angular.module('andyperlitch.apTable', [
           $scope.addSort(column.id, '+');
         }
       }
+      $scope.saveToStorage();
     };
     // Retrieve className for given sorting state
     $scope.getSortClass = function (sorting) {
@@ -427,7 +428,9 @@ angular.module('andyperlitch.apTable', [
     };
     $scope.sortableOptions = {
       axis: 'x',
-      handle: '.column-text'
+      handle: '.column-text',
+      helper: 'clone',
+      placeholder: 'mlhr-table-column-placeholder'
     };
     $scope.getActiveColCount = function () {
       var count = 0;
@@ -480,13 +483,91 @@ angular.module('andyperlitch.apTable', [
         height: newHeight + 'px'
       });
     };
+    $scope.saveToStorage = function () {
+      if (!$scope.storage) {
+        return;
+      }
+      // init object to stringify/save
+      var state = {};
+      // save state objects
+      [
+        'sortOrder',
+        'sortDirection',
+        'searchTerms'
+      ].forEach(function (prop) {
+        state[prop] = $scope[prop];
+      });
+      // serialize columns
+      state.columns = $scope.columns.map(function (col) {
+        return {
+          id: col.id,
+          disabled: !!col.disabled
+        };
+      });
+      // save non-transient options
+      state.options = {};
+      [
+        'rowLimit',
+        'pagingScheme'
+      ].forEach(function (prop) {
+        state.options[prop] = $scope.options[prop];
+      });
+      // Save to storage
+      $scope.storage.setItem($scope.storage_key, JSON.stringify(state));
+    };
+    $scope.loadFromStorage = function () {
+      if (!$scope.storage) {
+        return;
+      }
+      // Attempt to parse the storage
+      var stateString = $scope.storage.getItem($scope.storage_key);
+      // Was it there?
+      if (!stateString) {
+        return;
+      }
+      // Try to parse it
+      var state;
+      try {
+        state = JSON.parse(stateString);
+        // load state objects
+        [
+          'sortOrder',
+          'sortDirection',
+          'searchTerms'
+        ].forEach(function (prop) {
+          $scope[prop] = state[prop];
+        });
+        // validate (compare ids)
+        // reorder columns and merge
+        var column_ids = state.columns.map(function (col) {
+            return col.id;
+          });
+        $scope.columns.sort(function (a, b) {
+          return column_ids.indexOf(a.id) - column_ids.indexOf(b.id);
+        });
+        $scope.columns.forEach(function (col, i) {
+          ['disabled'].forEach(function (prop) {
+            col[prop] = state.columns[i][prop];
+          });
+        });
+        // load options
+        [
+          'rowLimit',
+          'pagingScheme'
+        ].forEach(function (prop) {
+          $scope.options[prop] = state.options[prop];
+        });
+      } catch (e) {
+        $log.warn('Loading from storage failed!');
+      }
+    };
   }
-]).directive('dtDynamic', function ($compile) {
+]).directive('mlhrTableDynamic', function ($compile) {
   return {
     restrict: 'A',
     replace: true,
     scope: {
-      dynamic: '=dtDynamic',
+      dynamic: '=mlhrTableDynamic',
       row: '=',
       column: '=',
       selected: '='
@@ -498,7 +579,7 @@ angular.module('andyperlitch.apTable', [
       });
     }
   };
-}).directive('apTableSelector', function () {
+}).directive('mlhrTableSelector', function () {
   return {
     restrict: 'A',
     scope: false,
@@ -520,7 +601,7 @@ angular.module('andyperlitch.apTable', [
       });
     }
   };
-}).directive('apPaginate', [
+}).directive('mlhrTablePaginate', [
   '$compile',
   function ($compile) {
     function link(scope, elm, attrs) {
@@ -533,21 +614,26 @@ angular.module('andyperlitch.apTable', [
         }
         var pages = Math.ceil(count / limit);
         var curPage = Math.floor(scope.options.rowOffset / limit);
-        var string = '<button class="ap-table-page-link" ng-disabled="isCurrentPage(0)" ng-click="decrementPage()">&laquo;</button>';
+        var string = '<button class="mlhr-table-page-link" ng-disabled="isCurrentPage(0)" ng-click="decrementPage()">&laquo;</button>';
         for (var i = 0; i < pages; i++) {
-          string += ' <a class="ap-table-page-link" ng-show="!isCurrentPage(' + i + ')" ng-click="goToPage(' + i + ')">' + i + '</a><span class="ap-table-page-link" ng-show="isCurrentPage(' + i + ')">' + i + '</span>';
+          string += ' <a class="mlhr-table-page-link" ng-show="!isCurrentPage(' + i + ')" ng-click="goToPage(' + i + ')">' + i + '</a><span class="mlhr-table-page-link" ng-show="isCurrentPage(' + i + ')">' + i + '</span>';
         }
-        string += '<button class="ap-table-page-link" ng-disabled="isCurrentPage(' + (pages - 1) + ')" ng-click="incrementPage()">&raquo;</button>';
+        string += '<button class="mlhr-table-page-link" ng-disabled="isCurrentPage(' + (pages - 1) + ')" ng-click="incrementPage()">&raquo;</button>';
         elm.html(string);
         $compile(elm.contents())(scope);
       };
       scope.incrementPage = function () {
-        scope.options.rowOffset += scope.options.rowLimit * 1;
+        var newOffset = scope.options.rowOffset + scope.options.rowLimit * 1;
+        scope.options.rowOffset = Math.min(scope.filterState.filterCount - 1, newOffset);
       };
       scope.decrementPage = function () {
-        scope.options.rowOffset -= scope.options.rowLimit * 1;
+        var newOffset = scope.options.rowOffset - scope.options.rowLimit * 1;
+        scope.options.rowOffset = Math.max(0, newOffset);
       };
       scope.goToPage = function (i) {
+        if (i < 0) {
+          throw new Error('Attempted to go to a negative index page!');
+        }
         scope.options.rowOffset = scope.options.rowLimit * i;
       };
       scope.isCurrentPage = function (i) {
@@ -563,13 +649,13 @@ angular.module('andyperlitch.apTable', [
     }
     return {
       scope: {
-        options: '=apPaginate',
+        options: '=mlhrTablePaginate',
         filterState: '='
       },
       link: link
     };
   }
-]).directive('apTable', [
+]).directive('mlhrTable', [
   '$log',
   '$timeout',
   function ($log, $timeout) {
@@ -578,11 +664,11 @@ angular.module('andyperlitch.apTable', [
       if (scope.columns instanceof Array) {
         scope.setColumns(scope.columns);
       } else {
-        throw new Error('"columns" array not found in apTable scope!');
+        throw new Error('"columns" array not found in mlhrTable scope!');
       }
       // Check for rows
       if (!(scope.rows instanceof Array)) {
-        throw new Error('"rows" array not found in apTable scope!');
+        throw new Error('"rows" array not found in mlhrTable scope!');
       }
       // Object that holds search terms
       scope.searchTerms = {};
@@ -593,7 +679,7 @@ angular.module('andyperlitch.apTable', [
       scope.filterState = { filterCount: scope.rows.length };
       // Default Options, extend provided ones
       scope.options = angular.extend({}, {
-        rowLimit: 50,
+        rowLimit: 30,
         rowOffset: 0,
         pagingScheme: 'scroll',
         sort_classes: [
@@ -605,10 +691,42 @@ angular.module('andyperlitch.apTable', [
       // Cache elements
       scope.thead = elem.find('thead');
       scope.tbody = elem.find('tbody');
-      scope.scroller = elem.find('.ap-table-scroller');
+      scope.scroller = elem.find('.mlhr-table-scroller');
+      // Check for localStorage persistence
+      if (scope.options.storage && scope.options.storage_key) {
+        // Set the storage object on the scope
+        scope.storage = scope.options.storage;
+        scope.storage_key = scope.options.storage_key;
+        // Try loading from storage
+        scope.loadFromStorage();
+        // Watch various things to save state
+        //  Save state on the following action:
+        //  - sort change
+        //  occurs in $scope.toggleSort
+        //  - column order change 
+        scope.$watchCollection('columns', scope.saveToStorage);
+        //  - search terms change
+        scope.$watchCollection('searchTerms', scope.saveToStorage);
+        //  - paging scheme
+        scope.$watch('options.pagingScheme', scope.saveToStorage);
+        //  - row limit
+        scope.$watch('options.rowLimit', scope.saveToStorage);  //  - when column gets enabled or disabled
+                                                                //  TODO
+      }
       // Watch for changes to update scroll position
       scope.$watch('filterState.filterCount', function () {
-        scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, scope.filterState.filterCount - scope.options.rowLimit));
+        var minOffset;
+        var rowLimit = scope.options.rowLimit * 1;
+        if (scope.options.pagingScheme === 'page') {
+          if (rowLimit <= 0) {
+            minOffset = 0;
+          } else {
+            minOffset = Math.floor(scope.filterState.filterCount / rowLimit) * rowLimit;
+          }
+        } else {
+          minOffset = scope.filterState.filterCount - rowLimit;
+        }
+        scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, minOffset));
         $timeout(scope.updateScrollerPosition, 0);
       });
       scope.$watch('options.rowLimit', function () {
@@ -620,7 +738,7 @@ angular.module('andyperlitch.apTable', [
       });
     }
     return {
-      templateUrl: 'src/ap-table.tpl.html',
+      templateUrl: 'src/mlhr-table.tpl.html',
       restrict: 'EA',
       scope: {
         columns: '=',
@@ -634,10 +752,10 @@ angular.module('andyperlitch.apTable', [
     };
   }
 ]);
-angular.module('andyperlitch.apTable.templates', ['src/ap-table.tpl.html']);
-angular.module('src/ap-table.tpl.html', []).run([
+angular.module('datatorrent.mlhrTable.templates', ['src/mlhr-table.tpl.html']);
+angular.module('src/mlhr-table.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/ap-table.tpl.html', '<div class="ap-table-wrapper">\n' + '  <table ng-class="classes" class="ap-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lock_width"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()">\n' + '        <th ng-repeat="column in columns">\n' + '          <input \n' + '            type="search"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '          >\n' + '        </th>\n' + '      </tr>\n' + '    </thead>\n' + '    <tfoot>\n' + '      <tr>\n' + '        <td colspan="0"  ng-attr-colspan="{{ getActiveColCount() }}">\n' + '          <label>row limit:</label> <input type="text" ng-model="options.rowLimit" value="{{ options.rowLimit }}">&nbsp;&nbsp;\n' + '          <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;\n' + '          <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;\n' + '          <span ng-if="options.pagingScheme === \'page\'" ap-paginate="options" filter-state="filterState"></span>\n' + '        </td>\n' + '      </tr>\n' + '    </tfoot>\n' + '    <tbody msd-wheel="onScroll($event)">\n' + '      <tr ng-repeat="\n' + '        row in rows \n' + '          | tableRowFilter:columns:searchTerms:filterState \n' + '          | tableRowSorter:columns:sortOrder:sortDirection \n' + '          | limitTo:options.rowOffset - filterState.filterCount \n' + '          | limitTo:options.rowLimit">\n' + '        <td ng-repeat="column in columns">\n' + '          <span ng-if="column.format && column.format.trustAsHtml" dt-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>\n' + '          <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>\n' + '        </td>\n' + '      </tr>\n' + '    </tbody>\n' + '  </table>\n' + '  <div ng-show="options.pagingScheme === \'scroll\'" class="ap-table-scroller"></div>\n' + '</div>');
+    $templateCache.put('src/mlhr-table.tpl.html', '<div class="mlhr-table-wrapper">\n' + '  <table ng-class="classes" class="mlhr-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lock_width"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()">\n' + '        <th ng-repeat="column in columns">\n' + '          <input \n' + '            type="search"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '        </th>\n' + '      </tr>\n' + '    </thead>\n' + '    <tfoot>\n' + '      <tr>\n' + '        <td ng-attr-colspan="{{ getActiveColCount() }}">\n' + '          <label>row limit:</label> <input type="text" ng-model="options.rowLimit" value="{{ options.rowLimit }}">&nbsp;&nbsp;\n' + '          <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;\n' + '          <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;\n' + '          <span ng-if="options.pagingScheme === \'page\'" mlhr-table-paginate="options" filter-state="filterState"></span>\n' + '        </td>\n' + '      </tr>\n' + '    </tfoot>\n' + '    <tbody msd-wheel="onScroll($event)">\n' + '      <tr ng-repeat="\n' + '        row in rows \n' + '          | tableRowFilter:columns:searchTerms:filterState \n' + '          | tableRowSorter:columns:sortOrder:sortDirection \n' + '          | limitTo:options.rowOffset - filterState.filterCount \n' + '          | limitTo:options.rowLimit">\n' + '        <td ng-repeat="column in columns">\n' + '          <span ng-if="column.format && column.format.trustAsHtml" mlhr-table-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>\n' + '          <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>\n' + '        </td>\n' + '      </tr>\n' + '    </tbody>\n' + '  </table>\n' + '  <div ng-show="options.pagingScheme === \'scroll\'" class="mlhr-table-scroller"></div>\n' + '</div>');
   }
 ]);

@@ -30,7 +30,7 @@ module.exports = function() {
     files : bower_scripts.concat([
 
       //App-specific Code
-      'src/ap-table.js',
+      'src/mlhr-table.js',
       'app/scripts/app.js',
 
 

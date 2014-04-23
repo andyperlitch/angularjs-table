@@ -6,7 +6,7 @@ describe('Filter: tableCellFilter', function() {
       sandbox = sinon.sandbox.create();
   });
 
-  beforeEach(module('andyperlitch.apTable', function($provide) {
+  beforeEach(module('datatorrent.mlhrTable', function($provide) {
 
     mockFormatFunctions = {
       testFormat: sinon.stub().returns('Formatted.')
