@@ -14,7 +14,6 @@
   "quotmark": "single",
   "regexp": true,
   "undef": true,
-  "unused": true,
   "strict": true,
   "trailing": true,
   "smarttabs": true,
@@ -29,7 +28,7 @@
     "expect": false,
     "inject": false,
     "it": false,
-    "jasmine": false,
+    "sinon": false,
     "spyOn": false,
     "$": false
   }

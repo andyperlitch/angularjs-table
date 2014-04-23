@@ -705,12 +705,17 @@ angular.module('andyperlitch.apTable', [
     }
 
     scope.incrementPage = function() {
-      scope.options.rowOffset += scope.options.rowLimit*1;
+      var newOffset = scope.options.rowOffset + scope.options.rowLimit*1;
+      scope.options.rowOffset = Math.min(scope.filterState.filterCount - 1, newOffset);
     }
     scope.decrementPage = function() {
-      scope.options.rowOffset -= scope.options.rowLimit*1; 
+      var newOffset = scope.options.rowOffset - scope.options.rowLimit*1;
+      scope.options.rowOffset = Math.max(0, newOffset);
     }
     scope.goToPage = function(i) {
+      if (i < 0) {
+        throw new Error('Attempted to go to a negative index page!');
+      }
       scope.options.rowOffset = scope.options.rowLimit*i;
     }
     scope.isCurrentPage = function(i) {
@@ -807,7 +812,19 @@ angular.module('andyperlitch.apTable', [
 
     // Watch for changes to update scroll position
     scope.$watch('filterState.filterCount', function() {
-      scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, scope.filterState.filterCount - scope.options.rowLimit));
+      var minOffset;
+      var rowLimit = scope.options.rowLimit*1;
+      if (scope.options.pagingScheme === 'page') {
+        if ( rowLimit <= 0) {
+          minOffset = 0
+        } else {
+          minOffset = Math.floor(scope.filterState.filterCount / rowLimit) * rowLimit;
+        }
+        
+      } else {
+        minOffset = scope.filterState.filterCount - rowLimit;
+      }
+      scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, minOffset));
       $timeout(scope.updateScrollerPosition, 0);
     });
     scope.$watch('options.rowLimit', function() {

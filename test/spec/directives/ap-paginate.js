@@ -26,8 +26,13 @@ describe('Directive: apPaginate', function () {
 
     // Set up the outer scope
     scope = $rootScope.$new();
-    scope.filterState = {};
-    scope.options = {};
+    scope.filterState = {
+      filterCount: 30
+    };
+    scope.options = {
+      rowLimit: 5,
+      rowOffset: 0
+    };
 
     // Define and compile the element
     element = angular.element('<div ap-paginate="options" filter-state="filterState"></div>');
@@ -40,8 +45,97 @@ describe('Directive: apPaginate', function () {
     sandbox.restore();
   });
 
-  // it('should do something', function() {
+  it('should set methods: isCurrentPage, goToPage, decrementPage, incrementPage', function() {
+    ['isCurrentPage', 'goToPage', 'decrementPage', 'incrementPage'].forEach(function(method) {
+      expect(isoScope[method]).to.be.a('function');
+    });
+  });
+
+  it('should clear out the element html if rowLimit is set to <= 0', function() {
+    scope.options.rowLimit = 0;
+    scope.$digest();
+    expect(element.html()).to.equal('');
+  });
+
+  describe('method: isCurrentPage', function() {
+    var fn;
+    beforeEach(function() {
+      fn = isoScope.isCurrentPage;
+    });
     
-  // });
+    it('should return false for any given number if rowLimit is <= 0', function() {
+      scope.options.rowLimit = 0;
+      expect(fn(1)).to.equal(false);
+      expect(fn(0)).to.equal(false);
+      expect(fn(12)).to.equal(false);
+    });
+
+    it('should return true if the rowOffset is equal to i * rowLimit', function() {
+      scope.options.rowOffset = 10;
+      expect(fn(2)).to.equal(true);
+      scope.options.rowOffset = 15;
+      expect(fn(3)).to.equal(true);
+    });
+
+    it('should return false if rowOffset is not equal to i * rowLimit', function() {
+      scope.options.rowOffset = 10;
+      expect(fn(3)).to.equal(false);
+      scope.options.rowOffset = 15;
+      expect(fn(2)).to.equal(false);
+    });
+
+  });
+
+  describe('method: goToPage', function() {
+    var fn;
+    beforeEach(function() {
+      fn = isoScope.goToPage;
+    });
+
+    it('should set the rowOffset to i * rowLimit', function() {
+      fn(3);
+      expect(scope.options.rowOffset).to.equal(3 * scope.options.rowLimit);
+    });
+
+    it('should throw if i is negative', function() {
+      expect(fn.bind({},-1)).to.throw();
+    });
+  });
+
+  describe('method: decrementPage', function() {
+    var fn;
+    beforeEach(function() {
+      fn = isoScope.decrementPage;
+    });
+    it('should subtract rowLimit from current rowOffset', function() {
+      scope.options.rowOffset = 10;
+      fn();
+      expect(scope.options.rowOffset).to.equal(10 - scope.options.rowLimit);
+    });
+    it('should never set it to negative offset, even if rowOffset is unexpected value', function() {
+      scope.options.rowOffset = 2;
+      fn();
+      expect(scope.options.rowOffset).to.equal(0);
+    });
+  });
+
+  describe('method: incrementPage', function() {
+    var fn;
+    beforeEach(function() {
+      fn = isoScope.incrementPage;
+    });
+    it('should add rowLimit to current rowOffset', function() {
+      scope.options.rowOffset = 0;
+      fn();
+      expect(scope.options.rowOffset).to.equal(scope.options.rowLimit);
+    });
+    it('should never set offset to greater than number of filtered rows available minus 1', function() {
+      scope.options.rowOffset = 28;
+      fn();
+      expect(scope.options.rowOffset).to.equal(29);
+    });
+  });
+
+
 
 });

@@ -123,7 +123,7 @@ describe('Directive: apTable', function () {
     var fn = function() {
       el2 = compile(el2)(scope2);
       scope.$digest();
-    }
+    };
     expect(fn).to.throw();
   }));
 
@@ -132,9 +132,9 @@ describe('Directive: apTable', function () {
     $scope2.columns = [];
     var el2 = angular.element('<ap-table columns="columns" rows="nonexistent_rows" class="table"></ap-table>');
     var fn = function() {
-      el2 = compile(el2)(scope2);
+      el2 = compile(el2)($scope2);
       scope.$digest();
-    }
+    };
     expect(fn).to.throw();
   }));
 
@@ -201,6 +201,37 @@ describe('Directive: apTable', function () {
       expect(actual).to.equal(expected);
     });
 
+  });
+
+  describe('when filterCount changes', function() {
+    var filterState, options;
+    beforeEach(function() {
+      filterState = isoScope.filterState;
+      options = isoScope.options;
+    });
+    it('should set rowOffset to filterCount - rowLimit when paging scheme is scroll', function() {
+      options.rowOffset = 25;
+      options.rowLimit = 10;
+      options.pagingScheme = 'scroll';
+      
+      // drop the last 10 elements
+      data.splice(20,10);
+      scope.$digest();
+
+      expect(options.rowOffset).to.equal(10);
+    });
+    it('should set rowOffset to the offset of the last page when paging scheme is paginate', function() {
+      options.pagingScheme = 'page';
+      scope.$digest();
+      options.rowOffset = 24;
+      options.rowLimit = 8;
+      
+
+      // drop last 10 elements
+      data.splice(20,10);
+      scope.$digest();
+      expect(options.rowOffset).to.equal(16);
+    });
   });
 
 });
