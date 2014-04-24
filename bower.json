@@ -23,5 +23,12 @@
   },
   "resolutions": {
     "angular": "1.2.6"
-  }
+  },
+  "ignore": [
+    "vendor",
+    "app",
+    "node_modules",
+    "test",
+    "**/.*"
+  ]
 }
