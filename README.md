@@ -1,6 +1,6 @@
 malhar-angular-table
 ========
-A table component built with angular that is catered to real-time data.
+A table component built with angular that is catered to real-time data. [View live demo](http://datatorrent.github.io/malhar-angular-table/).
 
 Feature List
 ------------
