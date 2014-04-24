@@ -1,1 +1,65 @@
-hello world
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Angular Table</title>
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="dist/mlhr-table.css">
+</head>
+<body ng-app="datatorrent.mlhrTable.ghPage">
+    
+    <div class="container">
+      <header>
+        <h1>malhar-angular-table</h1>
+        <p>An angular table directive catered to displaying real-time data.</p>
+        <h2>Features</h2>
+        <ul>
+          <li>complex filters</li>
+          <li>column sorting</li>
+          <li>column resizing</li>
+          <li>stacked ordering</li>
+          <li>localStorage state persistance</li>
+        </ul>
+      </header>
+    </div>
+    <div class="container" ng-controller="MainCtrl">
+        Selected rows: 
+
+        <mlhr-table 
+          columns="my_table_columns" 
+          rows="my_table_data"
+          selected="my_selected_rows"
+          class="col-sm-9"
+          options="my_table_options"
+          table-class="table">
+        </mlhr-table>
+
+
+        <pre class="col-sm-3">{{my_selected_rows | json}}</pre>
+    </div>
+
+    <!-- vendor dependencies -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="vendor/angular-sanitize.min.js"></script>
+    <script src="vendor/hamster.js"></script>
+    <script src="vendor/mousewheel.js"></script>
+    <script src="vendor/sortable.min.js"></script>
+    <script src="vendor/hash-key-copier.js"></script>
+
+    <!-- malhar-angular-table -->
+    <script src="dist/mlhr-table.js"></script>
+
+    <!-- demo code -->
+    <script>
+    angular.module('datatorrent.mlhrTable.ghPage', [
+      'datatorrent.mlhrTable',
+      'hashKeyCopier'
+    ]);
+    </script>
+    <script src="app/scripts/controllers/main.js"></script>
+
+
+</body>
+</html>
