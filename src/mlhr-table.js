@@ -302,7 +302,6 @@ angular.module('datatorrent.mlhrTable', [
         var column = getColumn(columns,id);
         var dir = sortDirection[id];
         if (column && column.sort) {
-          
           var fn = column.sort;
           var result = dir === '+' ? fn(a,b) : fn(b,a);
           if (result !== 0) {
@@ -318,7 +317,7 @@ angular.module('datatorrent.mlhrTable', [
 
 .controller(
   'TableController',
-  ['$scope','tableFormatFunctions','tableSortFunctions','tableFilterFunctions','$log', '$window', function($scope, formats, sorts, filters, $log, $window) {
+  ['$scope','tableFormatFunctions','tableSortFunctions','tableFilterFunctions','$log', '$window', '$filter', function($scope, formats, sorts, filters, $log, $window, $filter) {
 
   // SCOPE FUNCTIONS
   $scope.addSort = function(id, dir) {
@@ -403,29 +402,70 @@ angular.module('datatorrent.mlhrTable', [
   };
   $scope.setColumns = function(columns) {
     $scope.columns = columns;
-    var column_lookups = { format: formats, sort: sorts, filter: filters };
     $scope.columns.forEach(function(column) {
-      angular.forEach(column_lookups, function(builtins, key) {
-        var attr = column[key];
-        if (typeof attr === 'function') {
-          return;
-        }
-        if (typeof attr === 'string') {
-          if (typeof builtins[attr] === 'function') {
-            column[key] = key === 'sort' ? builtins[attr](column.key) : builtins[attr];
+      // formats
+      var format = column.format;
+      if (typeof format !== 'function') {
+        if (typeof format === 'string') {
+          if (typeof formats[format] === 'function') {
+            column.format = formats[format];
           }
           else {
-            delete column[key];
-            $log.warn(key + ' function reference in column(id=' + column.id + ') ' +
-                  'was not found in built-in ' + key + ' functions. ' +
-                  key + ' function given: "' + attr + '". ' +
-                  'Available built-ins: ' + Object.keys(builtins).join(','));
+
+            try {
+              column.format = $filter(format);
+            } catch (e) {
+              delete column.format;
+              $log.warn('format function reference in column(id=' + column.id + ') ' +
+                    'was not found in built-in format functions or $filters. ' +
+                    'format function given: "' + format + '". ' +
+                    'Available built-ins: ' + Object.keys(formats).join(',') + '. ' + 
+                    'If you supplied a $filter, ensure it is available on this module');  
+            }
+
           }
-          
         } else {
-          delete column[key];
+          delete column.format;
         }
-      });
+      }
+
+      // sort
+      var sort = column.sort;
+      if (typeof sort !== 'function') {
+        if (typeof sort === 'string') {
+          if (typeof sorts[sort] === 'function') {
+            column.sort = sorts[sort](column.key);
+          }
+          else {
+            delete column.sort;
+            $log.warn('sort function reference in column(id=' + column.id + ') ' +
+                  'was not found in built-in sort functions. ' +
+                  'sort function given: "' + sort + '". ' +
+                  'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
+          }
+        } else {
+          delete column.sort;
+        }
+      }
+
+      // filter
+      var filter = column.filter;
+      if (typeof filter !== 'function') {
+        if (typeof filter === 'string') {
+          if (typeof filters[filter] === 'function') {
+            column.filter = filters[filter];
+          }
+          else {
+            delete column.filter;
+            $log.warn('filter function reference in column(id=' + column.id + ') ' +
+                  'was not found in built-in filter functions. ' +
+                  'filter function given: "' + filter + '". ' +
+                  'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
+          }
+        } else {
+          delete column.filter;
+        } 
+      }
     });
   };
 
@@ -568,7 +608,7 @@ angular.module('datatorrent.mlhrTable', [
       return {
         id: col.id,
         disabled: !!col.disabled
-      }
+      };
     });
 
     // save non-transient options
@@ -625,7 +665,7 @@ angular.module('datatorrent.mlhrTable', [
       });
 
     } catch (e) {
-      $log.warn('Loading from storage failed!')
+      $log.warn('Loading from storage failed!');
     }
   };
 
@@ -702,22 +742,22 @@ angular.module('datatorrent.mlhrTable', [
       elm.html(string);
       $compile(elm.contents())(scope);
 
-    }
+    };
 
     scope.incrementPage = function() {
       var newOffset = scope.options.rowOffset + scope.options.rowLimit*1;
       scope.options.rowOffset = Math.min(scope.filterState.filterCount - 1, newOffset);
-    }
+    };
     scope.decrementPage = function() {
       var newOffset = scope.options.rowOffset - scope.options.rowLimit*1;
       scope.options.rowOffset = Math.max(0, newOffset);
-    }
+    };
     scope.goToPage = function(i) {
       if (i < 0) {
         throw new Error('Attempted to go to a negative index page!');
       }
       scope.options.rowOffset = scope.options.rowLimit*i;
-    }
+    };
     scope.isCurrentPage = function(i) {
       var limit = scope.options.rowLimit;
       if (limit <= 0) {
@@ -725,7 +765,7 @@ angular.module('datatorrent.mlhrTable', [
       }
       var pageOffset = i * limit;
       return pageOffset === scope.options.rowOffset*1;
-    }
+    };
 
     scope.$watch('options.rowLimit', update);
     scope.$watch('filterState.filterCount', update);
@@ -816,7 +856,7 @@ angular.module('datatorrent.mlhrTable', [
       var rowLimit = scope.options.rowLimit*1;
       if (scope.options.pagingScheme === 'page') {
         if ( rowLimit <= 0) {
-          minOffset = 0
+          minOffset = 0;
         } else {
           minOffset = Math.floor(scope.filterState.filterCount / rowLimit) * rowLimit;
         }

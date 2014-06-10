@@ -59,8 +59,8 @@
           | limitTo:options.rowOffset - filterState.filterCount 
           | limitTo:options.rowLimit">
         <td ng-repeat="column in columns">
-          <span ng-if="column.format && column.format.trustAsHtml" mlhr-table-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>
-          <span ng-if="!column.format || !column.format.trustAsHtml" ng-bind="row | tableCellFilter:column"></span>
+          <span ng-if="column.format && (column.format.trustAsHtml || column.trustFormat)" mlhr-table-dynamic="row | tableCellFilter:column" row="row" column="column" selected="selected"></span>
+          <span ng-if="!column.format || !(column.format.trustAsHtml || column.trustFormat)" ng-bind="row | tableCellFilter:column"></span>
         </td>
       </tr>
     </tbody>

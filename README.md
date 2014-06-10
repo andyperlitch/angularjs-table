@@ -49,7 +49,18 @@ Column Definitions
 -----------------
 The columns should be an array of objects, where each object must have (or can have) the following properties:
 
-| key | type | required | default value |  
+| key | type | required | default value | description |
+|-----|------|----------|---------------|-------------|
+| id | string | no | '' | Description. |
+| key | string | no | '' | Description. |
+| label | string | no | '' | Description. |
+| sort | string | no | '' | Description. |
+| filter | string | no | '' | Description. |
+| format | string | no | '' | Description. |
+| trustFormat | boolean | no | false | If true, will trust that the format function returns html |
+| width | string\|number | no | 'auto' | width of column, can include units, e.g. '30px' |
+| lock_width | boolean | no | false | If true, column will not be resizable |
+
 
 
 Browser Support
