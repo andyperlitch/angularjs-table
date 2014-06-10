@@ -46,7 +46,7 @@ describe('Controller: TableController', function() {
 
     // Default Options, extend provided ones
     $scope.options = angular.extend({}, {
-      rowLimit: 50,
+      row_limit: 50,
       rowOffset: 0,
       pagingScheme: 'scroll',
       sort_classes: [

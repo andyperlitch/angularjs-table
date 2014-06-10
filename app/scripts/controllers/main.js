@@ -64,7 +64,7 @@ angular.module('datatorrent.mlhrTable.ghPage')
 
     // table options
     $scope.my_table_options = {
-      rowLimit: 10,
+      row_limit: 10,
       storage: localStorage,
       storage_key: 'gh-page-table'
     };

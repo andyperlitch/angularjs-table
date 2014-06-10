@@ -549,7 +549,7 @@ angular.module('datatorrent.mlhrTable', [
     if ($scope.options.pagingScheme !== 'scroll') {
       return;
     }
-    if ($scope.options.rowLimit >= $scope.filterState.filterCount) {
+    if ($scope.options.row_limit >= $scope.filterState.filterCount) {
       return;
     }
     var distance = $event.wheelDeltaY / 120;
@@ -557,7 +557,7 @@ angular.module('datatorrent.mlhrTable', [
     curOffset = newOffset = $scope.options.rowOffset;
     newOffset -= distance;
     newOffset = Math.max(newOffset, 0);
-    newOffset = Math.min($scope.filterState.filterCount - $scope.options.rowLimit, newOffset);
+    newOffset = Math.min($scope.filterState.filterCount - $scope.options.row_limit, newOffset);
     if (newOffset !== curOffset) {
       $event.preventDefault();
       $event.stopPropagation();
@@ -570,7 +570,7 @@ angular.module('datatorrent.mlhrTable', [
   $scope.updateScrollerPosition = function() {
     var height = $scope.tbody.height();
     var offset = $scope.options.rowOffset;
-    var limit = $scope.options.rowLimit;
+    var limit = $scope.options.row_limit;
     var max = $scope.filterState.filterCount; 
     var theadHeight = $scope.thead.height();
     var heightRatio = height/max;
@@ -613,7 +613,7 @@ angular.module('datatorrent.mlhrTable', [
 
     // save non-transient options
     state.options = {};
-    ['rowLimit', 'pagingScheme'].forEach(function(prop){
+    ['row_limit', 'pagingScheme'].forEach(function(prop){
       state.options[prop] = $scope.options[prop];
     });
 
@@ -660,7 +660,7 @@ angular.module('datatorrent.mlhrTable', [
       });
 
       // load options
-      ['rowLimit', 'pagingScheme'].forEach(function(prop) {
+      ['row_limit', 'pagingScheme'].forEach(function(prop) {
         $scope.options[prop] = state.options[prop];
       });
 
@@ -723,7 +723,7 @@ angular.module('datatorrent.mlhrTable', [
 
     var update = function(oldValue, newValue) {
       var count = scope.filterState.filterCount;
-      var limit = scope.options.rowLimit;
+      var limit = scope.options.row_limit;
       if (limit <= 0) {
         elm.html('');
         return;
@@ -745,21 +745,21 @@ angular.module('datatorrent.mlhrTable', [
     };
 
     scope.incrementPage = function() {
-      var newOffset = scope.options.rowOffset + scope.options.rowLimit*1;
+      var newOffset = scope.options.rowOffset + scope.options.row_limit*1;
       scope.options.rowOffset = Math.min(scope.filterState.filterCount - 1, newOffset);
     };
     scope.decrementPage = function() {
-      var newOffset = scope.options.rowOffset - scope.options.rowLimit*1;
+      var newOffset = scope.options.rowOffset - scope.options.row_limit*1;
       scope.options.rowOffset = Math.max(0, newOffset);
     };
     scope.goToPage = function(i) {
       if (i < 0) {
         throw new Error('Attempted to go to a negative index page!');
       }
-      scope.options.rowOffset = scope.options.rowLimit*i;
+      scope.options.rowOffset = scope.options.row_limit*i;
     };
     scope.isCurrentPage = function(i) {
-      var limit = scope.options.rowLimit;
+      var limit = scope.options.row_limit;
       if (limit <= 0) {
         return false;
       }
@@ -767,7 +767,7 @@ angular.module('datatorrent.mlhrTable', [
       return pageOffset === scope.options.rowOffset*1;
     };
 
-    scope.$watch('options.rowLimit', update);
+    scope.$watch('options.row_limit', update);
     scope.$watch('filterState.filterCount', update);
 
   }
@@ -810,7 +810,7 @@ angular.module('datatorrent.mlhrTable', [
 
     // Default Options, extend provided ones
     scope.options = angular.extend({}, {
-      rowLimit: 30,
+      row_limit: 30,
       rowOffset: 0,
       pagingScheme: 'scroll',
       sort_classes: [
@@ -852,7 +852,7 @@ angular.module('datatorrent.mlhrTable', [
       //  - paging scheme
       scope.$watch('options.pagingScheme', scope.saveToStorage);
       //  - row limit
-      scope.$watch('options.rowLimit', scope.saveToStorage);
+      scope.$watch('options.row_limit', scope.saveToStorage);
       //  - when column gets enabled or disabled
       //  TODO
     }
@@ -860,21 +860,21 @@ angular.module('datatorrent.mlhrTable', [
     // Watch for changes to update scroll position
     scope.$watch('filterState.filterCount', function() {
       var minOffset;
-      var rowLimit = scope.options.rowLimit*1;
+      var row_limit = scope.options.row_limit*1;
       if (scope.options.pagingScheme === 'page') {
-        if ( rowLimit <= 0) {
+        if ( row_limit <= 0) {
           minOffset = 0;
         } else {
-          minOffset = Math.floor(scope.filterState.filterCount / rowLimit) * rowLimit;
+          minOffset = Math.floor(scope.filterState.filterCount / row_limit) * row_limit;
         }
         
       } else {
-        minOffset = scope.filterState.filterCount - rowLimit;
+        minOffset = scope.filterState.filterCount - row_limit;
       }
       scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, minOffset));
       $timeout(scope.updateScrollerPosition, 0);
     });
-    scope.$watch('options.rowLimit', function() {
+    scope.$watch('options.row_limit', function() {
       $timeout(scope.updateScrollerPosition, 0);
     });
     scope.$watch('options.pagingScheme', function() {
