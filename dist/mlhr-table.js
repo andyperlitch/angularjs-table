@@ -718,6 +718,12 @@ angular.module('datatorrent.mlhrTable', [
       scope.thead = elem.find('thead');
       scope.tbody = elem.find('tbody');
       scope.scroller = elem.find('.mlhr-table-scroller');
+      // Look for initial sort order
+      if (scope.options.initial_sorts) {
+        angular.forEach(scope.options.initial_sorts, function (sort) {
+          scope.addSort(sort.id, sort.dir);
+        });
+      }
       // Check for localStorage persistence
       if (scope.options.storage && scope.options.storage_key) {
         // Set the storage object on the scope
