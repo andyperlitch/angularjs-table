@@ -242,7 +242,7 @@ angular.module('datatorrent.mlhrTable', [
           var filter = col.filter;
           var term = searchTerms[col.id];
           var value = row[col.key];
-          var computedValue = typeof col.format === 'function' ? col.format(value) : value;
+          var computedValue = typeof col.format === 'function' ? col.format(value, row) : value;
           if (!filter(term, value, computedValue, row)) {
             return false;
           }
