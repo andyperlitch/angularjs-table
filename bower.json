@@ -1,5 +1,5 @@
 {
-  "name": "mlhr-table",
+  "name": "malhar-angular-table",
   "version": "0.0.2",
   "main": "./dist/mlhr-table.js",
   "dependencies": {
