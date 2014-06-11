@@ -73,6 +73,8 @@ The rows of the table can be sortable based on a column by setting the `sort` at
      * @return {Number}         Result of comparison. 
      */
     function MySortFunction(rowA, rowB) {
+        // Assuming propertyKey is numeric, 
+        // this would work as a number sorter:
         return rowA.propertyKey - rowB.propertyKey;
     }
 
@@ -84,7 +86,33 @@ Sorting can be set by the user by clicking the headers of sortable columns, and 
 
 ### Row Filtering
 
-this is the function that the filter field at the top of the column should use to determine if a row is a match. This can be a string from the built-in filter functions ("like", "likeFormatted", "number", "numberFormatted", or "date"), or it can be a function with the following signature: 
+If a `filter` function is set on a Column Definition Object, that column will contain an input field below the main column header where the user can type in a value and the rows will be filtered based on what they type and the behavior of the function. This function should have the following signature:
+
+    /**
+     * Defines a filtering function
+     * @param {String} term          The term entered by the user into the filter field.
+     * @param {Mixed} value          The value of row[column.key]
+     * @param {Mixed} computedValue  The value of column.format(row[column.key], row). Will be the same as `value` if there is no format function for the column.
+     * @param {Object} row            The actual row of data
+     * @return {Boolean}
+     */
+    function MyFilterFunction(term, value, computedValue, row) {
+        // Assuming row[column.key] is a string,
+        // this would work as a simple matching filter:
+        return value.indexOf(term) >= 0;
+    }
+
+When there is a value provided by the user in the filter field, every row in the dataset is passed through this function. If the function returns true, the row will be included in the resulting rows that get displayed. Otherwise it is left out.
+
+There are several common filter functions that are built-in. Use them by passing one of the following strings instead of a function:
+
+| string | description |
+|--------|-------------|
+| like   | Search by simple substring, eg. "foo" matches "foobar" but not "fobar". Use "!" to exclude and "=" to match exact text, e.g. "!bar" or "=baz". | 
+| likeFormatted | Same as "like", but looks at formatted cell value instead of raw. |
+| number | Search by number, e.g. "123". Optionally use comparator expressions like ">=10" or "<1000". Use "~" for approx. int values, eg. "~3" will match "3.2". |
+| numberFormatted | Same as number, but looks at formatted cell value instead of raw |
+| date | Search by date. Enter a date string (RFC2822 or ISO 8601 date). You can also type "today", "yesterday", "> 2 days ago", "< 1 day 2 hours ago", etc. |
 
 ### Cell Formatting
 
