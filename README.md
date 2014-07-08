@@ -18,33 +18,47 @@ Getting Started
 First, include mlhr-table.js and mlhr-table.css in your project. Then, in your markup, instantiate table instances with an `<mlhr-table>` tag:
 
 ```HTML
-<mlhr-table options="options" table-class="table" columns="columns" rows="rows"></mlhr-table>
+<mlhr-table 
+    options="options" 
+    columns="columns" 
+    rows="rows"
+    table-class="table"
+    selected="array_of_selected">
+</mlhr-table>
 ```
 
 Attributes
 ----------
-| attribute | type | required | description |
-|-----------|------|---------|-------------|
-| `options`   | object | no  | An object containing various options for the table. See *Options Object* below for details|
-| `columns` | Array | yes | An array of column definition objects. See *Column Definitions* below. |
-| `rows`    | Array | yes | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates |
-| `table-class` | String | no | A string of classes to be attached to the actual `<table>` element that gets created |
-| `selected` | Array | no | This should be provided when using the `selector` built-in format. When rows are selected with their checkbox column, this array is populated with the `key` specified by the column definition with the `selector` format. |
+The `mlhr-table` tag can have the following attributes:
+
+|  attribute  |  type  | required |                                                         description                                                         |
+| ----------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| options     | object | no       | An object containing various options for the table. See *Options Object* below for details                                  |
+| columns     | Array  | yes      | An array of column definition objects. See *Column Definitions* below.                                                      |
+| rows        | Array  | yes      | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates |
+| table-class | String | no       | A string of classes to be attached to the actual `<table>` element that gets created                                        |
+| selected    | Array  | no       | This should be provided when using the `selector` built-in format. See the *Row Selection* section below.                   |
 
 
 Options Object
 --------------
 The options object should be available on the parent scope of the `<mlhr-table>` element. It is optional (defaults are used) and has the following keys:
 
-| key | type | default | description |
-|-----|------|---------|-------------|
-| row_limit | `number` | 30 | Max number of rows to display at any one time.
-| pagingScheme | `String` | 'scroll' | Scheme for navigating lists that extend beyond `row_limit`. Available values: "scroll", "page".
-| sort_classes | `Array` | `[ 'glyphicon glyphicon-sort', 'glyphicon glyphicon-chevron-up', 'glyphicon glyphicon-chevron-down' ]` | If a column has a `sort` function specified, the column header will contain a `<span>` element with a css class of `sorting-icon`. This `sort_classes` array contains three strings that will be appended to the `<span>` className, one for each state of a sorted column: [classes\_for\_no\_sort, classes\_for\_ascending\_sort, classes\_for\_descending\_sort].
-| storage | `Object` | undefined | If defined, this requires the presence of `storage_key`. This object should follow a subset of the API for `localStorage`; specifically having the methods `setItem`, `getItem`, and `removeItem`. It will use `storage_key` as the key to set. The most common use-case for this is simply to pass `localStorage` to this option. |
-| storage_key | `String` | undefined | Used as the key to store and retrieve items from `storage`, if it is specified. |
-| initial_sorts | `Array` | [] | Array of objects defining initial sorting order. Sort order is stackable. Keys on objects should be `id` to specify the column and `dir` to specify direction ("+" or "-") |
+|      key      |   type   |   default   |                                           description                                           |
+| ------------- | -------- | ----------- | ----------------------------------------------------------------------------------------------- |
+| row_limit     | `number` | 30          | Max number of rows to display at any one time.                                                  |
+| pagingScheme  | `String` | 'scroll'    | Scheme for navigating lists that extend beyond `row_limit`. Available values: "scroll", "page". |
+| sort_classes  | `Array`  | (see below) |                                                                                                 |
+| storage       | `Object` | undefined   |                                                                                                 |
+| storage_key   | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                 |
+| initial_sorts | `Array`  | []          |                                                                                                 |
+|               |          |             |                                                                                                 |
+### `sort_classes`
+Default Value: `[ 'glyphicon glyphicon-sort', 'glyphicon glyphicon-chevron-up', 'glyphicon glyphicon-chevron-down' ]`
+If a column has a `sort` function specified, the column header will contain a `<span>` element with a css class of `sorting-icon`. This `sort_classes` array contains three strings that will be appended to the `<span>` className, one for each state of a sorted column: [classes\_for\_no\_sort, classes\_for\_ascending\_sort, classes\_for\_descending\_sort].
 
+### Storage
+If defined, this requires the presence of `storage_key`. This object should follow a subset of the API for `localStorage`; specifically having the methods `setItem`, `getItem`, and `removeItem`. It will use `storage_key` as the key to set. The most common use-case for this is simply to pass `localStorage` to this option.
 
 
 Column Definitions
@@ -63,7 +77,9 @@ The columns should be an array of Column Definition Objects. The order in which 
 | width | `string` or `number` | no | 'auto' | width of column, can include units, e.g. '30px' |
 | lock_width | `boolean` | no | false | If true, column will not be resizable. |
 
-### Row Sorting
+
+Row Sorting
+-----------
 The rows of the table can be sortable based on a column by setting the `sort` attribute of a Column Definition Object to a function with the following signature:
 
     /**
@@ -84,7 +100,8 @@ There are two built-in sort functions availablewhich handle the two most common 
 
 Sorting can be set by the user by clicking the headers of sortable columns, and can be stacked by holding shift and clicking. The initial sort order can be set using the `initial_sorts` option in the Options Object, shown in the table above.
 
-### Row Filtering
+Row Filtering
+-------------
 
 If a `filter` function is set on a Column Definition Object, that column will contain an input field below the main column header where the user can type in a value and the rows will be filtered based on what they type and the behavior of the function. This function should have the following signature:
 
@@ -114,7 +131,13 @@ There are several common filter functions that are built-in. Use them by passing
 | numberFormatted | Same as number, but looks at formatted cell value instead of raw |
 | date | Search by date. Enter a date string (RFC2822 or ISO 8601 date). You can also type "today", "yesterday", "> 2 days ago", "< 1 day 2 hours ago", etc. |
 
-### Cell Formatting
+Cell Formatting
+---------------
+
+
+Row Selection
+-------------
+
 
 
 
