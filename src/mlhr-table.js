@@ -572,22 +572,39 @@ angular.module('datatorrent.mlhrTable', [
     var offset = $scope.options.rowOffset;
     var limit = $scope.options.row_limit;
     var max = $scope.filterState.filterCount; 
-    var theadHeight = $scope.thead.height();
     var heightRatio = height/max;
-    var newTop = theadHeight + heightRatio*offset;
+    var newTop = heightRatio*offset;
     var newHeight = heightRatio * limit;
 
     if (newHeight >= height || max <= limit) {
       $scope.scroller.css({
         display: 'none',
-        top: theadHeight + 'px'
+        top: '0px'
       });
       return;
     }
+
+    // If the calculated height of the scroll bar turns
+    // out to be less than the min-height css property...
+    var extraScrollPixels = $scope._scrollerMinHeight_ - newHeight;
+    if (extraScrollPixels > 0) {
+      // Do not include the extra pixels in the height calculation, and
+      // recalculate the ratio and top values
+      heightRatio = (height - extraScrollPixels) / max;
+      newTop = heightRatio * offset;
+    }
+
+    // Update the scroller position and height,
+    // also ensure that it shows up
     $scope.scroller.css({
       display: 'block',
       top: newTop,
       height: newHeight + 'px'
+    });
+
+    // Update the height of the scroller-container
+    $scope.scrollerWrapper.css({
+      height: height + 'px'
     });
   };
 
@@ -824,6 +841,13 @@ angular.module('datatorrent.mlhrTable', [
     scope.thead = elem.find('thead');
     scope.tbody = elem.find('tbody');
     scope.scroller = elem.find('.mlhr-table-scroller');
+    scope.scrollerWrapper = elem.find('.mlhr-table-scroller-wrapper');
+    scope._scrollerMinHeight_ = parseInt(scope.scroller.css('min-height'));
+    $timeout(function() {
+      scope.scrollerWrapper.css({
+        'margin-top': scope.thead.height() + 'px'
+      });
+    }, 0);
 
     // Look for initial sort order
     if (scope.options.initial_sorts) {
