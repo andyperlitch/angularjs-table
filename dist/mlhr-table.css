@@ -82,6 +82,14 @@
   position: relative;
 }
 
+.mlhr-table-wrapper .mlhr-table-scroller-wrapper {
+  position: absolute;
+  width: 15px;
+  height: 200px;
+  top: 0;
+  right: 0;
+}
+
 .mlhr-table-wrapper .mlhr-table-scroller {
   position: absolute;
   width: 15px;
@@ -89,6 +97,7 @@
   background-color: rgba(0,0,0,0.5);
   right: 0;
   top: 0;
+  min-height: 20px;
 }
 
 .mlhr-table tfoot .mlhr-table-page-link {
