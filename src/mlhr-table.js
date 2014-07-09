@@ -571,12 +571,12 @@ angular.module('datatorrent.mlhrTable', [
     var height = $scope.tbody.height();
     var offset = $scope.options.rowOffset;
     var limit = $scope.options.row_limit;
-    var max = $scope.filterState.filterCount; 
-    var heightRatio = height/max;
+    var numFilteredRows = $scope.filterState.filterCount; 
+    var heightRatio = height/numFilteredRows;
     var newTop = heightRatio*offset;
     var newHeight = heightRatio * limit;
 
-    if (newHeight >= height || max <= limit) {
+    if (newHeight >= height || numFilteredRows <= limit) {
       $scope.scroller.css({
         display: 'none',
         top: '0px'
@@ -590,7 +590,7 @@ angular.module('datatorrent.mlhrTable', [
     if (extraScrollPixels > 0) {
       // Do not include the extra pixels in the height calculation, and
       // recalculate the ratio and top values
-      heightRatio = (height - extraScrollPixels) / max;
+      heightRatio = (height - extraScrollPixels) / numFilteredRows;
       newTop = heightRatio * offset;
     }
 
@@ -606,6 +606,32 @@ angular.module('datatorrent.mlhrTable', [
     $scope.scrollerWrapper.css({
       height: height + 'px'
     });
+  };
+
+  // Inverse of updateScrollerPosition, meaning it looks at a
+  // top value of the scroller (can be passed as arg), then 
+  // updates the offset according to this value
+  $scope.updateOffsetByScroller = function(top) {
+    // When no top is supplied, look at the css value
+    if (typeof top !== 'number') {
+      top = parseInt($scope.scroller.css('top'));
+    }
+
+    var height = $scope.tbody.height();
+    var numFilteredRows = $scope.filterState.filterCount;
+    var limit = $scope.options.row_limit;
+    var scrollerHeight = (limit / numFilteredRows) * height;
+
+    var extraScrollPixels = $scope._scrollerMinHeight_ - scrollerHeight;
+    if (extraScrollPixels > 0) {
+      height -= extraScrollPixels;
+    }
+
+    // calculate corresponding offset
+    var newOffset = Math.round((top / height) * numFilteredRows);
+    $scope.options.rowOffset = newOffset;
+    $scope.$digest();
+
   };
 
   $scope.saveToStorage = function() {
@@ -843,9 +869,22 @@ angular.module('datatorrent.mlhrTable', [
     scope.scroller = elem.find('.mlhr-table-scroller');
     scope.scrollerWrapper = elem.find('.mlhr-table-scroller-wrapper');
     scope._scrollerMinHeight_ = parseInt(scope.scroller.css('min-height'));
+
+    // Some setup of the scroller wrapper must occur after the DOM 
+    // has been painted.
     $timeout(function() {
+      // Set a margin top equal to the thead
       scope.scrollerWrapper.css({
         'margin-top': scope.thead.height() + 'px'
+      });
+
+      // Allow the scroller to be draggable
+      scope.scroller.draggable({
+        axis: 'y',
+        containment: scope.scrollerWrapper,
+        drag: function(event, ui) {
+          scope.updateOffsetByScroller(ui.position.top);
+        }
       });
     }, 0);
 

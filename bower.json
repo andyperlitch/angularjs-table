@@ -9,7 +9,8 @@
     "jquery": "~1.10.2",
     "angular-sanitize": "~1.2",
     "angular-ui-sortable": "~0.12.3",
-    "angular-mousewheel": "~1.0.4"
+    "angular-mousewheel": "~1.0.4",
+    "jquery-ui": ">=1.11.0"
   },
   "devDependencies": {
     "angular-route": "~1.2.16",
