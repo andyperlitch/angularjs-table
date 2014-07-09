@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('datatorrent.mlhrTable.ghPage')
-  .controller('MainCtrl', function ($scope, HashKeyCopier) {
+  .controller('MainCtrl', function ($scope) {
 
     // Format functions
     function inches2feet(inches, model){
