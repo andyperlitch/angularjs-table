@@ -825,7 +825,11 @@ angular.module('datatorrent.mlhrTable', [
 
 .directive('mlhrTable', ['$log', '$timeout', function ($log, $timeout) {
 
-  function link(scope, elem) {
+  function link(scope, elem, attrs) {
+    // Specify default track by
+    if (typeof scope.trackBy === 'undefined') {
+      scope.trackBy = 'id';
+    }
 
     // Look for built-in filter, sort, and format functions
     if (scope.columns instanceof Array) {
@@ -954,7 +958,8 @@ angular.module('datatorrent.mlhrTable', [
       rows: '=',
       classes: '@tableClass',
       selected: '=',
-      options: '=?'
+      options: '=?',
+      trackBy: '@?'
     },
     controller: 'TableController',
     link: link

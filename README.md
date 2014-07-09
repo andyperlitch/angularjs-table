@@ -38,6 +38,7 @@ The `mlhr-table` tag can have the following attributes:
 | rows        | Array  | yes      | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates |
 | table-class | String | no       | A string of classes to be attached to the actual `<table>` element that gets created                                        |
 | selected    | Array  | no       | This should be provided when using the `selector` built-in format. See the *Row Selection* section below.                   |
+| track-by    | String | yes      | This string should be the unique key on data objects that ng-repeat should use to keep track of rows in the table           |
 
 
 Options Object

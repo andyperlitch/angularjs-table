@@ -70,7 +70,7 @@ angular.module('datatorrent.mlhrTable.ghPage')
     };
 
     setInterval(function() {
-      $scope.my_table_data = HashKeyCopier.copyHashKeys( $scope.my_table_data, genRows(30) );
+      $scope.my_table_data = genRows(30);
       // $scope.my_table_data = genRows(30);
       $scope.$apply();
     }, 1000);
