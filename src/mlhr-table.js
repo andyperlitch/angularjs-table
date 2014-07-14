@@ -545,17 +545,16 @@ angular.module('datatorrent.mlhrTable', [
     return count;
   };
 
-  $scope.onScroll = function($event) {
+  $scope.onScroll = function($event, $delta, $deltaX, $deltaY) {
     if ($scope.options.pagingScheme !== 'scroll') {
       return;
     }
     if ($scope.options.row_limit >= $scope.filterState.filterCount) {
       return;
     }
-    var distance = $event.wheelDeltaY / 120;
     var curOffset, newOffset;
     curOffset = newOffset = $scope.options.rowOffset;
-    newOffset -= distance;
+    newOffset -= $deltaY / 8;
     newOffset = Math.max(newOffset, 0);
     newOffset = Math.min($scope.filterState.filterCount - $scope.options.row_limit, newOffset);
     if (newOffset !== curOffset) {

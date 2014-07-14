@@ -45,15 +45,15 @@ Options Object
 --------------
 The options object should be available on the parent scope of the `<mlhr-table>` element. It is optional (defaults are used) and has the following keys:
 
-|      key      |   type   |   default   |                                           description                                           |
-| ------------- | -------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| row_limit     | `number` | 30          | Max number of rows to display at any one time.                                                  |
-| pagingScheme  | `String` | 'scroll'    | Scheme for navigating lists that extend beyond `row_limit`. Available values: "scroll", "page". |
-| sort_classes  | `Array`  | (see below) |                                                                                                 |
-| storage       | `Object` | undefined   |                                                                                                 |
-| storage_key   | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                 |
-| initial_sorts | `Array`  | []          |                                                                                                 |
-|               |          |             |                                                                                                 |
+|      key      |   type   |   default   |                                                             description                                                              |
+| ------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| row_limit     | `number` | 30          | Max number of rows to display at any one time.                                                                                       |
+| pagingScheme  | `String` | 'scroll'    | Scheme for navigating lists that extend beyond `row_limit`. Available values: "scroll", "page".                                      |
+| sort_classes  | `Array`  | (see below) |                                                                                                                                      |
+| storage       | `Object` | undefined   |                                                                                                                                      |
+| storage_key   | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
+| initial_sorts | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
+
 ### `sort_classes`
 Default Value: `[ 'glyphicon glyphicon-sort', 'glyphicon glyphicon-chevron-up', 'glyphicon glyphicon-chevron-down' ]`
 If a column has a `sort` function specified, the column header will contain a `<span>` element with a css class of `sorting-icon`. This `sort_classes` array contains three strings that will be appended to the `<span>` className, one for each state of a sorted column: [classes\_for\_no\_sort, classes\_for\_ascending\_sort, classes\_for\_descending\_sort].

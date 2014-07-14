@@ -51,7 +51,7 @@
         </td>
       </tr>
     </tfoot>
-    <tbody msd-wheel="onScroll($event)">
+    <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)">
       <tr ng-repeat="
         row in rows 
           | tableRowFilter:columns:searchTerms:filterState 
