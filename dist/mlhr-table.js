@@ -716,7 +716,7 @@ angular.module('datatorrent.mlhrTable', [
     } else if (column.templateUrl) {
       cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
     } else if (column.selector === true) {
-      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(row[column.key]) >= 0" mlhr-table-selector />';
+      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
     } else if (column.ngFilter) {
       cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
     } else if (column.format) {
