@@ -57,7 +57,7 @@ describe('Directive: mlhrTable', function () {
       var seed2 = Math.random();
       var first_name = fnames[ Math.round( seed * (fnames.length -1) ) ];
       var last_name = lnames[ Math.round( seed * (lnames.length -1) ) ];
-      
+
       return {
         id: id,
         selected: false,
@@ -74,7 +74,7 @@ describe('Directive: mlhrTable', function () {
 
     // Table columns
     scope.my_table_columns = columns = [
-      { id: 'selector',   key: 'selected',   label: '',                                            select: true, width: '30px', lock_width: true },
+      { id: 'selector',   key: 'selected',   label: '',                                            selector: true, width: '30px', lock_width: true },
       { id: 'ID',         key: 'id',                              sort: 'number', filter: 'number'                                               },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like',  title: 'First names are cool'                 },
       { id: 'last_name',  key: 'last_name',  label: 'Last Name',  sort: 'string', filter: 'like',  filter_placeholder: 'last name'               },
@@ -148,6 +148,10 @@ describe('Directive: mlhrTable', function () {
 
   it('should attach a sortDirection object to the scope', function() {
     expect(isoScope.sortDirection).to.be.an('object');
+  });
+
+  it('should set a default trackBy to "id"', function() {
+    expect(isoScope.options.trackBy).to.equal('id');
   });
 
   describe('column header', function() {

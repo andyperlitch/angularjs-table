@@ -168,18 +168,8 @@ angular.module('datatorrent.mlhrTable', [
 })
 
 .service('tableFormatFunctions', function() {
-
-  function selector(value, row, column) {
-    if (!row.hasOwnProperty(column.key)) {
-      throw new Error('"selector" format function failed: The key: ' + column.key + ' was not found in row: ' + JSON.stringify(row) + '!'); 
-    }
-    return '<input type="checkbox" ng-checked="selected.indexOf(row.' + column.key + ') >= 0" mlhr-table-selector />';
-  }
-  selector.trustAsHtml = true;
-
-  return {
-    selector: selector
-  };
+  // TODO: add some default format functions
+  return {};
 })
 
 .service('tableSortFunctions', function() {
@@ -821,10 +811,42 @@ angular.module('datatorrent.mlhrTable', [
     link: link
   };
 }])
+.directive('mlhrTableCell', function($compile) {
 
+  function link(scope, element, attrs) {
+    var column = scope.column;
+    var cellMarkup = '';
+    if (column.template) {
+      cellMarkup = column.template;
+    }
+    else if (column.templateUrl) {
+      cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
+    }
+    else if (column.selector === true) {
+      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(row[column.key]) >= 0" mlhr-table-selector />';
+    }
+    else if (column.ngFilter) {
+      cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
+    }
+    else if (column.format) {
+      cellMarkup = '{{ column.format(row[column.key], row, column) }}';
+    }
+    else {
+      cellMarkup = '{{ row[column.key] }}';
+    }
+    element.html(cellMarkup);
+    $compile(element.contents())(scope);
+  }
+
+  return {
+    scope: true,
+    link: link
+  }
+})
 .directive('mlhrTable', ['$log', '$timeout', function ($log, $timeout) {
 
   function link(scope, elem, attrs) {
+
     // Specify default track by
     if (typeof scope.trackBy === 'undefined') {
       scope.trackBy = 'id';
@@ -858,6 +880,7 @@ angular.module('datatorrent.mlhrTable', [
     scope.options = angular.extend({}, {
       row_limit: 30,
       rowOffset: 0,
+      trackBy: scope.trackBy,
       pagingScheme: 'scroll',
       sort_classes: [
         'glyphicon glyphicon-sort',
@@ -961,6 +984,11 @@ angular.module('datatorrent.mlhrTable', [
       trackBy: '@?'
     },
     controller: 'TableController',
-    link: link
+    compile: function(tElement, tAttrs) {
+      if (!tElement.attr('track-by')) {
+        tElement.attr('track-by', 'id');
+      }
+      return link;
+    }
   };
 }]);

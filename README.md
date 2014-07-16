@@ -66,17 +66,19 @@ Column Definitions
 -----------------
 The columns should be an array of Column Definition Objects. The order in which they appear in this array dictates the order they will appear by default. Column Definition Objects have the following properties:
 
-| property key | type | required | default value | description |
-|--------------|------|----------|---------------|-------------|
-| id | `string` | yes | undefined | Identifies the column. |
-| key | `string` | yes | undefined | The field on each row that this column displays or uses in its format function. |
-| label | `string` | no | `id` | The column heading text. If not present, `id` is used. |
-| sort | `function` or `string` | no | undefined | If specified, defines the row sorting function this column should use. See the *Row Sorting* section below. |
-| filter | `function` or `string` | no | undefined | If specified, defines the row filter function this column should use. See the *Row Filtering* section below. |
-| format | `function` or `string` | no | '' | If specified, defines a function used to format the contents of each cell in the column. See the *Cell Formatting* section below. |
-| trustFormat | boolean | no | false | If true, will trust that the format function returns html |
-| width | `string` or `number` | no | 'auto' | width of column, can include units, e.g. '30px' |
-| lock_width | `boolean` | no | false | If true, column will not be resizable. |
+| property key |          type          | required | default value |                                      description                                       |
+| ------------ | ---------------------- | -------- | ------------- | -------------------------------------------------------------------------------------- |
+| id           | `string`               | yes      | undefined     | Identifies the column.                                                                 |
+| key          | `string`               | yes      | undefined     | The field on each row that this column displays or uses in its format function.        |
+| label        | `string`               | no       | `id`          | The column heading text. If not present, `id` is used.                                 |
+| sort         | `function` or `string` | no       | undefined     | If specified, defines row sort function this column uses. See *Row Sorting* below.     |
+| filter       | `function` or `string` | no       | undefined     | If specified, defines row filter function this column uses. See *Row Filtering* below. |
+| format       | `function` or `string` | no       | ''            | If specified, defines cell format function. See the *Cell Formatting* section below.   |
+| width        | `string` or `number`   | no       | 'auto'        | width of column, can include units, e.g. '30px'                                        |
+| lock_width   | `boolean`              | no       | false         | If true, column will not be resizable.                                                 |
+| ngFilter     | `string`               | no       | undefined     | Name of a registered filter to use on row[column.key]                                  |
+| template     | `string`               | no       | undefined     | A string template for the cell contents                                                |
+| templateUrl  | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                  |
 
 
 Row Sorting

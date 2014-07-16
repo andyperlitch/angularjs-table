@@ -1,7 +1,18 @@
 'use strict';
 
 angular.module('datatorrent.mlhrTable.ghPage')
-  .controller('MainCtrl', function ($scope) {
+  .filter('commaGroups', function() {
+    function commaGroups(value) {
+      if (typeof value === 'undefined') {
+        return '-';
+      }
+      var parts = value.toString().split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return parts.join('.');
+    }
+    return commaGroups;
+  })
+  .controller('MainCtrl', function ($scope, $templateCache) {
 
     // Format functions
     function inches2feet(inches, model){
@@ -40,17 +51,21 @@ angular.module('datatorrent.mlhrTable.ghPage')
         last_name: last_name,
         age: Math.ceil(seed * 75) + 15,
         height: Math.round( seed2 * 36 ) + 48,
-        weight: Math.round( seed2 * 130 ) + 90
+        weight: Math.round( seed2 * 130 ) + 90,
+        likes: Math.round(seed2 * seed * 1000000)
       };
     }
+
+    $templateCache.put('path/to/example/template.html', '<em>{{row[column.key]}}</em>');
         
     // Table columns
     $scope.my_table_columns = [
-      { id: 'selected', key: 'id', label: '', width: 30, lock_width: true, format: 'selector' },
+      { id: 'selected', key: 'id', label: '', width: 30, lock_width: true, selector: true },
       { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
-      { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like' },
-      { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like' },
+      { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like', template: '<strong>{{row[column.key]}}</strong>' },
+      { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
       { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' },
+      { id: 'likes', key: 'likes', label: 'likes', ngFilter: 'commaGroups' },
       { id: 'height', key: 'height', label: 'Height', format: inches2feet, filter: feet_filter, sort: 'number' },
       { id: 'weight', key: 'weight', label: 'Weight', filter: 'number', sort: 'number' }
     ];
