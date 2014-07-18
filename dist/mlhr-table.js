@@ -493,6 +493,7 @@ angular.module('datatorrent.mlhrTable', [
           display: 'none',
           top: '0px'
         });
+        $scope.scrollerWrapper.css({ display: 'none' });
         return;
       }
       // If the calculated height of the scroll bar turns
@@ -512,7 +513,10 @@ angular.module('datatorrent.mlhrTable', [
         height: newHeight + 'px'
       });
       // Update the height of the scroller-container
-      $scope.scrollerWrapper.css({ height: height + 'px' });
+      $scope.scrollerWrapper.css({
+        display: 'block',
+        height: height + 'px'
+      });
     };
     // Inverse of updateScrollerPosition, meaning it looks at a
     // top value of the scroller (can be passed as arg), then 

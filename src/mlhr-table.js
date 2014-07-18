@@ -570,6 +570,9 @@ angular.module('datatorrent.mlhrTable', [
         display: 'none',
         top: '0px'
       });
+      $scope.scrollerWrapper.css({
+        display: 'none'
+      });
       return;
     }
 
@@ -593,6 +596,7 @@ angular.module('datatorrent.mlhrTable', [
 
     // Update the height of the scroller-container
     $scope.scrollerWrapper.css({
+      display: 'block',
       height: height + 'px'
     });
   };
