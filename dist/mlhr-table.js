@@ -470,7 +470,7 @@ angular.module('datatorrent.mlhrTable', [
       }
       var curOffset, newOffset;
       curOffset = newOffset = $scope.options.rowOffset;
-      newOffset -= $deltaY / 8;
+      newOffset -= $deltaY / $scope.options.scrollDivisor;
       newOffset = Math.max(newOffset, 0);
       newOffset = Math.min($scope.filterState.filterCount - $scope.options.row_limit, newOffset);
       if (newOffset !== curOffset) {
@@ -763,6 +763,7 @@ angular.module('datatorrent.mlhrTable', [
       scope.filterState = { filterCount: scope.rows.length };
       // Default Options, extend provided ones
       scope.options = angular.extend({}, {
+        scrollDivisor: 4,
         row_limit: 30,
         rowOffset: 0,
         trackBy: scope.trackBy,
