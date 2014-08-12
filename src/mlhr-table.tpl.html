@@ -53,7 +53,7 @@
         </td>
       </tr>
     </tfoot>
-    <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)">
+    <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)" ng-class="options.rowOffset % 2 ? 'offset-odd' : 'offset-even'">
       <tr ng-repeat="
         row in rows 
           | tableRowFilter:columns:searchTerms:filterState 
