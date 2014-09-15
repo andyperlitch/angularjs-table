@@ -305,8 +305,7 @@ angular.module('datatorrent.mlhrTable', [
   };
 })
 
-.controller(
-  'TableController',
+.controller('TableController',
   ['$scope','tableFormatFunctions','tableSortFunctions','tableFilterFunctions','$log', '$window', '$filter', function($scope, formats, sorts, filters, $log, $window, $filter) {
 
   // SCOPE FUNCTIONS
