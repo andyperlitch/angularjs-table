@@ -816,21 +816,25 @@ angular.module('datatorrent.mlhrTable', [
 }])
 .directive('mlhrTableRows', function($filter) {
 
+  var tableRowFilter = $filter('tableRowFilter');
+  var tableRowSorter = $filter('tableRowSorter');
+  var limitTo = $filter('limitTo');
+
   function calculateVisibleRows(scope, parameters) {
     // scope.rows
     var visible_rows;
     
     // | tableRowFilter:columns:searchTerms:filterState 
-    visible_rows = $filter('tableRowFilter')(scope.rows, scope.columns, scope.searchTerms, scope.filterState);
+    visible_rows = tableRowFilter(scope.rows, scope.columns, scope.searchTerms, scope.filterState);
     
     // | tableRowSorter:columns:sortOrder:sortDirection 
-    visible_rows = $filter('tableRowSorter')(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection);
+    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection);
 
     // | limitTo:options.rowOffset - filterState.filterCount 
-    visible_rows = $filter('limitTo')(visible_rows, scope.options.rowOffset - scope.filterState.filterCount);
+    visible_rows = limitTo(visible_rows, scope.options.rowOffset - scope.filterState.filterCount);
 
     // | limitTo:options.row_limit
-    visible_rows = $filter('limitTo')(visible_rows, scope.options.row_limit);
+    visible_rows = limitTo(visible_rows, scope.options.row_limit);
 
     return visible_rows;
   }
