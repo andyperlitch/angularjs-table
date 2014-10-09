@@ -53,8 +53,8 @@
         </td>
       </tr>
     </tfoot>
-    <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)" ng-class="options.rowOffset % 2 ? 'offset-odd' : 'offset-even'">
-      <tr ng-repeat="
+    <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)" ng-class="options.rowOffset % 2 ? 'offset-odd' : 'offset-even'" mlhr-table-rows>
+      <!-- <tr ng-repeat="
         row in rows 
           | tableRowFilter:columns:searchTerms:filterState 
           | tableRowSorter:columns:sortOrder:sortDirection 
@@ -64,7 +64,7 @@
         <td ng-repeat="
           column in columns 
           track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>
-      </tr>
+      </tr> -->
     </tbody>
   </table>
   <div ng-show="options.pagingScheme === 'scroll'" class="mlhr-table-scroller-wrapper">

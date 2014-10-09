@@ -814,6 +814,51 @@ angular.module('datatorrent.mlhrTable', [
     link: link
   };
 }])
+.directive('mlhrTableRows', function($filter) {
+
+  function calculateVisibleRows(scope, parameters) {
+    // scope.rows
+    var visible_rows;
+    
+    // | tableRowFilter:columns:searchTerms:filterState 
+    visible_rows = $filter('tableRowFilter')(scope.rows, scope.columns, scope.searchTerms, scope.filterState);
+    
+    // | tableRowSorter:columns:sortOrder:sortDirection 
+    visible_rows = $filter('tableRowSorter')(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection);
+
+    // | limitTo:options.rowOffset - filterState.filterCount 
+    visible_rows = $filter('limitTo')(visible_rows, scope.options.rowOffset - scope.filterState.filterCount);
+
+    // | limitTo:options.row_limit
+    visible_rows = $filter('limitTo')(visible_rows, scope.options.row_limit);
+
+    return visible_rows;
+  }
+
+  return {
+    restrict: 'A',
+    templateUrl: 'src/mlhr-table-rows.tpl.html',
+    link: function(scope, element, attrs) {
+      scope.visible_rows = scope.rows.slice();
+
+      var updateHandler = function() {
+        console.log('update handler called');
+        scope.visible_rows = calculateVisibleRows(scope);
+      }
+
+      scope.$watchGroup([
+        'searchTerms',
+        'filterState',
+        'sortOrder',
+        'sortDirection',
+        'options.rowOffset',
+        'options.row_limit'
+      ], updateHandler, true);
+
+      scope.$watchCollection('rows', updateHandler);
+    }
+  }
+})
 .directive('mlhrTableCell', function($compile) {
 
   function link(scope, element, attrs) {
