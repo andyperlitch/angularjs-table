@@ -1,3 +1,9 @@
+<!-- <tr ng-if="visible_rows.length === 0"> -->
+<tr>
+  <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">
+    {{ options.loading ? options.loading_text : options.no_rows_text }}
+  </td>
+</tr>
 <tr ng-repeat="row in visible_rows track by row[options.trackBy]">
   <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>
 </tr>

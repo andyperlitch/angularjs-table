@@ -13,6 +13,10 @@
   overflow: hidden;
 }
 
+.mlhr-table td.space-holder-row-cell {
+  text-align: center;
+}
+
 .mlhr-table th input {
   max-width: 100%;
   border-radius: 5px;
