@@ -1,7 +1,9 @@
-<!-- <tr ng-if="visible_rows.length === 0"> -->
-<tr>
+<tr ng-if="visible_rows.length === 0">
   <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">
-    {{ options.loading ? options.loading_text : options.no_rows_text }}
+    <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>
+    <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>
+    <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>
+    <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
   </td>
 </tr>
 <tr ng-repeat="row in visible_rows track by row[options.trackBy]">

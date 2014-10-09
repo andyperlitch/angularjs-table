@@ -929,10 +929,16 @@ angular.module('datatorrent.mlhrTable', [
     };
 
     // Default Options, extend provided ones
-    scope.options = angular.extend({}, {
+    scope.options = angular.extend(scope.options, {
       scrollDivisor: 4,
       row_limit: 30,
       rowOffset: 0,
+      loadingText: 'loading',
+      noRowsText: 'no rows',
+      setLoading: function(isLoading) {
+        this.loading = isLoading;
+        scope.$digest();
+      },
       trackBy: scope.trackBy,
       pagingScheme: 'scroll',
       sort_classes: [
