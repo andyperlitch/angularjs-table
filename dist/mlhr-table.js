@@ -737,14 +737,14 @@ angular.module('datatorrent.mlhrTable', [
         console.log('update handler called');
         scope.visible_rows = calculateVisibleRows(scope);
       };
+      scope.$watch('searchTerms', updateHandler, true);
       scope.$watchGroup([
-        'searchTerms',
         'filterState',
         'sortOrder',
         'sortDirection',
         'options.rowOffset',
         'options.row_limit'
-      ], updateHandler, true);
+      ], updateHandler);
       scope.$watchCollection('rows', updateHandler);
     }
   };
