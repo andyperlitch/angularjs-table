@@ -711,7 +711,44 @@ angular.module('datatorrent.mlhrTable', [
       link: link
     };
   }
-]).directive('mlhrTableCell', function ($compile) {
+]).directive('mlhrTableRows', function ($filter) {
+  var tableRowFilter = $filter('tableRowFilter');
+  var tableRowSorter = $filter('tableRowSorter');
+  var limitTo = $filter('limitTo');
+  function calculateVisibleRows(scope, parameters) {
+    // scope.rows
+    var visible_rows;
+    // | tableRowFilter:columns:searchTerms:filterState 
+    visible_rows = tableRowFilter(scope.rows, scope.columns, scope.searchTerms, scope.filterState);
+    // | tableRowSorter:columns:sortOrder:sortDirection 
+    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection);
+    // | limitTo:options.rowOffset - filterState.filterCount 
+    visible_rows = limitTo(visible_rows, scope.options.rowOffset - scope.filterState.filterCount);
+    // | limitTo:options.row_limit
+    visible_rows = limitTo(visible_rows, scope.options.row_limit);
+    return visible_rows;
+  }
+  return {
+    restrict: 'A',
+    templateUrl: 'src/mlhr-table-rows.tpl.html',
+    link: function (scope, element, attrs) {
+      scope.visible_rows = scope.rows.slice();
+      var updateHandler = function () {
+        console.log('update handler called');
+        scope.visible_rows = calculateVisibleRows(scope);
+      };
+      scope.$watchGroup([
+        'searchTerms',
+        'filterState',
+        'sortOrder',
+        'sortDirection',
+        'options.rowOffset',
+        'options.row_limit'
+      ], updateHandler, true);
+      scope.$watchCollection('rows', updateHandler);
+    }
+  };
+}).directive('mlhrTableCell', function ($compile) {
   function link(scope, element, attrs) {
     var column = scope.column;
     var cellMarkup = '';
@@ -762,10 +799,16 @@ angular.module('datatorrent.mlhrTable', [
       // Holds filtered rows count
       scope.filterState = { filterCount: scope.rows.length };
       // Default Options, extend provided ones
-      scope.options = angular.extend({}, {
+      scope.options = angular.extend(scope.options, {
         scrollDivisor: 4,
         row_limit: 30,
         rowOffset: 0,
+        loadingText: 'loading',
+        noRowsText: 'no rows',
+        setLoading: function (isLoading) {
+          this.loading = isLoading;
+          scope.$digest();
+        },
         trackBy: scope.trackBy,
         pagingScheme: 'scroll',
         sort_classes: [
@@ -789,7 +832,12 @@ angular.module('datatorrent.mlhrTable', [
         scope.scroller.draggable({
           axis: 'y',
           containment: scope.scrollerWrapper,
-          drag: function (event, ui) {
+          start: function () {
+            scope.debouncingScroll = true;
+            scope.$digest();
+          },
+          stop: function (event, ui) {
+            scope.debouncingScroll = false;
             scope.updateOffsetByScroller(ui.position.top);
           }
         });
@@ -866,10 +914,19 @@ angular.module('datatorrent.mlhrTable', [
     };
   }
 ]);
-angular.module('datatorrent.mlhrTable.templates', ['src/mlhr-table.tpl.html']);
+angular.module('datatorrent.mlhrTable.templates', [
+  'src/mlhr-table-rows.tpl.html',
+  'src/mlhr-table.tpl.html'
+]);
+angular.module('src/mlhr-table-rows.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('src/mlhr-table-rows.tpl.html', '<tr ng-if="visible_rows.length === 0">\n' + '  <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '    <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '    <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '    <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '    <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '  </td>\n' + '</tr>\n' + '<tr ng-repeat="row in visible_rows track by row[options.trackBy]" ng-hide="debouncingScroll">\n' + '  <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>\n' + '</tr>\n' + '<tr ng-repeat="row in visible_rows track by row[options.trackBy]" ng-show="debouncingScroll">\n' + '  <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell">...</td>\n' + '</tr>');
+  }
+]);
 angular.module('src/mlhr-table.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/mlhr-table.tpl.html', '<div class="mlhr-table-wrapper">\n' + '  <table ng-class="classes" class="mlhr-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lock_width"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="mlhr-table-filter-row">\n' + '        <th ng-repeat="column in columns">\n' + '          <input \n' + '            type="search"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '        </th>\n' + '      </tr>\n' + '    </thead>\n' + '    <tfoot>\n' + '      <tr>\n' + '        <td ng-attr-colspan="{{ getActiveColCount() }}">\n' + '          <form novalidate>\n' + '            <label>row limit:</label> <input type="text" ng-model="options.row_limit" value="{{ options.row_limit }}">&nbsp;&nbsp;\n' + '            <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;\n' + '            <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;\n' + '            <span ng-if="options.pagingScheme === \'page\'" mlhr-table-paginate="options" filter-state="filterState"></span>\n' + '          </form>\n' + '        </td>\n' + '      </tr>\n' + '    </tfoot>\n' + '    <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)" ng-class="options.rowOffset % 2 ? \'offset-odd\' : \'offset-even\'">\n' + '      <tr ng-repeat="\n' + '        row in rows \n' + '          | tableRowFilter:columns:searchTerms:filterState \n' + '          | tableRowSorter:columns:sortOrder:sortDirection \n' + '          | limitTo:options.rowOffset - filterState.filterCount \n' + '          | limitTo:options.row_limit\n' + '        track by row[options.trackBy]">\n' + '        <td ng-repeat="\n' + '          column in columns \n' + '          track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>\n' + '      </tr>\n' + '    </tbody>\n' + '  </table>\n' + '  <div ng-show="options.pagingScheme === \'scroll\'" class="mlhr-table-scroller-wrapper">\n' + '    <div class="mlhr-table-scroller"></div>\n' + '  </div>\n' + '</div>');
+    $templateCache.put('src/mlhr-table.tpl.html', '<div class="mlhr-table-wrapper">\n' + '  <table ng-class="classes" class="mlhr-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lock_width"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="mlhr-table-filter-row">\n' + '        <th ng-repeat="column in columns">\n' + '          <input \n' + '            type="search"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '        </th>\n' + '      </tr>\n' + '    </thead>\n' + '    <tfoot>\n' + '      <tr>\n' + '        <td ng-attr-colspan="{{ getActiveColCount() }}">\n' + '          <form novalidate>\n' + '            <label>row limit:</label> <input type="text" ng-model="options.row_limit" value="{{ options.row_limit }}">&nbsp;&nbsp;\n' + '            <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;\n' + '            <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;\n' + '            <span ng-if="options.pagingScheme === \'page\'" mlhr-table-paginate="options" filter-state="filterState"></span>\n' + '          </form>\n' + '        </td>\n' + '      </tr>\n' + '    </tfoot>\n' + '    <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)" ng-class="options.rowOffset % 2 ? \'offset-odd\' : \'offset-even\'" mlhr-table-rows>\n' + '      <!-- <tr ng-repeat="\n' + '        row in rows \n' + '          | tableRowFilter:columns:searchTerms:filterState \n' + '          | tableRowSorter:columns:sortOrder:sortDirection \n' + '          | limitTo:options.rowOffset - filterState.filterCount \n' + '          | limitTo:options.row_limit\n' + '        track by row[options.trackBy]">\n' + '        <td ng-repeat="\n' + '          column in columns \n' + '          track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>\n' + '      </tr> -->\n' + '    </tbody>\n' + '  </table>\n' + '  <div ng-show="options.pagingScheme === \'scroll\'" class="mlhr-table-scroller-wrapper">\n' + '    <div class="mlhr-table-scroller"></div>\n' + '  </div>\n' + '</div>');
   }
 ]);

@@ -967,7 +967,12 @@ angular.module('datatorrent.mlhrTable', [
       scope.scroller.draggable({
         axis: 'y',
         containment: scope.scrollerWrapper,
-        drag: function(event, ui) {
+        start: function() {
+          scope.debouncingScroll = true;
+          scope.$digest();
+        },
+        stop: function(event, ui) {
+          scope.debouncingScroll = false;
           scope.updateOffsetByScroller(ui.position.top);
         }
       });

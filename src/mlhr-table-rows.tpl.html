@@ -6,6 +6,9 @@
     <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
   </td>
 </tr>
-<tr ng-repeat="row in visible_rows track by row[options.trackBy]">
+<tr ng-repeat="row in visible_rows track by row[options.trackBy]" ng-hide="debouncingScroll">
   <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>
+</tr>
+<tr ng-repeat="row in visible_rows track by row[options.trackBy]" ng-show="debouncingScroll">
+  <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell">...</td>
 </tr>
