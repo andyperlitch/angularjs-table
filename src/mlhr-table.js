@@ -543,7 +543,7 @@ angular.module('datatorrent.mlhrTable', [
     }
     var curOffset, newOffset;
     curOffset = newOffset = $scope.options.rowOffset;
-    newOffset -= $deltaY / $scope.options.scrollDivisor;
+    newOffset -= Math.round($deltaY / $scope.options.scrollDivisor) * 0.5;
     newOffset = Math.max(newOffset, 0);
     newOffset = Math.min($scope.filterState.filterCount - $scope.options.row_limit, newOffset);
     if (newOffset !== curOffset) {
@@ -620,7 +620,7 @@ angular.module('datatorrent.mlhrTable', [
     }
 
     // calculate corresponding offset
-    var newOffset = Math.round((top / height) * numFilteredRows);
+    var newOffset = Math.round((top / height) * numFilteredRows * 2) / 2;
     $scope.options.rowOffset = newOffset;
     $scope.$digest();
 
@@ -814,13 +814,14 @@ angular.module('datatorrent.mlhrTable', [
     link: link
   };
 }])
+
 .directive('mlhrTableRows', function($filter) {
 
   var tableRowFilter = $filter('tableRowFilter');
   var tableRowSorter = $filter('tableRowSorter');
   var limitTo = $filter('limitTo');
 
-  function calculateVisibleRows(scope, parameters) {
+  function calculateVisibleRows(scope) {
     // scope.rows
     var visible_rows;
     
@@ -834,7 +835,8 @@ angular.module('datatorrent.mlhrTable', [
     visible_rows = limitTo(visible_rows, scope.options.rowOffset - scope.filterState.filterCount);
 
     // | limitTo:options.row_limit
-    visible_rows = limitTo(visible_rows, scope.options.row_limit);
+    var row_limit = Math.min(scope.options.row_limit + Math.ceil(scope.offset_fudging), visible_rows.length);
+    visible_rows = limitTo(visible_rows, row_limit);
 
     return visible_rows;
   }
@@ -842,13 +844,16 @@ angular.module('datatorrent.mlhrTable', [
   return {
     restrict: 'A',
     templateUrl: 'src/mlhr-table-rows.tpl.html',
-    link: function(scope, element, attrs) {
+    link: function(scope) {
       scope.visible_rows = scope.rows.slice();
 
       var updateHandler = function() {
         console.log('update handler called');
+        scope.offset_fudging = scope.options.rowOffset % 1;
         scope.visible_rows = calculateVisibleRows(scope);
-      }
+        
+        console.log('scope.offset_fudging', scope.offset_fudging);
+      };
 
       scope.$watch('searchTerms', updateHandler, true);
 
@@ -862,8 +867,9 @@ angular.module('datatorrent.mlhrTable', [
 
       scope.$watchCollection('rows', updateHandler);
     }
-  }
+  };
 })
+
 .directive('mlhrTableCell', function($compile) {
 
   function link(scope, element, attrs) {
@@ -896,9 +902,10 @@ angular.module('datatorrent.mlhrTable', [
     link: link
   }
 })
+
 .directive('mlhrTable', ['$log', '$timeout', function ($log, $timeout) {
 
-  function link(scope, elem, attrs) {
+  function link(scope, elem) {
 
     // Specify default track by
     if (typeof scope.trackBy === 'undefined') {
@@ -931,7 +938,7 @@ angular.module('datatorrent.mlhrTable', [
 
     // Default Options, extend provided ones
     scope.options = angular.extend(scope.options, {
-      scrollDivisor: 4,
+      scrollDivisor: 2,
       row_limit: 30,
       rowOffset: 0,
       loadingText: 'loading',
@@ -1026,13 +1033,12 @@ angular.module('datatorrent.mlhrTable', [
         minOffset = scope.filterState.filterCount - row_limit;
       }
       scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, minOffset));
-      $timeout(scope.updateScrollerPosition, 0);
-    });
-    scope.$watch('options.row_limit', function() {
-      $timeout(scope.updateScrollerPosition, 0);
     });
     scope.$watch('options.pagingScheme', function() {
       scope.options.rowOffset = 0;
+    });
+    scope.$watch('visible_rows', function() {
+      console.log('triggered');
       $timeout(scope.updateScrollerPosition, 0);
     });
   }
