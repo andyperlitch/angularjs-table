@@ -15,10 +15,9 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable', [
-  'datatorrent.mlhrTable.templates',
-  'ui.sortable',
-  'ngSanitize',
-  'monospaced.mousewheel',
-  'datatorrent.mlhrTable.directives.mlhrTable'
-]);
+angular.module('datatorrent.mlhrTable.services.mlhrTableFormatFunctions', [])
+
+.service('mlhrTableFormatFunctions', function() {
+  // TODO: add some default format functions
+  return {};
+});

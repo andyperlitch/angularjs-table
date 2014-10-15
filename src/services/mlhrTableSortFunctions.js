@@ -15,10 +15,22 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable', [
-  'datatorrent.mlhrTable.templates',
-  'ui.sortable',
-  'ngSanitize',
-  'monospaced.mousewheel',
-  'datatorrent.mlhrTable.directives.mlhrTable'
-]);
+angular.module('datatorrent.mlhrTable.services.mlhrTableSortFunctions',[])
+
+.service('mlhrTableSortFunctions', function() {
+  return {
+    number: function(field){
+      return function(row1,row2) {
+        return row1[field] - row2[field];
+      };
+    },
+    string: function(field){
+      return function(row1,row2) {
+        if ( row1[field].toString().toLowerCase() === row2[field].toString().toLowerCase() ) {
+          return 0;
+        }
+        return row1[field].toString().toLowerCase() > row2[field].toString().toLowerCase() ? 1 : -1 ;
+      };
+    }
+  };
+});
