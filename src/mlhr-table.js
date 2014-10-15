@@ -754,9 +754,9 @@ angular.module('datatorrent.mlhrTable', [
 })
 
 .directive('mlhrTablePaginate', ['$compile', function($compile) {
-  function link(scope, elm, attrs) {
+  function link(scope, elm) {
 
-    var update = function(oldValue, newValue) {
+    var update = function() {
       var count = scope.filterState.filterCount;
       var limit = scope.options.row_limit;
       if (limit <= 0) {
@@ -832,11 +832,10 @@ angular.module('datatorrent.mlhrTable', [
     visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection);
 
     // | limitTo:options.rowOffset - filterState.filterCount 
-    visible_rows = limitTo(visible_rows, scope.options.rowOffset - scope.filterState.filterCount);
+    visible_rows = limitTo(visible_rows, Math.floor(scope.options.rowOffset) - scope.filterState.filterCount);
 
     // | limitTo:options.row_limit
-    var row_limit = Math.min(scope.options.row_limit + Math.ceil(scope.offset_fudging), visible_rows.length);
-    visible_rows = limitTo(visible_rows, row_limit);
+    visible_rows = limitTo(visible_rows, scope.options.row_limit + Math.ceil(scope.options.rowOffset % 1));
 
     return visible_rows;
   }
@@ -848,11 +847,8 @@ angular.module('datatorrent.mlhrTable', [
       scope.visible_rows = scope.rows.slice();
 
       var updateHandler = function() {
-        console.log('update handler called');
         scope.offset_fudging = scope.options.rowOffset % 1;
         scope.visible_rows = calculateVisibleRows(scope);
-        
-        console.log('scope.offset_fudging', scope.offset_fudging);
       };
 
       scope.$watch('searchTerms', updateHandler, true);
@@ -872,7 +868,7 @@ angular.module('datatorrent.mlhrTable', [
 
 .directive('mlhrTableCell', function($compile) {
 
-  function link(scope, element, attrs) {
+  function link(scope, element) {
     var column = scope.column;
     var cellMarkup = '';
     if (column.template) {
@@ -900,7 +896,7 @@ angular.module('datatorrent.mlhrTable', [
   return {
     scope: true,
     link: link
-  }
+  };
 })
 
 .directive('mlhrTable', ['$log', '$timeout', function ($log, $timeout) {
@@ -937,8 +933,9 @@ angular.module('datatorrent.mlhrTable', [
     };
 
     // Default Options, extend provided ones
+    scope.options = scope.options || {};
     scope.options = angular.extend(scope.options, {
-      scrollDivisor: 2,
+      scrollDivisor: 1,
       row_limit: 30,
       rowOffset: 0,
       loadingText: 'loading',
@@ -977,6 +974,7 @@ angular.module('datatorrent.mlhrTable', [
         containment: scope.scrollerWrapper,
         start: function() {
           scope.debouncingScroll = true;
+          scope.options.rowOffset = Math.floor(scope.options.rowOffset);
           scope.$digest();
         },
         stop: function(event, ui) {
@@ -1038,7 +1036,6 @@ angular.module('datatorrent.mlhrTable', [
       scope.options.rowOffset = 0;
     });
     scope.$watch('visible_rows', function() {
-      console.log('triggered');
       $timeout(scope.updateScrollerPosition, 0);
     });
   }

@@ -1,3 +1,4 @@
+/* expr: false */
 'use strict';
 describe('Controller: TableController', function() {
 
@@ -88,7 +89,7 @@ describe('Controller: TableController', function() {
     it('should add the id to the end of the sortOrder array', function() {
       $scope.sortOrder = ['otherId'];
       $scope.addSort('myId', '+');
-      expect($scope.sortOrder).to.eql(['otherId', 'myId'])
+      expect($scope.sortOrder).to.eql(['otherId', 'myId']);
     });
 
   });
@@ -97,16 +98,16 @@ describe('Controller: TableController', function() {
 
     it('should remove the id from the sortOrder array and delete it from sortDirection', function() {
       $scope.sortOrder = ['myId'];
-      $scope.sortDirection.myId = '+'
+      $scope.sortDirection.myId = '+';
       $scope.removeSort('myId');
       expect($scope.sortOrder).not.to.contain('myId');
-      expect($scope.sortDirection.myId).to.be.undefined;
+      expect($scope.sortDirection.myId).to.equal(undefined);
     });
 
     it('should only delete the sortDirection key if nothing is found in sortOrder', function() {
-      $scope.sortDirection.myId = '+'
+      $scope.sortDirection.myId = '+';
       $scope.removeSort('myId');
-      expect($scope.sortDirection.myId).to.be.undefined;
+      expect($scope.sortDirection.myId).to.equal(undefined);
     });
 
   });
@@ -172,9 +173,9 @@ describe('Controller: TableController', function() {
     describe('when the shift key is up', function() {
 
       beforeEach(function() {
-          $event = {
-            shiftKey: false
-          };
+        $event = {
+          shiftKey: false
+        };
       });
 
       it('should add the column to sortOrder and sortDirection as "+" if it was not being sorted', function() {
@@ -214,9 +215,9 @@ describe('Controller: TableController', function() {
     describe('when the shift key is down', function() {
       
       beforeEach(function() {
-          $event = {
-            shiftKey: true
-          };
+        $event = {
+          shiftKey: true
+        };
       });
 
       it('should do nothing if the column has no "sort" attribute', function() {
@@ -243,7 +244,7 @@ describe('Controller: TableController', function() {
         expect($scope.sortOrder.indexOf('k1')).to.not.equal(-1);
 
         $scope.toggleSort($event, col1);
-        expect($scope.sortDirection.k1).to.be.undefined;
+        expect($scope.sortDirection.k1).to.equal(undefined);
         expect($scope.sortOrder.indexOf('k1')).to.equal(-1);
       });
 
@@ -325,7 +326,7 @@ describe('Controller: TableController', function() {
   });
 
   describe('method: startColumnResize', function() {
-    var fn, $event, column, $markup, $el;
+    var fn, $event, $markup, $el;
 
     beforeEach(function() {
       fn = $scope.startColumnResize;

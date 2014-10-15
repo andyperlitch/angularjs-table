@@ -411,7 +411,7 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('test', ['connect:testserver','karma:unit','karma:midway', 'karma:e2e']);
+  grunt.registerTask('test', ['connect:testserver','karma:unit'/*,'karma:midway', 'karma:e2e'*/]);
   grunt.registerTask('test:unit', ['karma:unit']);
   grunt.registerTask('test:midway', ['connect:testserver','karma:midway']);
   grunt.registerTask('test:e2e', ['connect:testserver', 'karma:e2e']);

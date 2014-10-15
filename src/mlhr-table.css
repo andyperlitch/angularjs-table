@@ -90,11 +90,12 @@
 .mlhr-table tr.halfway.lastrow td {
   position: relative;
   top: 0.5em;
-  line-height: 1;
-  font-size: 0;
+  line-height: 0;
+  vertical-align: text-top;
+  padding-bottom: 0;
 }
 .mlhr-table tr.halfway.lastrow td > * {
-  opacity: 0;
+  /*opacity: 0;*/
 }
 .mlhr-table-wrapper {
   position: relative;

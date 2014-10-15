@@ -82,6 +82,27 @@
   user-select: none;
 }
 
+.mlhr-table tr.halfway,
+.mlhr-table tr.halfway td {
+  line-height: 0.5;
+  padding-top: 0;
+  padding-bottom: 0.45ex;
+}
+
+
+
+.mlhr-table tr.halfway.lastrow td {
+  position: relative;
+  top: 0.5em;
+  line-height: 0;
+  vertical-align: text-top;
+  padding-bottom: 0;
+}
+
+.mlhr-table tr.halfway.lastrow td > * {
+  /*opacity: 0;*/
+}
+
 .mlhr-table-wrapper {
   position: relative;
 }

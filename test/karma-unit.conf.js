@@ -20,7 +20,7 @@ module.exports = function(config) {
   
   conf.preprocessors = {
     // which html templates to be converted to js
-    'src/mlhr-table.tpl.html': ['ng-html2js'],
+    'src/*.tpl.html': ['ng-html2js'],
     // files we want to appear in the coverage report
     'src/mlhr-table.js': ['coverage']
   };
