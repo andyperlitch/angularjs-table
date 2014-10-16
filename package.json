@@ -21,6 +21,7 @@
     "grunt-contrib-watch": "~0.5.2",
     "grunt-google-cdn": "~0.2.0",
     "grunt-html2js": "^0.2.4",
+    "grunt-injector": "^0.5.4",
     "grunt-karma": "^0.8.2",
     "grunt-newer": "~0.5.4",
     "grunt-ngmin": "~0.0.2",

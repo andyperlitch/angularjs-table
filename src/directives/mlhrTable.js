@@ -163,7 +163,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
   }
 
   return {
-    templateUrl: 'src/mlhr-table.tpl.html',
+    templateUrl: 'src/templates/mlhr-table.tpl.html',
     restrict: 'EA',
     scope: {
       columns: '=',

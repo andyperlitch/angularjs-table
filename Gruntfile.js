@@ -47,7 +47,7 @@ module.exports = function (grunt) {
         files: ['Gruntfile.js']
       },
       html2js: {
-        files: ['<%= yeoman.src %>/*.tpl.html'],
+        files: ['<%= yeoman.src %>/**/*.tpl.html'],
         tasks: ['html2js:development']
       },
       livereload: {
@@ -64,13 +64,14 @@ module.exports = function (grunt) {
 
     html2js: {
       options: {
-        base: '<%= yeoman.app %>'
+        
       },
       development: {
         options: {
+          base: '.',
           module: 'datatorrent.mlhrTable.templates'
         },
-        src: ['<%= yeoman.src %>/*.tpl.html'],
+        src: ['<%= yeoman.src %>/**/*.tpl.html'],
         dest: '.tmp/scripts/templates.js'
       },
       dist: {
@@ -78,7 +79,7 @@ module.exports = function (grunt) {
           base: '.',
           module: 'datatorrent.mlhrTable.templates'
         },
-        src: ['<%= yeoman.src %>/*.tpl.html'],
+        src: ['<%= yeoman.src %>/templates/*.tpl.html'],
         dest: '<%= yeoman.dist %>/templates.js'
       }
     },
@@ -177,6 +178,17 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.dist %>/templates.js',
             '<%= yeoman.dist %>/*.tpl.html'
+          ]
+        }]
+      },
+      folders: {
+        files: [{
+          src: [
+            '<%= yeoman.dist %>/controllers',
+            '<%= yeoman.dist %>/directives',
+            '<%= yeoman.dist %>/filters',
+            '<%= yeoman.dist %>/services',
+            '<%= yeoman.dist %>/templates'
           ]
         }]
       }
@@ -302,7 +314,7 @@ module.exports = function (grunt) {
         expand: true,
         cwd: '<%= yeoman.src %>',
         dest: '<%= yeoman.dist %>/',
-        src: '*'
+        src: '**/*'
       },
       styles: {
         expand: true,
@@ -350,7 +362,14 @@ module.exports = function (grunt) {
     },
     concat: {
       dist: {
-        src: ['<%= yeoman.dist %>/mlhr-table.js', '<%= yeoman.dist %>/templates.js'],
+        options: {
+          banner: "'use strict';\n",
+          process: function(src, filepath) {
+            return '// Source: ' + filepath + '\n' +
+              src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
+          }
+        },
+        src: ['<%= yeoman.dist %>/**/*.js'],
         dest: '<%= yeoman.dist %>/mlhr-table.js'
       }
     },
@@ -380,6 +399,17 @@ module.exports = function (grunt) {
       },
       e2e_auto: {
         configFile: './test/karma-e2e.conf.js'
+      }
+    },
+
+    injector: {
+      options: {
+        addRootSlash: false
+      },
+      local_dependencies: {
+        files: {
+          '<%= yeoman.app %>/index.html': ['<%= yeoman.src %>/**/*.js'],
+        }
       }
     }
   });
@@ -437,6 +467,8 @@ module.exports = function (grunt) {
     'concat:dist',
     // remove templates.js
     'clean:templates',
+    // remove folders from src dir structure
+    'clean:folders',
     // ngmin js
     'ngmin:dist',
     // minify

@@ -23,8 +23,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
 
 .directive('mlhrTableRows', function($filter) {
 
-  var tableRowFilter = $filter('tableRowFilter');
-  var tableRowSorter = $filter('tableRowSorter');
+  var tableRowFilter = $filter('mlhrTableRowFilter');
+  var tableRowSorter = $filter('mlhrTableRowSorter');
   var limitTo = $filter('limitTo');
 
   function calculateVisibleRows(scope) {
@@ -48,7 +48,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
 
   return {
     restrict: 'A',
-    templateUrl: 'src/mlhr-table-rows.tpl.html',
+    templateUrl: 'src/templates/mlhr-table-rows.tpl.html',
     link: function(scope) {
       scope.visible_rows = scope.rows.slice();
 
