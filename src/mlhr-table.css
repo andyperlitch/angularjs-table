@@ -29,6 +29,9 @@
 .mlhr-rows-table-wrapper {
   overflow: auto;
 }
+.mlhr-rows-table > tbody + tbody {
+  border-top: none;
+}
 
 /* general styles for all cells in both tables */
 .mlhr-table th {

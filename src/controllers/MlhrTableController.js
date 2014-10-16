@@ -24,6 +24,42 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 .controller('MlhrTableController',
   ['$scope','mlhrTableFormatFunctions','mlhrTableSortFunctions','mlhrTableFilterFunctions','$log', '$window', '$filter', function($scope, formats, sorts, filters, $log, $window, $filter) {
 
+  function debounce(func, wait, immediate) {
+    var timeout, args, context, timestamp, result;
+
+    var later = function() {
+      var last = Date.now() - timestamp;
+
+      if (last < wait && last > 0) {
+        timeout = setTimeout(later, wait - last);
+      } else {
+        timeout = null;
+        if (!immediate) {
+          result = func.apply(context, args);
+          if (!timeout) {
+            context = args = null;
+          }
+        }
+      }
+    };
+
+    return function() {
+      context = this;
+      args = arguments;
+      timestamp = Date.now();
+      var callNow = immediate && !timeout;
+      if (!timeout) {
+        timeout = setTimeout(later, wait);
+      }
+      if (callNow) {
+        result = func.apply(context, args);
+        context = args = null;
+      }
+
+      return result;
+    };
+  }
+
   // SCOPE FUNCTIONS
   $scope.addSort = function(id, dir) {
     var idx = $scope.sortOrder.indexOf(id);
@@ -327,5 +363,21 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       $log.warn('Loading from storage failed!');
     }
   };
+
+  $scope.onScroll = debounce(function() {
+
+    var scrollTop = $scope.scrollDiv[0].scrollTop;
+
+    var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
+
+    if (rowHeight === 0) {
+      return false;
+    }
+
+    $scope.options.rowOffset = Math.floor(scrollTop / rowHeight);
+
+    $scope.$digest();
+
+  }, 250);
 
 }]);

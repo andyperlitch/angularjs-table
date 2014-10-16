@@ -42,7 +42,7 @@
       </tr>
     </thead>
   </table>
-  <div class="mlhr-rows-table-wrapper" ng-style="{ height: options.bodyHeight + 'px' }">
+  <div class="mlhr-rows-table-wrapper" ng-style="{ height: options.bodyHeight + 'px' }" msd-wheel="onScroll()">
     <table ng-class="classes" class="mlhr-table mlhr-rows-table">
       <thead>
         <th 
@@ -52,7 +52,9 @@
           ></th>
         </tr>
       </thead>
-      <tbody mlhr-table-rows></tbody>
+      <tbody mlhr-table-dummy-rows="options.rowOffset" columns="columns" cell-content="..."></tbody>
+      <tbody mlhr-table-rows class="mlhr-table-rendered-rows"></tbody>
+      <tbody mlhr-table-dummy-rows="filterState.filterCount - options.rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
 </div>

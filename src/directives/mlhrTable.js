@@ -17,12 +17,13 @@
 
 angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
   'datatorrent.mlhrTable.controllers.MlhrTableController',
-  'datatorrent.mlhrTable.directives.mlhrTableRows'
+  'datatorrent.mlhrTable.directives.mlhrTableRows',
+  'datatorrent.mlhrTable.directives.mlhrTableDummyRows'
 ])
 
 .directive('mlhrTable', ['$log', '$timeout', function () {
 
-  function link(scope) {
+  function link(scope, element) {
 
     // Specify default track by
     if (typeof scope.trackBy === 'undefined') {
@@ -106,6 +107,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       //  - when column gets enabled or disabled
       //  TODO
     }
+
+    scope.scrollDiv = element.find('.mlhr-rows-table-wrapper');
+
   }
 
   return {
