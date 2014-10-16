@@ -57,6 +57,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     // Default Options, extend provided ones
     scope.options = scope.options || {};
     scope.options = angular.extend(scope.options, {
+      bodyHeight: 300,
       scrollDivisor: 1,
       row_limit: 30,
       rowOffset: 0,
@@ -74,37 +75,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         'glyphicon glyphicon-chevron-down'
       ]
     }, scope.options);
-
-    // Cache elements
-    scope.thead = elem.find('thead');
-    scope.tbody = elem.find('tbody');
-    scope.scroller = elem.find('.mlhr-table-scroller');
-    scope.scrollerWrapper = elem.find('.mlhr-table-scroller-wrapper');
-    scope._scrollerMinHeight_ = parseInt(scope.scroller.css('min-height'));
-
-    // Some setup of the scroller wrapper must occur after the DOM 
-    // has been painted.
-    $timeout(function() {
-      // Set a margin top equal to the thead
-      scope.scrollerWrapper.css({
-        'margin-top': scope.thead.height() + 'px'
-      });
-
-      // Allow the scroller to be draggable
-      scope.scroller.draggable({
-        axis: 'y',
-        containment: scope.scrollerWrapper,
-        start: function() {
-          scope.debouncingScroll = true;
-          scope.options.rowOffset = Math.floor(scope.options.rowOffset);
-          scope.$digest();
-        },
-        stop: function(event, ui) {
-          scope.debouncingScroll = false;
-          scope.updateOffsetByScroller(ui.position.top);
-        }
-      });
-    }, 0);
 
     // Look for initial sort order
     if (scope.options.initial_sorts) {
@@ -156,9 +126,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     });
     scope.$watch('options.pagingScheme', function() {
       scope.options.rowOffset = 0;
-    });
-    scope.$watch('visible_rows', function() {
-      $timeout(scope.updateScrollerPosition, 0);
     });
   }
 
