@@ -374,7 +374,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       return false;
     }
 
-    $scope.options.rowOffset = Math.floor(scrollTop / rowHeight);
+    $scope.rowOffset = Math.floor(scrollTop / rowHeight);
 
     $scope.$digest();
 

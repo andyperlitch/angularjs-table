@@ -52,7 +52,7 @@ describe('Directive: mlhrTablePaginate', function () {
   });
 
   it('should clear out the element html if rowLimit is set to <= 0', function() {
-    scope.options.rowLimit = 0;
+    scope.rowLimit = 0;
     scope.$digest();
     expect(element.html()).to.equal('');
   });
@@ -64,23 +64,23 @@ describe('Directive: mlhrTablePaginate', function () {
     });
     
     it('should return false for any given number if rowLimit is <= 0', function() {
-      scope.options.rowLimit = 0;
+      scope.rowLimit = 0;
       expect(fn(1)).to.equal(false);
       expect(fn(0)).to.equal(false);
       expect(fn(12)).to.equal(false);
     });
 
     it('should return true if the rowOffset is equal to i * rowLimit', function() {
-      scope.options.rowOffset = 10;
+      scope.rowOffset = 10;
       expect(fn(2)).to.equal(true);
-      scope.options.rowOffset = 15;
+      scope.rowOffset = 15;
       expect(fn(3)).to.equal(true);
     });
 
     it('should return false if rowOffset is not equal to i * rowLimit', function() {
-      scope.options.rowOffset = 10;
+      scope.rowOffset = 10;
       expect(fn(3)).to.equal(false);
-      scope.options.rowOffset = 15;
+      scope.rowOffset = 15;
       expect(fn(2)).to.equal(false);
     });
 
@@ -94,7 +94,7 @@ describe('Directive: mlhrTablePaginate', function () {
 
     it('should set the rowOffset to i * rowLimit', function() {
       fn(3);
-      expect(scope.options.rowOffset).to.equal(3 * scope.options.rowLimit);
+      expect(scope.rowOffset).to.equal(3 * scope.rowLimit);
     });
 
     it('should throw if i is negative', function() {
@@ -108,14 +108,14 @@ describe('Directive: mlhrTablePaginate', function () {
       fn = isoScope.decrementPage;
     });
     it('should subtract rowLimit from current rowOffset', function() {
-      scope.options.rowOffset = 10;
+      scope.rowOffset = 10;
       fn();
-      expect(scope.options.rowOffset).to.equal(10 - scope.options.rowLimit);
+      expect(scope.rowOffset).to.equal(10 - scope.rowLimit);
     });
     it('should never set it to negative offset, even if rowOffset is unexpected value', function() {
-      scope.options.rowOffset = 2;
+      scope.rowOffset = 2;
       fn();
-      expect(scope.options.rowOffset).to.equal(0);
+      expect(scope.rowOffset).to.equal(0);
     });
   });
 
@@ -125,14 +125,14 @@ describe('Directive: mlhrTablePaginate', function () {
       fn = isoScope.incrementPage;
     });
     it('should add rowLimit to current rowOffset', function() {
-      scope.options.rowOffset = 0;
+      scope.rowOffset = 0;
       fn();
-      expect(scope.options.rowOffset).to.equal(scope.options.rowLimit);
+      expect(scope.rowOffset).to.equal(scope.rowLimit);
     });
     it('should never set offset to greater than number of filtered rows available minus 1', function() {
-      scope.options.rowOffset = 28;
+      scope.rowOffset = 28;
       fn();
-      expect(scope.options.rowOffset).to.equal(29);
+      expect(scope.rowOffset).to.equal(29);
     });
   });
 
