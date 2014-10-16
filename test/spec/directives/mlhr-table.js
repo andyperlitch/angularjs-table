@@ -213,9 +213,9 @@ describe('Directive: mlhrTable', function () {
       filterState = isoScope.filterState;
       options = isoScope.options;
     });
-    it('should set rowOffset to filterCount - row_limit when paging scheme is scroll', function() {
+    it('should set rowOffset to filterCount - rowLimit when paging scheme is scroll', function() {
       options.rowOffset = 25;
-      options.row_limit = 10;
+      options.rowLimit = 10;
       options.pagingScheme = 'scroll';
       
       // drop the last 10 elements
@@ -228,7 +228,7 @@ describe('Directive: mlhrTable', function () {
       options.pagingScheme = 'page';
       scope.$digest();
       options.rowOffset = 24;
-      options.row_limit = 8;
+      options.rowLimit = 8;
       
 
       // drop last 10 elements

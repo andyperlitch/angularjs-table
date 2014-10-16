@@ -40,8 +40,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
     // | limitTo:options.rowOffset - filterState.filterCount 
     visible_rows = limitTo(visible_rows, Math.floor(scope.options.rowOffset) - scope.filterState.filterCount);
 
-    // | limitTo:options.row_limit
-    visible_rows = limitTo(visible_rows, scope.options.row_limit + Math.ceil(scope.options.rowOffset % 1));
+    // | limitTo:options.rowLimit
+    visible_rows = limitTo(visible_rows, scope.options.rowLimit + Math.ceil(scope.options.rowOffset % 1));
 
     return visible_rows;
   }
@@ -63,7 +63,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
         'sortOrder',
         'sortDirection',
         'options.rowOffset',
-        'options.row_limit'
+        'options.rowLimit'
       ], updateHandler);
 
       scope.$watchCollection('rows', updateHandler);

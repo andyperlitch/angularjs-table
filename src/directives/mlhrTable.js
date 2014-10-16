@@ -59,7 +59,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     scope.options = angular.extend(scope.options, {
       bodyHeight: 300,
       scrollDivisor: 1,
-      row_limit: 30,
+      rowLimit: 30,
       rowOffset: 0,
       loadingText: 'loading',
       noRowsText: 'no rows',
@@ -103,7 +103,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       //  - paging scheme
       scope.$watch('options.pagingScheme', scope.saveToStorage);
       //  - row limit
-      scope.$watch('options.row_limit', scope.saveToStorage);
+      scope.$watch('options.rowLimit', scope.saveToStorage);
       //  - when column gets enabled or disabled
       //  TODO
     }

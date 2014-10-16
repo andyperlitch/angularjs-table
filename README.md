@@ -47,8 +47,8 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 
 |        key         |   type   |   default   |                                                             description                                                              |
 | ------------------ | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| row_limit          | `number` | 30          | Max number of rows to display at any one time.                                                                                       |
-| pagingScheme       | `String` | 'scroll'    | Scheme for navigating lists that extend beyond `row_limit`. Available values: "scroll", "page".                                      |
+| rowLimit          | `number` | 30          | Max number of rows to display at any one time.                                                                                       |
+| pagingScheme       | `String` | 'scroll'    | Scheme for navigating lists that extend beyond `rowLimit`. Available values: "scroll", "page".                                      |
 | sort_classes       | `Array`  | (see below) |                                                                                                                                      |
 | storage            | `Object` | undefined   |                                                                                                                                      |
 | storage_key        | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |

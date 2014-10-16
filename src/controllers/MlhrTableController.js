@@ -308,7 +308,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 
     // save non-transient options
     state.options = {};
-    ['row_limit', 'pagingScheme'].forEach(function(prop){
+    ['rowLimit', 'pagingScheme'].forEach(function(prop){
       state.options[prop] = $scope.options[prop];
     });
 
@@ -355,7 +355,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       });
 
       // load options
-      ['row_limit', 'pagingScheme'].forEach(function(prop) {
+      ['rowLimit', 'pagingScheme'].forEach(function(prop) {
         $scope.options[prop] = state.options[prop];
       });
 
