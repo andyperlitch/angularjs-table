@@ -61,6 +61,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     // Default Options, extend provided ones
     scope.options = scope.options || {};
     scope.options = angular.extend(scope.options, {
+      rowPadding: 10,
       bodyHeight: 300,
       defaultRowLimit: 15,
       scrollDivisor: 1,

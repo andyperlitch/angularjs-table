@@ -371,7 +371,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       return;
     }
     $scope.rowHeight = rowHeight;
-    $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight);
+    $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding*2;
   };
 
   $scope.onScroll = debounce(function() {
@@ -384,7 +384,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       return false;
     }
 
-    $scope.rowOffset = Math.floor(scrollTop / rowHeight);
+    $scope.rowOffset = Math.max(0, Math.floor(scrollTop / rowHeight) - $scope.options.rowPadding);
 
     $scope.$digest();
 
