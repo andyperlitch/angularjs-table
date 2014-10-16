@@ -48,12 +48,11 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
 
   return {
     restrict: 'A',
-    templateUrl: 'src/templates/mlhr-table-rows.tpl.html',
+    templateUrl: 'src/templates/mlhrTableRows.tpl.html',
     link: function(scope) {
       scope.visible_rows = scope.rows.slice();
 
       var updateHandler = function() {
-        scope.offset_fudging = scope.options.rowOffset % 1;
         scope.visible_rows = calculateVisibleRows(scope);
       };
 
