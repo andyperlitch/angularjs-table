@@ -364,6 +364,15 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     }
   };
 
+  $scope.calculateRowLimit = function() {
+    var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
+    if (!rowHeight) {
+      $scope.rowLimit = $scope.options.defaultRowLimit;
+      return;
+    }
+    $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight);
+  };
+
   $scope.onScroll = debounce(function() {
 
     var scrollTop = $scope.scrollDiv[0].scrollTop;
@@ -378,6 +387,6 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 
     $scope.$digest();
 
-  }, 250);
+  }, 100);
 
 }]);

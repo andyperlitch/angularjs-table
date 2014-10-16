@@ -54,13 +54,16 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       filterCount: scope.rows.length
     };
 
+    // Offset and limit
+    scope.rowOffset = 0;
+    scope.rowLimit = 10;
+
     // Default Options, extend provided ones
     scope.options = scope.options || {};
     scope.options = angular.extend(scope.options, {
       bodyHeight: 300,
+      defaultRowLimit: 15,
       scrollDivisor: 1,
-      rowLimit: 30,
-      rowOffset: 0,
       loadingText: 'loading',
       noRowsText: 'no rows',
       setLoading: function(isLoading) {
@@ -103,13 +106,24 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       //  - paging scheme
       scope.$watch('options.pagingScheme', scope.saveToStorage);
       //  - row limit
-      scope.$watch('rowLimit', scope.saveToStorage);
+      scope.$watch('options.bodyHeight', function() {
+        scope.calculateRowLimit();
+        scope.saveToStorage();
+      });
+      scope.$watch('filterState.filterCount', function() {
+        scope.onScroll();
+      });
       //  - when column gets enabled or disabled
       //  TODO
     }
 
     scope.scrollDiv = element.find('.mlhr-rows-table-wrapper');
+    scope.scrollDiv.on('scroll', scope.onScroll);
 
+    // Wait for a render
+    setTimeout(function() {
+      scope.calculateRowLimit();
+    }, 0);
   }
 
   return {
