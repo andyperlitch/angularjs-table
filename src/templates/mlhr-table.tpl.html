@@ -1,5 +1,5 @@
 <div class="mlhr-table-wrapper">
-  <table ng-class="classes" class="mlhr-table">
+  <table ng-class="classes" class="mlhr-table mlhr-header-table">
     <thead>
       <tr ui-sortable="sortableOptions" ng-model="columns">
         <th 
@@ -41,18 +41,16 @@
         </th>
       </tr>
     </thead>
-    <tfoot>
-      <tr>
-        <td ng-attr-colspan="{{ getActiveColCount() }}">
-          <form novalidate>
-            <label>row limit:</label> <input type="number" ng-model="options.row_limit" value="{{ options.row_limit }}">&nbsp;&nbsp;
-            <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;
-            <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;
-            <span ng-if="options.pagingScheme === 'page'" mlhr-table-paginate="options" filter-state="filterState"></span>
-          </form>
-        </td>
+  </table>
+  <table ng-class="classes" class="mlhr-table mlhr-rows-table">
+    <thead>
+      <th 
+          scope="col" 
+          ng-repeat="column in columns" 
+          ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
+        ></th>
       </tr>
-    </tfoot>
+    </thead>
     <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)" ng-class="options.rowOffset % 2 ? 'offset-odd' : 'offset-even'" mlhr-table-rows>
       <!-- <tr ng-repeat="
         row in rows 
@@ -67,6 +65,14 @@
       </tr> -->
     </tbody>
   </table>
+  <div class="tfoot">
+    <form novalidate>
+      <label>row limit:</label> <input type="number" ng-model="options.row_limit" value="{{ options.row_limit }}">&nbsp;&nbsp;
+      <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;
+      <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;
+      <span ng-if="options.pagingScheme === 'page'" mlhr-table-paginate="options" filter-state="filterState"></span>
+    </form>
+  </div>
   <div ng-show="options.pagingScheme === 'scroll'" class="mlhr-table-scroller-wrapper">
     <div class="mlhr-table-scroller"></div>
   </div>

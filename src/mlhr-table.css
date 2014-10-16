@@ -1,6 +1,24 @@
 .mlhr-table {
   table-layout: fixed;
   width: 100%;
+  margin-bottom: 0;
+}
+
+.mlhr-header-table {
+  border-bottom: none;
+}
+
+.mlhr-header-table thead > tr > th {
+  border-width: 1px;
+}
+
+.mlhr-rows-table > thead > tr > th{
+  border-width: 0;
+  padding: 0;
+}
+
+.hidden-thead {
+  height: 0;
 }
 
 .mlhr-table th {
