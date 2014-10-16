@@ -17,8 +17,7 @@
 
 angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
   'datatorrent.mlhrTable.controllers.MlhrTableController',
-  'datatorrent.mlhrTable.directives.mlhrTableRows',
-  'datatorrent.mlhrTable.directives.mlhrTablePaginate'
+  'datatorrent.mlhrTable.directives.mlhrTableRows'
 ])
 
 .directive('mlhrTable', ['$log', '$timeout', function () {
