@@ -46,33 +46,13 @@
     <table ng-class="classes" class="mlhr-table mlhr-rows-table">
       <thead>
         <th 
-            scope="col" 
+            scope="col"
             ng-repeat="column in columns" 
             ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
           ></th>
         </tr>
       </thead>
-      <tbody msd-wheel="onScroll($event, $delta, $deltaX, $deltaY)" ng-class="options.rowOffset % 2 ? 'offset-odd' : 'offset-even'" mlhr-table-rows>
-        <!-- <tr ng-repeat="
-          row in rows 
-            | tableRowFilter:columns:searchTerms:filterState 
-            | tableRowSorter:columns:sortOrder:sortDirection 
-            | limitTo:options.rowOffset - filterState.filterCount 
-            | limitTo:options.row_limit
-          track by row[options.trackBy]">
-          <td ng-repeat="
-            column in columns 
-            track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>
-        </tr> -->
-      </tbody>
+      <tbody mlhr-table-rows></tbody>
     </table>
-  </div>
-  <div class="tfoot">
-    <form novalidate>
-      <label>row limit:</label> <input type="number" ng-model="options.row_limit" value="{{ options.row_limit }}">&nbsp;&nbsp;
-      <input type="radio" ng-model="options.pagingScheme" value="scroll" name="paging-scroll"> <label for="paging-scroll">scroll</label>&nbsp;&nbsp;
-      <input type="radio" ng-model="options.pagingScheme" value="page" name="paging-page"> <label for="paging-page">paginate</label>&nbsp;&nbsp;
-      <span ng-if="options.pagingScheme === 'page'" mlhr-table-paginate="options" filter-state="filterState"></span>
-    </form>
   </div>
 </div>

@@ -132,6 +132,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
   return {
     templateUrl: 'src/templates/mlhr-table.tpl.html',
     restrict: 'EA',
+    replace: true,
     scope: {
       columns: '=',
       rows: '=',
