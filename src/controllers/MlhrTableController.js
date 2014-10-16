@@ -370,6 +370,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       $scope.rowLimit = $scope.options.defaultRowLimit;
       return;
     }
+    $scope.rowHeight = rowHeight;
     $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight);
   };
 
@@ -377,7 +378,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 
     var scrollTop = $scope.scrollDiv[0].scrollTop;
 
-    var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
+    var rowHeight = $scope.rowHeight;
 
     if (rowHeight === 0) {
       return false;

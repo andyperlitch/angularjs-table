@@ -27,31 +27,15 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableDummyRows', [])
 .directive('mlhrTableDummyRows', function() {
 
   return {
+    template: '<tr class="mlhr-dummy-row" ng-style="{ height: dummyRowHeight + \'px\'}"></tr>',
+    scope: true,
     link: function(scope, element, attrs) {
 
-      var columns = scope.$eval(attrs.columns);
-      var cellContent = attrs.cellContent || '...';
-      var template = '<tr>';
-
-      for (var i = columns.length - 1; i >= 0; i--) {
-        template += '<td>' + cellContent + '</td>';
-      }
-
-      template += '</tr>';
-
       scope.$watch(attrs.mlhrTableDummyRows, function(count) {
-        if (count === 0) {
-          element.html('');
-          return;
-        }
+        console.log(count, scope.rowHeight);
+        console.log('scope.dummyRowHeight', scope.dummyRowHeight);
+        scope.dummyRowHeight = count * scope.rowHeight;
 
-        var html = '';
-
-        for (var i = 1; i <= count; i++) {
-          html += template;
-        }
-
-        element.html(html);
       });
 
     }
