@@ -6,9 +6,6 @@
     <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
   </td>
 </tr>
-<tr ng-repeat="row in visible_rows track by row[options.trackBy]" ng-hide="debouncingScroll" ng-class="{ 'halfway': offset_fudging && ($first || $last), 'firstrow': $first, 'lastrow': $last }">
+<tr ng-repeat="row in visible_rows track by row[options.trackBy]">
   <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>
-</tr>
-<tr ng-repeat="row in visible_rows track by row[options.trackBy]" ng-show="debouncingScroll" ng-class="{ 'scrolling':true, 'halfway': offset_fudging && ($first || $last), 'firstrow': $first, 'lastrow': $last }">
-  <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell">...</td>
 </tr>

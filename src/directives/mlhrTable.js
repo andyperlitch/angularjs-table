@@ -21,9 +21,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
   'datatorrent.mlhrTable.directives.mlhrTablePaginate'
 ])
 
-.directive('mlhrTable', ['$log', '$timeout', function ($log, $timeout) {
+.directive('mlhrTable', ['$log', '$timeout', function () {
 
-  function link(scope, elem) {
+  function link(scope) {
 
     // Specify default track by
     if (typeof scope.trackBy === 'undefined') {
@@ -107,26 +107,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       //  - when column gets enabled or disabled
       //  TODO
     }
-
-    // Watch for changes to update scroll position
-    scope.$watch('filterState.filterCount', function() {
-      var minOffset;
-      var row_limit = scope.options.row_limit*1;
-      if (scope.options.pagingScheme === 'page') {
-        if ( row_limit <= 0) {
-          minOffset = 0;
-        } else {
-          minOffset = Math.floor(scope.filterState.filterCount / row_limit) * row_limit;
-        }
-        
-      } else {
-        minOffset = scope.filterState.filterCount - row_limit;
-      }
-      scope.options.rowOffset = Math.max(0, Math.min(scope.options.rowOffset, minOffset));
-    });
-    scope.$watch('options.pagingScheme', function() {
-      scope.options.rowOffset = 0;
-    });
   }
 
   return {
