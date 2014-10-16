@@ -23,6 +23,42 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
 .directive('mlhrTable', ['$log', '$timeout', function () {
 
+  function debounce(func, wait, immediate) {
+    var timeout, args, context, timestamp, result;
+
+    var later = function() {
+      var last = Date.now() - timestamp;
+
+      if (last < wait && last > 0) {
+        timeout = setTimeout(later, wait - last);
+      } else {
+        timeout = null;
+        if (!immediate) {
+          result = func.apply(context, args);
+          if (!timeout) {
+            context = args = null;
+          }
+        }
+      }
+    };
+
+    return function() {
+      context = this;
+      args = arguments;
+      timestamp = Date.now();
+      var callNow = immediate && !timeout;
+      if (!timeout) {
+        timeout = setTimeout(later, wait);
+      }
+      if (callNow) {
+        result = func.apply(context, args);
+        context = args = null;
+      }
+
+      return result;
+    };
+  }
+
   function link(scope, element) {
 
     // Specify default track by
@@ -64,6 +100,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       rowPadding: 10,
       bodyHeight: 300,
       defaultRowLimit: 15,
+      scrollDebounce: 100,
       scrollDivisor: 1,
       loadingText: 'loading',
       noRowsText: 'no rows',
@@ -72,7 +109,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         scope.$digest();
       },
       trackBy: scope.trackBy,
-      pagingScheme: 'scroll',
       sort_classes: [
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
@@ -117,6 +153,22 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       //  - when column gets enabled or disabled
       //  TODO
     }
+
+    scope.onScroll = debounce(function() {
+
+      var scrollTop = scope.scrollDiv[0].scrollTop;
+
+      var rowHeight = scope.rowHeight;
+
+      if (rowHeight === 0) {
+        return false;
+      }
+
+      scope.rowOffset = Math.max(0, Math.floor(scrollTop / rowHeight) - scope.options.rowPadding);
+
+      scope.$digest();
+
+    }, scope.options.scrollDebounce);
 
     scope.scrollDiv = element.find('.mlhr-rows-table-wrapper');
     scope.scrollDiv.on('scroll', scope.onScroll);
