@@ -26,6 +26,9 @@
   border-width: 0;
   padding: 0;
 }
+.mlhr-rows-table-wrapper {
+  overflow: auto;
+}
 
 /* general styles for all cells in both tables */
 .mlhr-table th {
@@ -103,23 +106,11 @@ when a discreet width has been set on it */
   font-size: 10px;
   margin-left: 10px;
 }
-
 .mlhr-table th span.glyphicon-sort {
   opacity: 0.2;
 }
-
 .mlhr-table th.sortable-column {
 
   cursor: pointer;
   user-select: none
-}
-
-.mlhr-table-wrapper .tfoot .mlhr-table-page-link {
-  margin: 0 0.25em;
-}
-.mlhr-table-wrapper .tfoot a.mlhr-table-page-link {
-  cursor: pointer;
-}
-.mlhr-table-wrapper .tfoot span.mlhr-table-page-link {
-  font-weight: bold;
 }
