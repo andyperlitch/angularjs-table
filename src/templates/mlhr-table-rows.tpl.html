@@ -6,6 +6,8 @@
     <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
   </td>
 </tr>
+<tr mlhr-table-dummy-rows="options.rowOffset"></tr>
 <tr ng-repeat="row in visible_rows track by row[options.trackBy]">
   <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>
 </tr>
+<tr mlhr-table-dummy-rows="filterState.filterCount - options.rowOffset - visible_rows.length"></tr>
