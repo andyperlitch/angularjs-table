@@ -21,7 +21,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
   'datatorrent.mlhrTable.directives.mlhrTableDummyRows'
 ])
 
-.directive('mlhrTable', ['$log', '$timeout', function () {
+.directive('mlhrTable', ['$log', '$timeout', '$q', function ($log, $timeout, $q) {
 
   function debounce(func, wait, immediate) {
     var timeout, args, context, timestamp, result;
@@ -30,7 +30,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       var last = Date.now() - timestamp;
 
       if (last < wait && last > 0) {
-        timeout = setTimeout(later, wait - last);
+        timeout = $timeout(later, wait - last);
       } else {
         timeout = null;
         if (!immediate) {
@@ -48,7 +48,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       timestamp = Date.now();
       var callNow = immediate && !timeout;
       if (!timeout) {
-        timeout = setTimeout(later, wait);
+        timeout = $timeout(later, wait);
       }
       if (callNow) {
         result = func.apply(context, args);
@@ -157,7 +157,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       //  TODO
     }
 
-    scope.onScroll = debounce(function() {
+    var scrollDeferred;
+    var debouncedScrollHandler = debounce(function() {
 
       var scrollTop = scope.scrollDiv[0].scrollTop;
 
@@ -169,9 +170,23 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
       scope.rowOffset = Math.max(0, Math.floor(scrollTop / rowHeight) - scope.options.rowPadding);
 
+      scrollDeferred.resolve();
+
+      scrollDeferred = null;
+
+      scope.options.scrollingPromise = null;
+
       scope.$digest();
 
     }, scope.options.scrollDebounce);
+
+    scope.onScroll = function() {
+      if (!scrollDeferred) {
+        scrollDeferred = $q.defer();
+        scope.options.scrollingPromise = scrollDeferred.promise;
+      }
+      debouncedScrollHandler();
+    };
 
     scope.scrollDiv = element.find('.mlhr-rows-table-wrapper');
     scope.scrollDiv.on('scroll', scope.onScroll);

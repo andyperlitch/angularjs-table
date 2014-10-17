@@ -72,6 +72,12 @@ If a column has a `sort` function specified, the column header will contain a `<
 ### Storage
 If defined, this requires the presence of `storage_key`. This object should follow a subset of the API for `localStorage`; specifically having the methods `setItem`, `getItem`, and `removeItem`. It will use `storage_key` as the key to set. The most common use-case for this is simply to pass `localStorage` to this option.
 
+### `options` decoration
+An advantage of providing an options object is that mlhrTable decorates it with a few things for greater control. Below are the things mlhrTable adds.
+
+#### `options.scrollingPromise`
+When the user is scrolling, this property will be a promise that gets resolved when the user has stopped scrolling. If the user is not scrolling, this will have a value of `null`. This can be useful if the table has a lot of columns and you want to optimize performance by deferring updates to when the user stops scrolling.
+
 
 Column Definitions
 -----------------
