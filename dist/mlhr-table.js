@@ -360,6 +360,20 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         return result;
       };
     }
+    function defaults(obj) {
+      if (typeof obj !== 'object') {
+        return obj;
+      }
+      for (var i = 1, length = arguments.length; i < length; i++) {
+        var source = arguments[i];
+        for (var prop in source) {
+          if (obj[prop] === void 0) {
+            obj[prop] = source[prop];
+          }
+        }
+      }
+      return obj;
+    }
     function link(scope, element) {
       // Specify default track by
       if (typeof scope.trackBy === 'undefined') {
@@ -387,7 +401,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       scope.rowLimit = 10;
       // Default Options, extend provided ones
       scope.options = scope.options || {};
-      scope.options = angular.extend(scope.options, {
+      defaults(scope.options, {
+        bgSizeMultiplier: 1,
         rowPadding: 10,
         bodyHeight: 300,
         defaultRowLimit: 15,
@@ -405,7 +420,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
           'glyphicon glyphicon-chevron-up',
           'glyphicon glyphicon-chevron-down'
         ]
-      }, scope.options);
+      });
       // Look for initial sort order
       if (scope.options.initial_sorts) {
         angular.forEach(scope.options.initial_sorts, function (sort) {
@@ -438,7 +453,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
           scope.onScroll();
         });
         scope.$watch('rowHeight', function (size) {
-          element.find('tr.mlhr-table-dummy-row').css('background-size', 'auto ' + size + 'px');
+          element.find('tr.mlhr-table-dummy-row').css('background-size', 'auto ' + size * scope.options.bgSizeMultiplier + 'px');
         });  //  - when column gets enabled or disabled
              //  TODO
       }

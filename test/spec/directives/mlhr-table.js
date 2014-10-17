@@ -100,6 +100,10 @@ describe('Directive: mlhrTable', function () {
     expect(element.find('table').length).to.equal(2);
   });
 
+  it('should create an options object if one is not provided', function() {
+    expect(isoScope.options).to.be.an('object');
+  });
+
   it('should display the data passed to it', function () {
     var expected = data[0].first_name;
     var actual = element.find('table:eq(1) tbody.mlhr-table-rendered-rows tr:eq(0) td:eq(2)').text();
@@ -136,6 +140,21 @@ describe('Directive: mlhrTable', function () {
       scope.$digest();
     };
     expect(fn).to.throw();
+  }));
+
+  it('should allow an options object to be passed, and should use override default options', inject(function($rootScope) {
+    var $scope2 = $rootScope.$new();
+    $scope2.columns = [];
+    $scope2.rows = [];
+    $scope2.options = {
+      bgSizeMultiplier: 3
+    };
+    var el2 = angular.element('<mlhr-table columns="columns" rows="rows" options="options" class="table"></mlhr-table>');
+    el2 = compile(el2)($scope2);
+    $scope2.$digest();
+    isoScope = el2.isolateScope();
+    expect(isoScope.options).to.equal($scope2.options);
+    expect(isoScope.options.bgSizeMultiplier).to.equal(3);
   }));
 
   it('should attach a searchTerms object to the scope', function() {
