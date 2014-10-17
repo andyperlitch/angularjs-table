@@ -5,7 +5,7 @@ describe('Filter: mlhrTableRowFilter', function() {
   var columns, rows, searchTerms, filter, fakeSearchFn1, fakeSearchFn2, sandbox, mockLog;
 
   beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+    sandbox = sinon.sandbox.create();
   });
 
   // load the filter's module
@@ -40,7 +40,7 @@ describe('Filter: mlhrTableRowFilter', function() {
   }));
 
   afterEach(function() {
-      sandbox.restore();
+    sandbox.restore();
   });
 
   it('should return all rows if no search terms are set', function() {
@@ -50,7 +50,7 @@ describe('Filter: mlhrTableRowFilter', function() {
   it('should ignore search terms that are empty strings or only whitespace', function() {
     ['', ' ', '  '].forEach(function(val) {
       searchTerms.fname = val;
-      expect(filter(rows, columns, searchTerms, {})).to.equal(rows); 
+      expect(filter(rows, columns, searchTerms, {})).to.equal(rows);
     });
   });
 
@@ -64,7 +64,7 @@ describe('Filter: mlhrTableRowFilter', function() {
     searchTerms.col2 = 'some search';
     var results2 = filter(rows, columns, searchTerms, {});
     expect( results2.length ).to.equal(1);
-    expect( results2[0] ).to.equal(rows[1]);    
+    expect( results2[0] ).to.equal(rows[1]);
   });
 
   it('should ignore invalid predefined filter names and call $log.warn', function() {
