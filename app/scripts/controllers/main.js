@@ -87,7 +87,7 @@ angular.module('datatorrent.mlhrTable.ghPage')
     };
 
     setInterval(function() {
-      $scope.my_table_data = genRows(10000);
+      $scope.my_table_data = genRows(1000);
       $scope.$apply();
       $scope.my_table_options.setLoading(false);
     }, 1000);
