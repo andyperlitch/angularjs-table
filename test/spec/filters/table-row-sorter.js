@@ -35,7 +35,7 @@ describe('Filter: tableRowSorter', function() {
   }));
 
   afterEach(function() {
-      sandbox.restore();
+    sandbox.restore();
   });
 
   it('should be a function', function() {

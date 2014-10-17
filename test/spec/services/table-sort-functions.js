@@ -19,7 +19,7 @@ describe('Service: tableSortFunctions', function() {
   });
 
   it('should be an object', function() {
-    expect(sorts).to.be.an('object'); 
+    expect(sorts).to.be.an('object');
   });
 
   describe('number sorting', function() {
