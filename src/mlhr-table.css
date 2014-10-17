@@ -117,3 +117,12 @@ when a discreet width has been set on it */
   cursor: pointer;
   user-select: none
 }
+
+/* dummy row */
+.mlhr-table-dummy-row {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAlCAYAAACDKIOpAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABtJREFUeNpiuHv37n+G////MzAxAMHQIQACDAC7twbaN2nkgwAAAABJRU5ErkJggg==');
+  background-repeat: repeat;
+}
+table tbody .mlhr-table-dummy-row td {
+  border-top: none;
+}

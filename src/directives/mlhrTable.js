@@ -150,6 +150,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       scope.$watch('filterState.filterCount', function() {
         scope.onScroll();
       });
+      scope.$watch('rowHeight', function(size) {
+        element.find('tr.mlhr-table-dummy-row').css('background-size','auto ' + size + 'px');
+      });
       //  - when column gets enabled or disabled
       //  TODO
     }
