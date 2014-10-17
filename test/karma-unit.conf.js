@@ -1,3 +1,5 @@
+'use strict';
+
 var sharedConfig = require('./karma-shared.conf');
 
 module.exports = function(config) {
@@ -14,15 +16,15 @@ module.exports = function(config) {
     './test/spec/**/*.js',
 
     // template files
-    'src/*.tpl.html'
+    'src/templates/*.tpl.html'
   ]);
 
   
   conf.preprocessors = {
     // which html templates to be converted to js
-    'src/mlhr-table.tpl.html': ['ng-html2js'],
+    'src/templates/*.tpl.html': ['ng-html2js'],
     // files we want to appear in the coverage report
-    'src/mlhr-table.js': ['coverage']
+    'src/**/*.js': ['coverage']
   };
 
   conf.ngHtml2JsPreprocessor = {
@@ -32,7 +34,7 @@ module.exports = function(config) {
     // setting this option will create only a single module that contains templates
     // from all the files, so you can load them all with module('foo')
     moduleName: 'datatorrent.mlhrTable.templates'
-  }
+  };
 
 
   config.set(conf);

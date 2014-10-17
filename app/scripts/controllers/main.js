@@ -71,7 +71,8 @@ angular.module('datatorrent.mlhrTable.ghPage')
     ];
 
     // Table data
-    $scope.my_table_data = genRows(30);
+    // $scope.my_table_data = genRows(30);
+    $scope.my_table_data = [];
 
 
     // Selected rows
@@ -79,15 +80,16 @@ angular.module('datatorrent.mlhrTable.ghPage')
 
     // table options
     $scope.my_table_options = {
-      row_limit: 10,
+      rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table'
+      storage_key: 'gh-page-table',
+      loading: true
     };
 
     setInterval(function() {
-      $scope.my_table_data = genRows(30);
-      // $scope.my_table_data = genRows(30);
+      $scope.my_table_data = genRows(1000);
       $scope.$apply();
+      $scope.my_table_options.setLoading(false);
     }, 1000);
 
   });

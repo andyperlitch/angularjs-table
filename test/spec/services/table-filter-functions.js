@@ -1,12 +1,12 @@
 'use strict';
-describe('Service: tableFilterFunctions', function() {
+describe('Service: mlhrTableFilterFunctions', function() {
 
   beforeEach(module('datatorrent.mlhrTable'));
 
   var tff;
 
-  beforeEach(inject(['tableFilterFunctions', function(tableFilterFunctions) {
-    tff = tableFilterFunctions;
+  beforeEach(inject(['mlhrTableFilterFunctions', function(mlhrTableFilterFunctions) {
+    tff = mlhrTableFilterFunctions;
   }]));
 
   it('should return an object containing functions', function() {

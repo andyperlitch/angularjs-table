@@ -45,14 +45,25 @@ Options Object
 --------------
 The options object should be available on the parent scope of the `<mlhr-table>` element. It is optional (defaults are used) and has the following keys:
 
-|      key      |   type   |   default   |                                                             description                                                              |
-| ------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| row_limit     | `number` | 30          | Max number of rows to display at any one time.                                                                                       |
-| pagingScheme  | `String` | 'scroll'    | Scheme for navigating lists that extend beyond `row_limit`. Available values: "scroll", "page".                                      |
-| sort_classes  | `Array`  | (see below) |                                                                                                                                      |
-| storage       | `Object` | undefined   |                                                                                                                                      |
-| storage_key   | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
-| initial_sorts | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
+|        key         |   type   |   default   |                                                             description                                                              |
+| ------------------ | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| rowPadding         | `number` | 10          | Number of rows to add before and after the viewport                                                                                  |
+| sort_classes       | `Array`  | (see below) |                                                                                                                                      |
+| storage            | `Object` | undefined   |                                                                                                                                      |
+| storage_key        | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
+| initial_sorts      | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
+| loadingText        | `String` | 'loading'   | String to show when data is loading                                                                                                  |
+| noRowsText         | `String` | 'no rows'   | String to show when no rows are visible                                                                                              |
+| loadingTemplateUrl | `String` | undefined   | Path to template for td when loading                                                                                                 |
+| noRowsTemplateUrl  | `String` | undefined   | Path to template for td when there are no rows to show.                                                                              |
+| scrollDebounce     | `number` | 100         | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                   |
+
+
+### Loading
+A common requirement for tables showing dynamically loaded data is to show loading feedback. There are several options pertaining to this: `loading`, `loadingText`, and `loadingTemplateUrl`.
+
+### No Visible Rows
+Similar to loading state, there are two options for visual representation of when there are no rows: `noRowsText` and `noRowsTemplateUrl`.
 
 ### `sort_classes`
 Default Value: `[ 'glyphicon glyphicon-sort', 'glyphicon glyphicon-chevron-up', 'glyphicon glyphicon-chevron-down' ]`

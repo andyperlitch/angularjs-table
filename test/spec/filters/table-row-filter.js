@@ -1,4 +1,6 @@
-describe('Filter: tableRowFilter', function() {
+'use strict';
+
+describe('Filter: mlhrTableRowFilter', function() {
 
   var columns, rows, searchTerms, filter, fakeSearchFn1, fakeSearchFn2, sandbox, mockLog;
 
@@ -12,16 +14,16 @@ describe('Filter: tableRowFilter', function() {
     $provide.value('$log', mockLog);
   }));
 
-  beforeEach(inject(['tableRowFilterFilter', function(f){
-    filter = f;
+  beforeEach(inject(function($filter){
+    filter = $filter('mlhrTableRowFilter');
 
-    fakeSearchFn1 = function(term, value, computedValue, row) {
+    fakeSearchFn1 = function(term, value) {
       return value === term;
-    }
+    };
 
-    fakeSearchFn2 = function(term, value, computedValue, row) {
+    fakeSearchFn2 = function(term, value) {
       return value === 20;
-    }
+    };
 
     columns = [
       { id: 'fname', key: 'fname', filter: fakeSearchFn1, format: sandbox.stub().returns('FORMATTED') },
@@ -35,7 +37,7 @@ describe('Filter: tableRowFilter', function() {
       { fname: 'henry', col2: 30, col3: 'bar' }
     ];
     searchTerms = {};
-  }]));
+  }));
 
   afterEach(function() {
       sandbox.restore();

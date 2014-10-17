@@ -1,3 +1,5 @@
+'use strict';
+
 describe('Service: tableSortFunctions', function() {
 
   var sandbox, sorts;
@@ -8,7 +10,7 @@ describe('Service: tableSortFunctions', function() {
 
   beforeEach(module('datatorrent.mlhrTable'));
 
-  beforeEach(inject(['tableSortFunctions', function(s) {
+  beforeEach(inject(['mlhrTableSortFunctions', function(s) {
     sorts = s;
   }]));
 

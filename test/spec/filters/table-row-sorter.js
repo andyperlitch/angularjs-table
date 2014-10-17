@@ -1,17 +1,25 @@
+'use strict';
+
 describe('Filter: tableRowSorter', function() {
 
   var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder, sortDirection;
 
   beforeEach(module('datatorrent.mlhrTable'));
 
-  beforeEach(inject(function(tableRowSorterFilter) {
+  beforeEach(inject(function(mlhrTableRowSorterFilter) {
     sandbox = sinon.sandbox.create();
 
-    sorter = tableRowSorterFilter;
+    sorter = mlhrTableRowSorterFilter;
 
-    stringSort = sandbox.spy(function(a,b) { return a.key1 < b.key1 ? -1 : a.key1 > b.key1 ? 1 : 0 });
-    numSort = sandbox.spy(function(a,b) { return a.key2 - b.key2});
-    numSort2 = sandbox.spy(function(a,b) { return a.key3 - b.key3});
+    stringSort = sandbox.spy(function(a,b) {
+      return a.key1 < b.key1 ? -1 : a.key1 > b.key1 ? 1 : 0 ;
+    });
+    numSort = sandbox.spy(function(a,b) {
+      return a.key2 - b.key2;
+    });
+    numSort2 = sandbox.spy(function(a,b) {
+      return a.key3 - b.key3;
+    });
     
     columns = [
       { id: 'key1', key: 'key1', sort: stringSort },
