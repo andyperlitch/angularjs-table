@@ -4,7 +4,7 @@ describe('Controller: TableController', function() {
 
   var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog, mockWindow;
 
-  beforeEach(module('datatorrent.mlhrTable'));
+  beforeEach(module('datatorrent.mlhrTable.controllers.MlhrTableController'));
 
   beforeEach(inject(function($rootScope, $controller){
     sandbox = sinon.sandbox.create();
@@ -57,11 +57,11 @@ describe('Controller: TableController', function() {
       ]
     });
 
-    $controller('TableController', {
+    $controller('MlhrTableController', {
       $scope: $scope,
-      tableFormatFunctions: mockTableFormatFunctions,
-      tableSortFunctions: mockTableSortFunctions,
-      tableFilterFunctions: mockTableFilterFunctions,
+      mlhrTableFormatFunctions: mockTableFormatFunctions,
+      mlhrTableSortFunctions: mockTableSortFunctions,
+      mlhrTableFilterFunctions: mockTableFilterFunctions,
       $log: mockLog,
       $window: mockWindow
     });
