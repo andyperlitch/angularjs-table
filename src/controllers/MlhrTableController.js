@@ -22,7 +22,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 ])
 
 .controller('MlhrTableController',
-  ['$scope','mlhrTableFormatFunctions','mlhrTableSortFunctions','mlhrTableFilterFunctions','$log', '$window', '$filter', function($scope, formats, sorts, filters, $log, $window, $filter) {
+  ['$scope','mlhrTableFormatFunctions','mlhrTableSortFunctions','mlhrTableFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, formats, sorts, filters, $log, $window, $filter, $timeout) {
 
   
 
@@ -332,12 +332,10 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 
   $scope.calculateRowLimit = function() {
     var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
-    if (!rowHeight) {
-      $scope.rowLimit = $scope.options.defaultRowLimit;
-      return;
+    if (rowHeight) {
+      $scope.rowHeight = rowHeight;
+      $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding*2;
     }
-    $scope.rowHeight = rowHeight;
-    $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding*2;
   };
 
 }]);

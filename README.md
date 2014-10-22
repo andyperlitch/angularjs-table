@@ -58,6 +58,8 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 | noRowsTemplateUrl  | `String` | undefined   | Path to template for td when there are no rows to show.                                                                              |
 | scrollDebounce     | `number` | 100         | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                   |
 | bgSizeMultiplier   | `number` | 1           | The background-size css attribute of the placeholder rows is set to bgSizeMultiplier * rowHeight.                                    |
+| defaultRowLimit    | `number` | 15          | When the viewport has a zero height, this many rows will be rendered                                                                 |
+| defaultRowHeight   | `number` | 40          | When there are no rows to calculate the height, this number is used as the fallback                                                  |
 
 
 ### Loading

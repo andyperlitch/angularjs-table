@@ -115,6 +115,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       bgSizeMultiplier: 1,
       rowPadding: 10,
       bodyHeight: 300,
+      defaultRowHeight: 40,
       defaultRowLimit: 15,
       scrollDebounce: 100,
       scrollDivisor: 1,
@@ -131,6 +132,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         'glyphicon glyphicon-chevron-down'
       ]
     });
+
+    scope.rowLimit = scope.options.defaultRowLimit;
+    scope.rowHeight = scope.options.defaultRowHeight;
 
     // Look for initial sort order
     if (scope.options.initial_sorts) {
@@ -167,6 +171,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         scope.onScroll();
       });
       scope.$watch('rowHeight', function(size) {
+        console.log('rowHeight changed:', size, arguments[1]);
         element.find('tr.mlhr-table-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
       });
       //  - when column gets enabled or disabled
@@ -175,6 +180,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
     var scrollDeferred;
     var debouncedScrollHandler = debounce(function() {
+
+      scope.calculateRowLimit();
 
       var scrollTop = scope.scrollDiv[0].scrollTop;
 
@@ -208,8 +215,10 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     scope.scrollDiv.on('scroll', scope.onScroll);
 
     // Wait for a render
-    setTimeout(function() {
+    $timeout(function() {
+      // Calculates rowHeight and rowLimit
       scope.calculateRowLimit();
+
     }, 0);
   }
 

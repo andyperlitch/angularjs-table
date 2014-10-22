@@ -52,6 +52,16 @@
           ></th>
         </tr>
       </thead>
+      <tbody>
+        <tr ng-if="visible_rows.length === 0">
+          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">
+            <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>
+            <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>
+            <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>
+            <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
+          </td>
+        </tr>
+      </tbody>
       <tbody mlhr-table-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>
       <tbody mlhr-table-rows class="mlhr-table-rendered-rows"></tbody>
       <tbody mlhr-table-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>
