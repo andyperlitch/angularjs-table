@@ -171,7 +171,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         scope.onScroll();
       });
       scope.$watch('rowHeight', function(size) {
-        console.log('rowHeight changed:', size, arguments[1]);
         element.find('tr.mlhr-table-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
       });
       //  - when column gets enabled or disabled
