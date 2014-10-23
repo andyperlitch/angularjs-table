@@ -99,6 +99,7 @@ The columns should be an array of Column Definition Objects. The order in which 
 | ngFilter     | `string`               | no       | undefined     | Name of a registered filter to use on row[column.key]                                  |
 | template     | `string`               | no       | undefined     | A string template for the cell contents                                                |
 | templateUrl  | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                  |
+| title        | `string`               | no       | undefined     | A tooltip for a column header.                                                         |
 
 
 Row Sorting
