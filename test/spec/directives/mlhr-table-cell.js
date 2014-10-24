@@ -83,13 +83,13 @@ describe('Directive: mlhr-table-cell', function () {
       var strong = element.find('strong');
       expect(strong.length).to.equal(1);
       expect(strong.text()).to.equal(scope.row.id);
-    });    
+    });
   });
 
   describe('when an ngFilter is specified', function() {
     beforeEach(inject(function($templateCache) {
       scope.column.ngFilter = 'commaGroups';
-      scope.row.id = '1000000'
+      scope.row.id = '1000000';
       $templateCache.put(scope.column.templateUrl, '<strong>{{ row[column.key] }}</strong>');
 
       // Define and compile the element
@@ -102,7 +102,7 @@ describe('Directive: mlhr-table-cell', function () {
     it('should recompile the cell with the supplied filter', function() {
       var str = element.text();
       expect(str).to.equal('1,000,000');
-    });    
-  });  
+    });
+  });
 
 });

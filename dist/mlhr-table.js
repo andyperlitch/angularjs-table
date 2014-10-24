@@ -638,12 +638,12 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
         };
         scope.$watch('searchTerms', updateHandler, true);
         scope.$watchGroup([
-          'filterState',
-          'sortOrder',
-          'sortDirection',
+          'filterState.filterCount',
           'rowOffset',
           'rowLimit'
         ], updateHandler);
+        scope.$watch('sortOrder', updateHandler, true);
+        scope.$watch('sortDirection', updateHandler, true);
         scope.$watchCollection('rows', updateHandler);
       }
     };
