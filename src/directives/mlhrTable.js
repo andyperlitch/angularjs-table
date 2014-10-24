@@ -123,7 +123,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       noRowsText: 'no rows',
       setLoading: function(isLoading) {
         this.loading = isLoading;
-        scope.$digest();
+        if(!scope.$$phase) {
+          scope.$digest();  
+        }
       },
       trackBy: scope.trackBy,
       sort_classes: [
