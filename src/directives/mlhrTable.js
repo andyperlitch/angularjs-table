@@ -121,9 +121,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       scrollDivisor: 1,
       loadingText: 'loading',
       noRowsText: 'no rows',
-      setLoading: function(isLoading) {
+      setLoading: function(isLoading, triggerDigest) {
         this.loading = isLoading;
-        if(!scope.$$phase) {
+        if(triggerDigest) {
           scope.$digest();  
         }
       },
