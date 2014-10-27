@@ -29,15 +29,26 @@
         </th>
       </tr>
       <tr ng-if="hasFilterFields()" class="mlhr-table-filter-row">
-        <th ng-repeat="column in columns">
+        <th ng-repeat="column in columns" ng-class="'column-' + column.id">
           <input 
-            type="search"
+            type="text"
             ng-if="(column.filter)"
             ng-model="searchTerms[column.id]"
             ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"
             ng-attr-title="{{ column.filter && column.filter.title }}"
             ng-class="{'active': searchTerms[column.id] }"
           >
+          <button 
+            ng-if="(column.filter)"
+            ng-show="searchTerms[column.id]"
+            class="clear-search-btn"
+            role="button"
+            type="button"
+            ng-click="clearAndFocusSearch(column.id)"
+          >
+            &times;
+          </button>
+
         </th>
       </tr>
     </thead>

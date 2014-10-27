@@ -22,7 +22,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 ])
 
 .controller('MlhrTableController',
-  ['$scope','mlhrTableFormatFunctions','mlhrTableSortFunctions','mlhrTableFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, formats, sorts, filters, $log, $window, $filter, $timeout) {
+  ['$scope','$element','mlhrTableFormatFunctions','mlhrTableSortFunctions','mlhrTableFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
 
   
 
@@ -53,6 +53,11 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       }
     }
     return false;
+  };
+  // Clears search field for column, focus on input
+  $scope.clearAndFocusSearch = function(columnId) {
+    $scope.searchTerms[columnId] = '';
+    $element.find('tr.mlhr-table-filter-row th.column-' + columnId + ' input').focus();
   };
   // Toggles column sorting
   $scope.toggleSort = function($event, column) {

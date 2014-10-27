@@ -69,6 +69,27 @@
   text-indent: 2px;
 }
 
+.mlhr-table tr.mlhr-table-filter-row th {
+  position: relative;
+}
+
+/* button to clear search */
+
+.mlhr-table tr.mlhr-table-filter-row th .clear-search-btn {
+  position: absolute;
+  border-radius: 50%;
+  border: none;
+  right: 1em;
+  top: 30%;
+  font-size: 12px;
+  opacity: 0.2;
+  color: white;
+  background-color: black;
+  padding: 0;
+  width: 15px;
+  line-height: 15px;
+}
+
 /* activated search input, as in when there is text in it */
 
 .mlhr-table th input.active {
