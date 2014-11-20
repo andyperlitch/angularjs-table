@@ -66,7 +66,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
 
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
-      scope.$watchCollection('rows', updateHandler);
+      scope.$watch('rows', updateHandler, true);
     }
   };
 });
