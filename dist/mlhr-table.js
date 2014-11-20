@@ -1036,7 +1036,7 @@ angular.module('datatorrent.mlhrTable.services.mlhrTableSortFunctions', []).serv
   return {
     number: function (field) {
       return function (row1, row2) {
-        return row1[field] - row2[field];
+        return row1[field] * 1 - row2[field] * 1;
       };
     },
     string: function (field) {
