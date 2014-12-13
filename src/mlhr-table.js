@@ -19,6 +19,5 @@ angular.module('datatorrent.mlhrTable', [
   'datatorrent.mlhrTable.templates',
   'ui.sortable',
   'ngSanitize',
-  'monospaced.mousewheel',
   'datatorrent.mlhrTable.directives.mlhrTable'
 ]);

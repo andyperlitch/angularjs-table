@@ -391,16 +391,16 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         throw new Error('"columns" array not found in mlhrTable scope!');
       }
       // Check for rows
-      if (!(scope.rows instanceof Array)) {
-        throw new Error('"rows" array not found in mlhrTable scope!');
-      }
+      // if ( !(scope.rows instanceof Array) ) {
+      //   throw new Error('"rows" array not found in mlhrTable scope!');
+      // }
       // Object that holds search terms
       scope.searchTerms = {};
       // Array and Object for sort order+direction
       scope.sortOrder = [];
       scope.sortDirection = {};
       // Holds filtered rows count
-      scope.filterState = { filterCount: scope.rows.length };
+      scope.filterState = { filterCount: scope.rows ? scope.rows.length : 0 };
       // Offset and limit
       scope.rowOffset = 0;
       scope.rowLimit = 10;
@@ -640,10 +640,16 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
       restrict: 'A',
       templateUrl: 'src/templates/mlhrTableRows.tpl.html',
       link: function (scope) {
-        scope.visible_rows = scope.rows.slice();
         var updateHandler = function () {
-          scope.visible_rows = calculateVisibleRows(scope);
+          if (scope.rows) {
+            scope.visible_rows = calculateVisibleRows(scope);
+          }
         };
+        scope.$watch('rows', function (rows) {
+          if (rows) {
+            scope.visible_rows = rows.slice();
+          }
+        });
         scope.$watch('searchTerms', updateHandler, true);
         scope.$watchGroup([
           'filterState.filterCount',
@@ -836,7 +842,6 @@ angular.module('datatorrent.mlhrTable', [
   'datatorrent.mlhrTable.templates',
   'ui.sortable',
   'ngSanitize',
-  'monospaced.mousewheel',
   'datatorrent.mlhrTable.directives.mlhrTable'
 ]);
 // Source: dist/services/mlhrTableFilterFunctions.js

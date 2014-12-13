@@ -1,3 +1,5 @@
+'use strict';
+
 var path = require('path');
 var fs = require('fs');
 var index = fs.readFileSync(path.normalize(__dirname + '/../app/index.html'), 'utf8');
@@ -10,11 +12,10 @@ module.exports = function() {
   return {
     basePath: '../',
     frameworks: ['mocha','sinon-chai', 'sinon', 'chai'],
-    reporters: ['dot', 'coverage'],
     browsers: ['Chrome'],
     autoWatch: true,
-    // plugins: ['karma-chrome-launcher','karma-mocha','karma-coverage'],
     reporters: ['dots', 'coverage'],
+    // plugins: ['karma-chrome-launcher','karma-mocha','karma-coverage'],
 
     // tell karma how you want the coverage results
     coverageReporter: {
@@ -40,5 +41,5 @@ module.exports = function() {
       'test/lib/chai-should.js',
       'test/lib/chai-expect.js'
     ])
-  }
+  };
 };

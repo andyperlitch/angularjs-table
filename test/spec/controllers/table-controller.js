@@ -59,6 +59,13 @@ describe('Controller: TableController', function() {
 
     $controller('MlhrTableController', {
       $scope: $scope,
+      $element: {
+        find: sandbox.spy(function() {
+          return {
+            focus: sandbox.spy()
+          };
+        })
+      },
       mlhrTableFormatFunctions: mockTableFormatFunctions,
       mlhrTableSortFunctions: mockTableSortFunctions,
       mlhrTableFilterFunctions: mockTableFilterFunctions,
