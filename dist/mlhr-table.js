@@ -380,10 +380,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       return obj;
     }
     function link(scope, element) {
-      // Specify default track by
-      if (typeof scope.trackBy === 'undefined') {
-        scope.trackBy = 'id';
-      }
       // Look for built-in filter, sort, and format functions
       if (scope.columns instanceof Array) {
         scope.setColumns(scope.columns);
@@ -510,8 +506,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       },
       controller: 'MlhrTableController',
       compile: function (tElement) {
-        if (!tElement.attr('track-by')) {
-          tElement.attr('track-by', 'id');
+        var trackBy = tElement.attr('track-by');
+        if (trackBy) {
+          tElement.find('.mlhr-table-rendered-rows').attr('track-by', trackBy);
         }
         return link;
       }
@@ -636,29 +633,36 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
       visible_rows = limitTo(visible_rows, scope.rowLimit + Math.ceil(scope.rowOffset % 1));
       return visible_rows;
     }
+    function link(scope) {
+      var updateHandler = function () {
+        if (scope.rows) {
+          scope.visible_rows = calculateVisibleRows(scope);
+        }
+      };
+      scope.$watch('rows', function (rows) {
+        if (rows) {
+          scope.visible_rows = rows.slice();
+        }
+      });
+      scope.$watch('searchTerms', updateHandler, true);
+      scope.$watchGroup([
+        'filterState.filterCount',
+        'rowOffset',
+        'rowLimit'
+      ], updateHandler);
+      scope.$watch('sortOrder', updateHandler, true);
+      scope.$watch('sortDirection', updateHandler, true);
+      scope.$watch('rows', updateHandler, true);
+    }
     return {
       restrict: 'A',
       templateUrl: 'src/templates/mlhrTableRows.tpl.html',
-      link: function (scope) {
-        var updateHandler = function () {
-          if (scope.rows) {
-            scope.visible_rows = calculateVisibleRows(scope);
-          }
-        };
-        scope.$watch('rows', function (rows) {
-          if (rows) {
-            scope.visible_rows = rows.slice();
-          }
-        });
-        scope.$watch('searchTerms', updateHandler, true);
-        scope.$watchGroup([
-          'filterState.filterCount',
-          'rowOffset',
-          'rowLimit'
-        ], updateHandler);
-        scope.$watch('sortOrder', updateHandler, true);
-        scope.$watch('sortDirection', updateHandler, true);
-        scope.$watch('rows', updateHandler, true);
+      compile: function (tElement, tAttrs) {
+        var tr = tElement.find('tr');
+        var repeatString = tr.attr('ng-repeat');
+        repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by $index';
+        tr.attr('ng-repeat', repeatString);
+        return link;
       }
     };
   }
@@ -1075,6 +1079,6 @@ angular.module('src/templates/mlhrTableDummyRows.tpl.html', []).run([
 angular.module('src/templates/mlhrTableRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/mlhrTableRows.tpl.html', '<tr ng-repeat="row in visible_rows track by row[options.trackBy]" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}">\n' + '  <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>\n' + '</tr>');
+    $templateCache.put('src/templates/mlhrTableRows.tpl.html', '<tr ng-repeat="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}">\n' + '  <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>\n' + '</tr>');
   }
 ]);

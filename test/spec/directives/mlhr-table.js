@@ -88,7 +88,7 @@ describe('Directive: mlhrTable', function () {
     scope.my_table_data = data = genRows(30);
 
     createElement = function() {
-      element = angular.element('<mlhr-table columns="my_table_columns" rows="my_table_data" class="table"></mlhr-table>');
+      element = angular.element('<mlhr-table columns="my_table_columns" rows="my_table_data" class="table" track-by="id"></mlhr-table>');
       element = compile(element)(scope);
       scope.$digest();
       isoScope = element.isolateScope();

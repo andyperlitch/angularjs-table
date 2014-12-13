@@ -46,10 +46,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
     return visible_rows;
   }
 
-  return {
-    restrict: 'A',
-    templateUrl: 'src/templates/mlhrTableRows.tpl.html',
-    link: function(scope) {
+  function link(scope) {
 
       var updateHandler = function() {
         if (scope.rows) {
@@ -74,6 +71,17 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
       scope.$watch('rows', updateHandler, true);
+    }
+
+  return {
+    restrict: 'A',
+    templateUrl: 'src/templates/mlhrTableRows.tpl.html',
+    compile: function(tElement, tAttrs) {
+      var tr = tElement.find('tr');
+      var repeatString = tr.attr('ng-repeat');
+      repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by $index';
+      tr.attr('ng-repeat', repeatString);
+      return link;
     }
   };
 });

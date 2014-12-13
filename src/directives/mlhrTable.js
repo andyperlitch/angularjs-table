@@ -76,11 +76,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
   function link(scope, element) {
 
-    // Specify default track by
-    if (typeof scope.trackBy === 'undefined') {
-      scope.trackBy = 'id';
-    }
-
     // Look for built-in filter, sort, and format functions
     if (scope.columns instanceof Array) {
       scope.setColumns(scope.columns);
@@ -237,8 +232,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     },
     controller: 'MlhrTableController',
     compile: function(tElement) {
-      if (!tElement.attr('track-by')) {
-        tElement.attr('track-by', 'id');
+      var trackBy = tElement.attr('track-by');
+      if (trackBy) {
+        tElement.find('.mlhr-table-rendered-rows').attr('track-by', trackBy);
       }
       return link;
     }
