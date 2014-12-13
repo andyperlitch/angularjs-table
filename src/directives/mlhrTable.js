@@ -89,9 +89,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     }
 
     // Check for rows
-    if ( !(scope.rows instanceof Array) ) {
-      throw new Error('"rows" array not found in mlhrTable scope!');
-    }
+    // if ( !(scope.rows instanceof Array) ) {
+    //   throw new Error('"rows" array not found in mlhrTable scope!');
+    // }
 
     // Object that holds search terms
     scope.searchTerms = {};
@@ -102,7 +102,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
     // Holds filtered rows count
     scope.filterState = {
-      filterCount: scope.rows.length
+      filterCount: scope.rows ? scope.rows.length : 0
     };
 
     // Offset and limit

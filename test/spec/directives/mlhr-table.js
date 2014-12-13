@@ -12,7 +12,8 @@ describe('Directive: mlhrTable', function () {
   filter_placeholder,
   data,
   mockLog,
-  sandbox;
+  sandbox,
+  createElement;
 
   beforeEach(function() {
     sandbox = sinon.sandbox.create();
@@ -86,14 +87,24 @@ describe('Directive: mlhrTable', function () {
     // Table data
     scope.my_table_data = data = genRows(30);
 
-    element = angular.element('<mlhr-table columns="my_table_columns" rows="my_table_data" class="table"></mlhr-table>');
-    element = compile(element)(scope);
-    scope.$digest();
-    isoScope = element.isolateScope();
+    createElement = function() {
+      element = angular.element('<mlhr-table columns="my_table_columns" rows="my_table_data" class="table"></mlhr-table>');
+      element = compile(element)(scope);
+      scope.$digest();
+      isoScope = element.isolateScope();
+    };
+
+    createElement();
   }));
 
   afterEach(function() {
     sandbox.restore();
+  });
+
+  it('should be okay with a delayed data set', function() {
+    scope.my_table_data = undefined;
+    // expect(createElement).not.to.throw();
+    createElement();
   });
 
   it('should create two tables', function () {
@@ -126,17 +137,6 @@ describe('Directive: mlhrTable', function () {
     var el2 = angular.element('<mlhr-table columns="nonexistent_columns" rows="rows" class="table"></mlhr-table>');
     var fn = function() {
       el2 = compile(el2)(scope2);
-      scope.$digest();
-    };
-    expect(fn).to.throw();
-  }));
-
-  it('should throw if no rows array was found on the scope', inject(function($rootScope) {
-    var $scope2 = $rootScope.$new();
-    $scope2.columns = [];
-    var el2 = angular.element('<mlhr-table columns="columns" rows="nonexistent_rows" class="table"></mlhr-table>');
-    var fn = function() {
-      el2 = compile(el2)($scope2);
       scope.$digest();
     };
     expect(fn).to.throw();

@@ -50,11 +50,18 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
     restrict: 'A',
     templateUrl: 'src/templates/mlhrTableRows.tpl.html',
     link: function(scope) {
-      scope.visible_rows = scope.rows.slice();
 
       var updateHandler = function() {
-        scope.visible_rows = calculateVisibleRows(scope);
+        if (scope.rows) {
+          scope.visible_rows = calculateVisibleRows(scope);
+        }
       };
+
+      scope.$watch('rows', function(rows) {
+        if (rows) {
+          scope.visible_rows = rows.slice();
+        }
+      });
 
       scope.$watch('searchTerms', updateHandler, true);
 
