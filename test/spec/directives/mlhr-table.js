@@ -75,7 +75,7 @@ describe('Directive: mlhrTable', function () {
 
     // Table columns
     scope.my_table_columns = columns = [
-      { id: 'selector',   key: 'selected',   label: '',                                            selector: true, width: '30px', lock_width: true },
+      { id: 'selector',   key: 'selected',   label: '',                                            selector: true, width: '30px', lockWidth: true },
       { id: 'ID',         key: 'id',                              sort: 'number', filter: 'number'                                               },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like',  title: 'First names are cool'                 },
       { id: 'last_name',  key: 'last_name',  label: 'Last Name',  sort: 'string', filter: 'like',  filter_placeholder: 'last name'               },
@@ -175,11 +175,11 @@ describe('Directive: mlhrTable', function () {
 
   describe('column header', function() {
     
-    it('should have a .column-resizer element if lock_width is not set', function() {
+    it('should have a .column-resizer element if lockWidth is not set', function() {
       expect(element.find('table:eq(0) th:eq(1) .column-resizer').length).to.equal(1);
     });
 
-    it('should not have a .column-resizer element if lock_width is set to true', function() {
+    it('should not have a .column-resizer element if lockWidth is set to true', function() {
       expect(element.find('table:eq(0) th:eq(0) .column-resizer').length).to.equal(0);
     });
 

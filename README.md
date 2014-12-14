@@ -95,7 +95,7 @@ The columns should be an array of Column Definition Objects. The order in which 
 | filter       | `function` or `string` | no       | undefined     | If specified, defines row filter function this column uses. See *Row Filtering* below. |
 | format       | `function` or `string` | no       | ''            | If specified, defines cell format function. See the *Cell Formatting* section below.   |
 | width        | `string` or `number`   | no       | 'auto'        | width of column, can include units, e.g. '30px'                                        |
-| lock_width   | `boolean`              | no       | false         | If true, column will not be resizable.                                                 |
+| lockWidth   | `boolean`              | no       | false         | If true, column will not be resizable.                                                 |
 | ngFilter     | `string`               | no       | undefined     | Name of a registered filter to use on row[column.key]                                  |
 | template     | `string`               | no       | undefined     | A string template for the cell contents                                                |
 | templateUrl  | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                  |

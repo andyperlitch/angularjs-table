@@ -60,7 +60,7 @@ angular.module('datatorrent.mlhrTable.ghPage')
         
     // Table columns
     $scope.my_table_columns = [
-      { id: 'selected', key: 'id', label: '', width: 30, lock_width: true, selector: true },
+      { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true },
       { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like', template: '<strong>{{row[column.key]}}</strong>' },
       { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
