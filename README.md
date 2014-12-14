@@ -161,7 +161,22 @@ Cell Formatting
 
 Row Selection
 -------------
+There is a special type of column called a selector, which will render as a checkbox that, when clicked, will populate a `selected` array that is provided through an attribute of the `mlhr-table` element. The following is an example column definition for a selector (Usually this column appears first):
 
+    $scope.myColumns = [
+        {
+            id: 'selector',
+            key: 'idKeyOfObjects',   // used to populate the selected array
+            label: '',               // no label for checkbox column
+            selector: true,
+            width: '40px',           // Fixed width of 40px
+            lockWidth: true,         // to keep it narrow
+            selectObject: true       // Optional: by default, selecting a row puts the value of 
+                                     // row[idKeyOfObjects] into the selected array. If this option
+                                     // is set to true, the entire object will be placed into the 
+                                     // selected array.
+        }
+    ]
 
 
 

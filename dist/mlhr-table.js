@@ -693,13 +693,13 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableSelector', []).directi
       var column = scope.column;
       element.on('click', function () {
         // Retrieve position in selected list
-        var idx = selected.indexOf(row[column.key]);
+        var idx = selected.indexOf(column.selectObject ? row : row[column.key]);
         // it is selected, deselect it:
         if (idx >= 0) {
           selected.splice(idx, 1);
         }  // it is not selected, push to list
         else {
-          selected.push(row[column.key]);
+          selected.push(column.selectObject ? row : row[column.key]);
         }
         scope.$apply();
       });
