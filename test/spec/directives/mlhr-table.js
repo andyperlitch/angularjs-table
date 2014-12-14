@@ -213,13 +213,13 @@ describe('Directive: mlhrTable', function () {
   describe('column filter', function() {
     
     it('should have a placeholder if specified as a property on the filter function', function() {
-      var actual = element.find('table:eq(0) tr:eq(1) th:eq(5) input').attr('placeholder');
+      var actual = element.find('table:eq(0) tr:eq(1) td:eq(5) input').attr('placeholder');
       var expected = filter_placeholder;
       expect(actual).to.equal(expected);
     });
 
     it('should have a title if specified as a property on the filter function', function() {
-      var actual = element.find('table:eq(0) tr:eq(1) th:eq(5) input').attr('title');
+      var actual = element.find('table:eq(0) tr:eq(1) td:eq(5) input').attr('title');
       var expected = filter_title;
       expect(actual).to.equal(expected);
     });

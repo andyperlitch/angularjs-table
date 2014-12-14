@@ -29,7 +29,7 @@
         </th>
       </tr>
       <tr ng-if="hasFilterFields()" class="mlhr-table-filter-row">
-        <th ng-repeat="column in columns" ng-class="'column-' + column.id">
+        <td ng-repeat="column in columns" ng-class="'column-' + column.id">
           <input 
             type="text"
             ng-if="(column.filter)"
@@ -49,7 +49,7 @@
             &times;
           </button>
 
-        </th>
+        </td>
       </tr>
     </thead>
   </table>
