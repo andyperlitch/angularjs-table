@@ -141,10 +141,10 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     }
 
     // Check for localStorage persistence
-    if (scope.options.storage && scope.options.storage_key) {
+    if (scope.options.storage && scope.options.storageKey) {
       // Set the storage object on the scope
       scope.storage = scope.options.storage;
-      scope.storage_key = scope.options.storage_key;
+      scope.storageKey = scope.options.storageKey;
 
       // Try loading from storage
       scope.loadFromStorage();

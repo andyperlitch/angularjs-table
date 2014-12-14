@@ -50,7 +50,7 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 | rowPadding         | `number` | 10          | Number of rows to add before and after the viewport                                                                                  |
 | sort_classes       | `Array`  | (see below) |                                                                                                                                      |
 | storage            | `Object` | undefined   |                                                                                                                                      |
-| storage_key        | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
+| storageKey        | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
 | initialSorts      | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
 | loadingText        | `String` | 'loading'   | String to show when data is loading                                                                                                  |
 | noRowsText         | `String` | 'no rows'   | String to show when no rows are visible                                                                                              |
@@ -73,7 +73,7 @@ Default Value: `[ 'glyphicon glyphicon-sort', 'glyphicon glyphicon-chevron-up', 
 If a column has a `sort` function specified, the column header will contain a `<span>` element with a css class of `sorting-icon`. This `sort_classes` array contains three strings that will be appended to the `<span>` className, one for each state of a sorted column: [classes\_for\_no\_sort, classes\_for\_ascending\_sort, classes\_for\_descending\_sort].
 
 ### Storage
-If defined, this requires the presence of `storage_key`. This object should follow a subset of the API for `localStorage`; specifically having the methods `setItem`, `getItem`, and `removeItem`. It will use `storage_key` as the key to set. The most common use-case for this is simply to pass `localStorage` to this option.
+If defined, this requires the presence of `storageKey`. This object should follow a subset of the API for `localStorage`; specifically having the methods `setItem`, `getItem`, and `removeItem`. It will use `storageKey` as the key to set. The most common use-case for this is simply to pass `localStorage` to this option.
 
 ### `options` decoration
 An advantage of providing an options object is that mlhrTable decorates it with a few things for greater control. Below are the things mlhrTable adds.

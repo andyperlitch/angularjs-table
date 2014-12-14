@@ -78,43 +78,43 @@ angular.module('datatorrent.mlhrTable.ghPage')
     $scope.my_table_options = {
       rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table'
+      storageKey: 'gh-page-table'
     };
 
     $scope.my_table_options2 = {
       rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table2'
+      storageKey: 'gh-page-table2'
     };
 
     $scope.my_table_options3 = {
       rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table3'
+      storageKey: 'gh-page-table3'
     };
 
     $scope.my_table_options4 = {
       rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table4'
+      storageKey: 'gh-page-table4'
     };
 
     $scope.my_table_options5 = {
       rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table5'
+      storageKey: 'gh-page-table5'
     };
 
     $scope.my_table_options6 = {
       rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table6'
+      storageKey: 'gh-page-table6'
     };
 
     $scope.my_table_options7 = {
       rowLimit: 10,
       storage: localStorage,
-      storage_key: 'gh-page-table7'
+      storageKey: 'gh-page-table7'
     };
 
     setInterval(function() {

@@ -252,14 +252,14 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
         state.options[prop] = $scope.options[prop];
       });
       // Save to storage
-      $scope.storage.setItem($scope.storage_key, JSON.stringify(state));
+      $scope.storage.setItem($scope.storageKey, JSON.stringify(state));
     };
     $scope.loadFromStorage = function () {
       if (!$scope.storage) {
         return;
       }
       // Attempt to parse the storage
-      var stateString = $scope.storage.getItem($scope.storage_key);
+      var stateString = $scope.storage.getItem($scope.storageKey);
       // Was it there?
       if (!stateString) {
         return;
@@ -434,10 +434,10 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         });
       }
       // Check for localStorage persistence
-      if (scope.options.storage && scope.options.storage_key) {
+      if (scope.options.storage && scope.options.storageKey) {
         // Set the storage object on the scope
         scope.storage = scope.options.storage;
-        scope.storage_key = scope.options.storage_key;
+        scope.storageKey = scope.options.storageKey;
         // Try loading from storage
         scope.loadFromStorage();
         // Watch various things to save state

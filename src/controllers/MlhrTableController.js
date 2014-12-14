@@ -284,7 +284,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     });
 
     // Save to storage
-    $scope.storage.setItem($scope.storage_key, JSON.stringify(state));
+    $scope.storage.setItem($scope.storageKey, JSON.stringify(state));
   };
 
   $scope.loadFromStorage = function() {
@@ -293,7 +293,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     }
 
     // Attempt to parse the storage
-    var stateString = $scope.storage.getItem($scope.storage_key);
+    var stateString = $scope.storage.getItem($scope.storageKey);
 
     // Was it there?
     if (!stateString) {
