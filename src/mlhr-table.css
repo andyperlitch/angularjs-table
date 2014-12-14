@@ -49,18 +49,18 @@
 }
 
 /* search input */
-.mlhr-table th input {
+.mlhr-table tr.mlhr-table-filter-row td input {
   max-width: 100%;
   border-radius: 5px;
   border: 1px solid #CCC;
   outline: none;
   text-indent: 2px;
 }
-.mlhr-table tr.mlhr-table-filter-row th {
+.mlhr-table tr.mlhr-table-filter-row td {
   position: relative;
 }
 /* button to clear search */
-.mlhr-table tr.mlhr-table-filter-row th .clear-search-btn {
+.mlhr-table tr.mlhr-table-filter-row td .clear-search-btn {
   position: absolute;
   border-radius: 50%;
   border: none;
@@ -76,7 +76,7 @@
 }
 
 /* activated search input, as in when there is text in it */
-.mlhr-table th input.active {
+.mlhr-table tr.mlhr-table-filter-row td input.active {
   background-color: #3D82C2;
   color: #FFF;
   border-color: #747474;
