@@ -50,7 +50,7 @@ describe('Controller: TableController', function() {
       rowLimit: 50,
       rowOffset: 0,
       pagingScheme: 'scroll',
-      sort_classes: [
+      sortClasses: [
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
         'glyphicon glyphicon-chevron-down'
@@ -264,7 +264,7 @@ describe('Controller: TableController', function() {
     var fn;
 
     beforeEach(function() {
-      $scope.options.sort_classes = ['idle_class', 'asc_class', 'desc_class'];
+      $scope.options.sortClasses = ['idle_class', 'asc_class', 'desc_class'];
       fn = $scope.getSortClass;
     });
 
@@ -272,18 +272,18 @@ describe('Controller: TableController', function() {
       expect(fn).to.be.a('function');
     });
 
-    it('should return the first element of sort_classes if no arg or arg is undefined/falsey', function() {
+    it('should return the first element of sortClasses if no arg or arg is undefined/falsey', function() {
       expect(fn()).to.equal('idle_class');
       expect(fn(undefined)).to.equal('idle_class');
       expect(fn(false)).to.equal('idle_class');
       expect(fn('')).to.equal('idle_class');
     });
 
-    it('should return the second element of sort_classes if arg is "+"', function() {
+    it('should return the second element of sortClasses if arg is "+"', function() {
       expect(fn('+')).to.equal('asc_class');
     });
 
-    it('should return the third element of sort_classes if arg is "-"', function() {
+    it('should return the third element of sortClasses if arg is "-"', function() {
       expect(fn('-')).to.equal('desc_class');
     });
 

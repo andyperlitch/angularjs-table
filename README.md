@@ -48,7 +48,7 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 |        key         |   type   |   default   |                                                             description                                                              |
 | ------------------ | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | rowPadding         | `number` | 10          | Number of rows to add before and after the viewport                                                                                  |
-| sort_classes       | `Array`  | (see below) |                                                                                                                                      |
+| sortClasses       | `Array`  | (see below) |                                                                                                                                      |
 | storage            | `Object` | undefined   |                                                                                                                                      |
 | storageKey        | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
 | initialSorts      | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
@@ -68,9 +68,9 @@ A common requirement for tables showing dynamically loaded data is to show loadi
 ### No Visible Rows
 Similar to loading state, there are two options for visual representation of when there are no rows: `noRowsText` and `noRowsTemplateUrl`.
 
-### `sort_classes`
+### `sortClasses`
 Default Value: `[ 'glyphicon glyphicon-sort', 'glyphicon glyphicon-chevron-up', 'glyphicon glyphicon-chevron-down' ]`
-If a column has a `sort` function specified, the column header will contain a `<span>` element with a css class of `sorting-icon`. This `sort_classes` array contains three strings that will be appended to the `<span>` className, one for each state of a sorted column: [classes\_for\_no\_sort, classes\_for\_ascending\_sort, classes\_for\_descending\_sort].
+If a column has a `sort` function specified, the column header will contain a `<span>` element with a css class of `sorting-icon`. This `sortClasses` array contains three strings that will be appended to the `<span>` className, one for each state of a sorted column: [classes\_for\_no\_sort, classes\_for\_ascending\_sort, classes\_for\_descending\_sort].
 
 ### Storage
 If defined, this requires the presence of `storageKey`. This object should follow a subset of the API for `localStorage`; specifically having the methods `setItem`, `getItem`, and `removeItem`. It will use `storageKey` as the key to set. The most common use-case for this is simply to pass `localStorage` to this option.

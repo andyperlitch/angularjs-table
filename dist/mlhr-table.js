@@ -101,7 +101,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     };
     // Retrieve className for given sorting state
     $scope.getSortClass = function (sorting) {
-      var classes = $scope.options.sort_classes;
+      var classes = $scope.options.sortClasses;
       if (sorting === '+') {
         return classes[1];
       }
@@ -419,7 +419,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
           }
         },
         trackBy: scope.trackBy,
-        sort_classes: [
+        sortClasses: [
           'glyphicon glyphicon-sort',
           'glyphicon glyphicon-chevron-up',
           'glyphicon glyphicon-chevron-down'

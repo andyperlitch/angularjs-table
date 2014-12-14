@@ -123,7 +123,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         }
       },
       trackBy: scope.trackBy,
-      sort_classes: [
+      sortClasses: [
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
         'glyphicon glyphicon-chevron-down'
