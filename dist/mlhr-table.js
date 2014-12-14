@@ -428,8 +428,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       scope.rowLimit = scope.options.defaultRowLimit;
       scope.rowHeight = scope.options.defaultRowHeight;
       // Look for initial sort order
-      if (scope.options.initial_sorts) {
-        angular.forEach(scope.options.initial_sorts, function (sort) {
+      if (scope.options.initialSorts) {
+        angular.forEach(scope.options.initialSorts, function (sort) {
           scope.addSort(sort.id, sort.dir);
         });
       }

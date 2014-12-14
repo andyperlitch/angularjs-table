@@ -51,7 +51,7 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 | sort_classes       | `Array`  | (see below) |                                                                                                                                      |
 | storage            | `Object` | undefined   |                                                                                                                                      |
 | storage_key        | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
-| initial_sorts      | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
+| initialSorts      | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
 | loadingText        | `String` | 'loading'   | String to show when data is loading                                                                                                  |
 | noRowsText         | `String` | 'no rows'   | String to show when no rows are visible                                                                                              |
 | loadingTemplateUrl | `String` | undefined   | Path to template for td when loading                                                                                                 |
@@ -122,7 +122,7 @@ The returned value should mirror how `Array.prototype.sort` works: If the return
 
 There are two built-in sort functions availablewhich handle the two most common use-cases: `"string"` and `"number"`. To use these, simply set the `sort` attribute to one of these strings.
 
-Sorting can be set by the user by clicking the headers of sortable columns, and can be stacked by holding shift and clicking. The initial sort order can be set using the `initial_sorts` option in the Options Object, shown in the table above.
+Sorting can be set by the user by clicking the headers of sortable columns, and can be stacked by holding shift and clicking. The initial sort order can be set using the `initialSorts` option in the Options Object, shown in the table above.
 
 Row Filtering
 -------------
