@@ -211,7 +211,8 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       axis: 'x',
       handle: '.column-text',
       helper: 'clone',
-      placeholder: 'mlhr-table-column-placeholder'
+      placeholder: 'mlhr-table-column-placeholder',
+      distance: 5
     };
     $scope.getActiveColCount = function () {
       var count = 0;
