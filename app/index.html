@@ -6,8 +6,8 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
-    <meta name="description" content="">
+    <title>malhar-angular-table</title>
+    <meta name="description" content="A table component built with angular that is catered to real-time data.">
     <meta name="viewport" content="width=device-width">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
@@ -24,32 +24,66 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Malhar Angular Table</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="#">kitchen sink</a></li>
+            <li><a href="#/max-height">max height</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
     <!-- Add your site or application content here -->
     <div class="container">
       <header>
-        <h1>malhar-angular-table <small>performance</small></h1>
-        <p>An angular table directive catered to displaying real-time data.</p>
-        <h2>Features</h2>
-        <ul>
-          <li>complex filters</li>
-          <li>column sorting</li>
-          <li>column resizing</li>
-          <li>stacked ordering</li>
-          <li>localStorage state persistance</li>
-        </ul>
+        <h5>Description</h5>
+        <p>An angular table directive catered to displaying real-time data. For many situations, this can be a suitable replacement or alternative for ng-grid/ui-grid.</p>
+        <h5>Features</h5>
+        <div class="row">
+          <div class="col-sm-6">
+            <ul>
+              <li>complex column-specific filters</li>
+              <li>column sorting</li>
+              <li>column resizing</li>
+              <li>row selection</li>
+            </ul>
+          </div>
+          <div class="col-sm-6">
+            <ul>
+              <li>stacked ordering</li>
+              <li>localStorage/custom state persistance</li>
+              <li>rows are virtualized (can handle a lot of rows)</li>
+            </ul>
+          </div>
+        </div>
       </header>
     </div>
+    <hr>
     <div class="container" ng-view=""></div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
-     <script>
-       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-       ga('create', 'UA-XXXXX-X');
-       ga('send', 'pageview');
+      ga('create', 'UA-XXXXX-X');
+      ga('send', 'pageview');
     </script>
 
     <script>
@@ -57,15 +91,15 @@
     // @see http://stackoverflow.com/questions/22199564/chrome-truncates-error-messages-and-adds-omitted-in-window-onerror/22218280#22218280
     // 
     window.onerror = function (errorMsg, url, lineNumber, columnNumber, errorObject) {
-        var errMsg;
-        //check the errorObject as IE and FF don't pass it through (yet)
-        if (errorObject && errorObject !== undefined) {
-                errMsg = errorObject.message;
-            }
-            else {
-                errMsg = errorMsg;
-            }
-        console.log('Error: ' + errMsg);
+      var errMsg;
+      //check the errorObject as IE and FF don't pass it through (yet)
+      if (errorObject && errorObject !== undefined) {
+        errMsg = errorObject.message;
+      }
+      else {
+        errMsg = errorMsg;
+      }
+      console.log('Error: ' + errMsg);
     }
     </script>
 
@@ -81,25 +115,26 @@
     <script src="bower_components/angular-route/angular-route.js"></script>
     <!-- endbuild -->
     
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <!-- injector:js -->
-        <script src="src/controllers/MlhrTableController.js"></script>
-        <script src="src/directives/mlhrTable.js"></script>
-        <script src="src/directives/mlhrTableCell.js"></script>
-        <script src="src/directives/mlhrTableDummyRows.js"></script>
-        <script src="src/directives/mlhrTableRows.js"></script>
-        <script src="src/directives/mlhrTableSelector.js"></script>
-        <script src="src/filters/mlhrTableRowFilter.js"></script>
-        <script src="src/filters/mlhrTableRowSorter.js"></script>
-        <script src="src/mlhr-table.js"></script>
-        <script src="src/services/mlhrTableFilterFunctions.js"></script>
-        <script src="src/services/mlhrTableFormatFunctions.js"></script>
-        <script src="src/services/mlhrTableSortFunctions.js"></script>
-        <!-- endinjector -->
-        <script src="scripts/templates.js"></script>
-        <script src="scripts/app.js"></script>
-        <script src="scripts/controllers/main.js"></script>
-        <script src="scripts/controllers/perf.js"></script>
-        <!-- endbuild -->
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <!-- injector:js -->
+    <script src="src/controllers/MlhrTableController.js"></script>
+    <script src="src/directives/mlhrTable.js"></script>
+    <script src="src/directives/mlhrTableCell.js"></script>
+    <script src="src/directives/mlhrTableDummyRows.js"></script>
+    <script src="src/directives/mlhrTableRows.js"></script>
+    <script src="src/directives/mlhrTableSelector.js"></script>
+    <script src="src/filters/mlhrTableRowFilter.js"></script>
+    <script src="src/filters/mlhrTableRowSorter.js"></script>
+    <script src="src/mlhr-table.js"></script>
+    <script src="src/services/mlhrTableFilterFunctions.js"></script>
+    <script src="src/services/mlhrTableFormatFunctions.js"></script>
+    <script src="src/services/mlhrTableSortFunctions.js"></script>
+    <!-- endinjector -->
+    <script src="scripts/templates.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/perf.js"></script>
+    <script src="scripts/controllers/max-height.js"></script>
+    <!-- endbuild -->
 </body>
 </html>

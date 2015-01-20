@@ -15,6 +15,10 @@ angular.module('datatorrent.mlhrTable.ghPage', [
       templateUrl: 'views/perf.html',
       controller: 'PerfCtrl'
     })
+    .when('/max-height', {
+      templateUrl: 'views/max-height.html',
+      controller: 'MaxHeightCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });

@@ -110,8 +110,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       bgSizeMultiplier: 1,
       rowPadding: 10,
       bodyHeight: 300,
+      fixedHeight: false,
       defaultRowHeight: 40,
-      defaultRowLimit: 15,
       scrollDebounce: 100,
       scrollDivisor: 1,
       loadingText: 'loading',
@@ -129,9 +129,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         'glyphicon glyphicon-chevron-down'
       ]
     });
-
-    scope.rowLimit = scope.options.defaultRowLimit;
-    scope.rowHeight = scope.options.defaultRowHeight;
 
     // Look for initial sort order
     if (scope.options.initialSorts) {
@@ -162,6 +159,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       //  - row limit
       scope.$watch('options.bodyHeight', function() {
         scope.calculateRowLimit();
+        scope.tbodyNgStyle = {};
+        scope.tbodyNgStyle[ scope.options.fixedHeight ? 'height' : 'max-height' ] = scope.options.bodyHeight + 'px';
         scope.saveToStorage();
       });
       scope.$watch('filterState.filterCount', function() {

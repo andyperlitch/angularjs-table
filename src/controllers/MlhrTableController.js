@@ -338,10 +338,8 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 
   $scope.calculateRowLimit = function() {
     var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
-    if (rowHeight) {
-      $scope.rowHeight = rowHeight;
-      $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding*2;
-    }
+    $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight;
+    $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding*2;
   };
 
 }]);

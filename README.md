@@ -12,6 +12,12 @@ Feature List
 - localStorage state persistance
 - pagination
 
+Running the Demo
+----------------
+```bash
+$ grunt serve
+```
+
 Getting Started
 ---------------
 
@@ -45,21 +51,22 @@ Options Object
 --------------
 The options object should be available on the parent scope of the `<mlhr-table>` element. It is optional (defaults are used) and has the following keys:
 
-|        key         |   type   |   default   |                                                             description                                                              |
-| ------------------ | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| rowPadding         | `number` | 10          | Number of rows to add before and after the viewport                                                                                  |
-| sortClasses       | `Array`  | (see below) |                                                                                                                                      |
-| storage            | `Object` | undefined   |                                                                                                                                      |
-| storageKey        | `String` | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
-| initialSorts      | `Array`  | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
-| loadingText        | `String` | 'loading'   | String to show when data is loading                                                                                                  |
-| noRowsText         | `String` | 'no rows'   | String to show when no rows are visible                                                                                              |
-| loadingTemplateUrl | `String` | undefined   | Path to template for td when loading                                                                                                 |
-| noRowsTemplateUrl  | `String` | undefined   | Path to template for td when there are no rows to show.                                                                              |
-| scrollDebounce     | `number` | 100         | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                   |
-| bgSizeMultiplier   | `number` | 1           | The background-size css attribute of the placeholder rows is set to bgSizeMultiplier * rowHeight.                                    |
-| defaultRowLimit    | `number` | 15          | When the viewport has a zero height, this many rows will be rendered                                                                 |
-| defaultRowHeight   | `number` | 40          | When there are no rows to calculate the height, this number is used as the fallback                                                  |
+|        key         |    type   |   default   |                                                             description                                                              |
+| ------------------ | --------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| rowPadding         | `number`  | 10          | Number of rows to add before and after the viewport                                                                                  |
+| sortClasses        | `Array`   | (see below) |                                                                                                                                      |
+| storage            | `Object`  | undefined   |                                                                                                                                      |
+| storageKey         | `String`  | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
+| initialSorts       | `Array`   | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
+| loadingText        | `String`  | 'loading'   | String to show when data is loading                                                                                                  |
+| noRowsText         | `String`  | 'no rows'   | String to show when no rows are visible                                                                                              |
+| loadingTemplateUrl | `String`  | undefined   | Path to template for td when loading                                                                                                 |
+| noRowsTemplateUrl  | `String`  | undefined   | Path to template for td when there are no rows to show.                                                                              |
+| scrollDebounce     | `number`  | 100         | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                   |
+| bgSizeMultiplier   | `number`  | 1           | The background-size css attribute of the placeholder rows is set to bgSizeMultiplier * rowHeight.                                    |
+| defaultRowHeight   | `number`  | 40          | When there are no rows to calculate the height, this number is used as the fallback                                                  |
+| bodyHeight         | `number`  | 300         | The pixel height for the body of the table. Note that unless `fixedHeight` is set to true, this will behave as a max-height.         |
+| fixedHeight        | `boolean` | false       | If true, the table body will always have a height of `bodyHeight`, regardless of whether the rows fill up the vertical space.        |
 
 
 ### Loading
