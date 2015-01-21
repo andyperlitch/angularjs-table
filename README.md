@@ -1,6 +1,6 @@
 malhar-angular-table
 ====================
-A table component built with angular that is catered to real-time data. [View live demo](http://datatorrent.github.io/malhar-angular-table/).
+A table component built with angular that is catered to real-time data.
 
 Feature List
 ------------
@@ -11,6 +11,15 @@ Feature List
 - column re-ordering
 - localStorage state persistance
 - pagination
+
+Installation
+------------
+```bash
+$ git clone git@github.com:DataTorrent/malhar-angular-table.git
+$ cd malhar-angular-table
+$ npm install .
+$ bower install
+```
 
 Running the Demo
 ----------------
