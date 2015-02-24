@@ -11,6 +11,7 @@ describe('Controller: TableController', function() {
     $scope = $rootScope.$new();
     $scope.columns = [];
     $scope.rows = [];
+    $scope.selected = [];
     mockTableFormatFunctions = {
       test: sandbox.spy(function(value) {
         return value.toString().toUpperCase();
@@ -77,6 +78,137 @@ describe('Controller: TableController', function() {
   afterEach(function() {
     sandbox.restore();
   });
+
+  describe('method: isSelectedAll', function() {
+
+    it('should return false if $scope.rows is not an array', function() {
+      $scope.rows = undefined;
+      expect($scope.isSelectedAll()).to.equal(false);
+    });
+
+    it('should return false if $scope.selected is not an array', function() {
+      $scope.selected = undefined;
+      expect($scope.isSelectedAll()).to.equal(false);
+    });
+
+    it('should return false if $scope.rows is an empty array', function() {
+      $scope.rows = [];
+      expect($scope.isSelectedAll()).to.equal(false);
+    });
+
+    it('should return false if $scope.selected is an empty array', function() {
+      $scope.selected = [];
+      expect($scope.isSelectedAll()).to.equal(false);
+    });
+
+    it('should return true if $scope.rows and $scope.selected are arrays of equal length', function() {
+      $scope.rows = [{id: 1}, {id: 2}, {id: 3}];
+      $scope.selected = [1, 2, 3];
+      expect($scope.isSelectedAll()).to.equal(true);
+    });
+
+  });
+
+  describe('method: selectAll', function() {
+
+    var rowIds = [];
+    beforeEach(function() {
+      $scope.columns = [
+        { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true },
+        { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
+        { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like'},
+        { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
+        { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' }
+      ];
+      $scope.rows = [
+        {id: 1, first_name: 'Bob', last_name: 'Jones', age: 40},
+        {id: 3, first_name: 'John', last_name: 'Smith', age: 30},
+        {id: 2, first_name: 'John', last_name: 'Smith', age: 20},
+      ];
+      rowIds = $scope.rows.map(function(e){return e.id;});
+    });
+
+
+    it('should empty $scope.selected if $scope.rows is empty', function() {
+      $scope.rows = [];
+      $scope.selected = [1, 2, 3, 4, 5];
+      $scope.selectAll();
+      expect($scope.selected).to.deep.equal([]);
+    });
+
+    it('should set $scope.selected to array of $scope.rows id\'s', function() {
+      $scope.selectAll();
+      expect($scope.selected).to.deep.equal(rowIds);
+    });
+
+    it('should be idempotent', function() {
+      $scope.selectAll();
+      $scope.selectAll();
+      expect($scope.selected).to.deep.equal(rowIds);
+    });
+
+    it('should remove any previous values from $scope.selected and set it to array of $scope.rows id\'s', function() {
+      $scope.selected = [9, 8, 7];
+      $scope.selectAll();
+      expect($scope.selected).to.deep.equal(rowIds);
+    });
+
+    it('should throw error if selector column is missing', function() {
+      $scope.columns[0] = {};
+      expect($scope.selectAll).to.throw(Error);
+    });
+
+    it('should set $scope.selected to undefined values if selector key is missing in $scope.rows', function() {
+      $scope.columns[0].key = 'invalid';
+      $scope.selectAll();
+      expect($scope.selected).to.deep.equal([undefined,undefined,undefined]);
+    });
+
+  });
+
+  describe('method: toggleSelectAll', function() {
+
+    var rowIds = [];
+    beforeEach(function() {
+      $scope.columns = [
+        { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true },
+        { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
+        { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like'},
+        { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
+        { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' }
+      ];
+      $scope.rows = [
+        {id: 1, first_name: 'Bob', last_name: 'Jones', age: 40},
+        {id: 3, first_name: 'John', last_name: 'Smith', age: 30},
+        {id: 2, first_name: 'John', last_name: 'Smith', age: 20},
+      ];
+      rowIds = $scope.rows.map(function(e){return e.id;});
+    });
+
+    it('should populate $scope.selected with $scope.rows id\'s if checkbox is checked', function() {
+      var $event = {target: {checked: true}};
+      $scope.toggleSelectAll($event);
+      expect($scope.selected).to.deep.equal(rowIds);
+    });
+
+    it('should empty all $scope.selected is checkbox is unchecked', function() {
+      var $event = {target: {checked: false}};
+      $scope.toggleSelectAll($event);
+      expect($scope.selected).to.deep.equal([]);
+    });
+    
+  });
+
+  describe('method: deselectAll', function() {
+
+    it('should empty $scope.selected when invoked', function() {
+      $scope.selected = [1, 2, 3, 4, 5];
+      $scope.deselectAll();
+      expect($scope.selected).to.deep.equal([]);
+    });
+
+  });
+
 
   describe('method: addSort', function() {
 

@@ -116,18 +116,15 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       scrollDivisor: 1,
       loadingText: 'loading',
       noRowsText: 'no rows',
-      setLoading: function(isLoading, triggerDigest) {
-        this.loading = isLoading;
-        if(triggerDigest) {
-          scope.$digest();  
-        }
-      },
       trackBy: scope.trackBy,
       sortClasses: [
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
         'glyphicon glyphicon-chevron-down'
-      ]
+      ],
+      onRegisterApi: function(api) {
+        // noop
+      }
     });
 
     // Look for initial sort order
@@ -215,6 +212,25 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       scope.calculateRowLimit();
 
     }, 0);
+
+
+    scope.api = {
+      isSelectedAll: scope.isSelectedAll,
+      selectAll: scope.selectAll,
+      deselectAll: scope.deselectAll,
+      toggleSelectAll: scope.toggleSelectAll,
+
+      setLoading: function(isLoading, triggerDigest) {
+        scope.options.loading = isLoading;
+        if (triggerDigest) {
+          scope.$digest();
+        }
+      }
+
+    };
+
+
+    scope.options.onRegisterApi(scope.api);
   }
 
   return {
