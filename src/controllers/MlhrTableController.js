@@ -25,8 +25,51 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
   ['$scope','$element','mlhrTableFormatFunctions','mlhrTableSortFunctions','mlhrTableFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
 
   
-
   // SCOPE FUNCTIONS
+  $scope.isSelectedAll = function() {
+    if (!angular.isArray($scope.rows) || ! angular.isArray($scope.selected)) {
+      return false;
+    }
+    return ($scope.rows.length > 0 && $scope.rows.length === $scope.selected.length );
+  };
+
+  $scope.selectAll = function() {
+    $scope.deselectAll();
+    if ($scope.rows.length <= 0) return;
+    var columns = $scope.columns;
+    var selectorKey = null;
+    // Search for selector key in selector column
+    for (var i=0; i< columns.length; i++) {
+      if (columns[i].selector) { 
+        selectorKey = columns[i].key;
+        break;
+      }
+    }
+    // Verify that selectorKey was found
+    if (!selectorKey) {
+      throw new Error('Unable to find selector column key for selectAll');
+    }
+    //select key from all rows
+    for ( var i = 0; i < $scope.rows.length; i++) {
+      $scope.selected.push($scope.rows[i][selectorKey]);
+    }
+  };
+
+  $scope.deselectAll = function() {
+    while($scope.selected.length > 0) {
+      $scope.selected.pop();
+    }
+  };
+
+  $scope.toggleSelectAll = function($event) {
+    var checkbox = $event.target;
+    if (checkbox.checked) {
+      $scope.selectAll();
+    } else {
+      $scope.deselectAll();
+    }
+  };
+
   $scope.addSort = function(id, dir) {
     var idx = $scope.sortOrder.indexOf(id);
     if (idx === -1) {

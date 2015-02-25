@@ -10,6 +10,9 @@
           ng-attr-title="{{ column.title || '' }}"
           ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
         >
+          <span ng-if="column.selector"> 
+            <input type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" class="mlhr-table-selector" />
+          </span>
           <span class="column-text">
             {{column.hasOwnProperty('label') ? column.label : column.id }}
             <span 
