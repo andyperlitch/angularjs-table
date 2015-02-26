@@ -6,14 +6,12 @@
           scope="col" 
           ng-repeat="column in columns" 
           ng-click="toggleSort($event,column)" 
-          ng-class="{'sortable-column' : column.sort}" 
+          ng-class="{'sortable-column' : column.sort, 'select-column': column.selector}" 
           ng-attr-title="{{ column.title || '' }}"
           ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
         >
-          <span ng-if="column.selector"> 
-            <input type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" class="mlhr-table-selector" />
-          </span>
           <span class="column-text">
+            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />
             {{column.hasOwnProperty('label') ? column.label : column.id }}
             <span 
               ng-if="column.sort" 
