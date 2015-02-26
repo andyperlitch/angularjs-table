@@ -12,7 +12,7 @@ module.exports = function() {
   return {
     basePath: '../',
     frameworks: ['mocha','sinon-chai', 'sinon', 'chai'],
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
     autoWatch: true,
     reporters: ['dots', 'coverage'],
     // plugins: ['karma-chrome-launcher','karma-mocha','karma-coverage'],
