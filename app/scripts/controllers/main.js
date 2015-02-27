@@ -16,7 +16,7 @@ angular.module('datatorrent.mlhrTable.ghPage')
     }
     return commaGroups;
   })
-  .controller('MainCtrl', function ($scope, $templateCache) {
+  .controller('MainCtrl', function ($scope, $templateCache, $q) {
 
     // Format functions, used with the "format" option in column definitions below
     // converts number in inches to display string, eg. 69 => 5'9"
@@ -89,18 +89,25 @@ angular.module('datatorrent.mlhrTable.ghPage')
     $scope.my_selected_rows = [];
 
     // table options
+    var apiDfd = $q.defer();
     $scope.my_table_options = {
       rowLimit: 10,
       storage: localStorage,
       storageKey: 'gh-page-table',
-      loading: true
+      loading: true,
+      onRegisterApi: function(api) {
+        $scope.api = api;
+        apiDfd.resolve();
+      }
     };
 
     // kick off interval that updates the dataset
     setInterval(function() {
       $scope.my_table_data = genRows(1000);
       $scope.$apply();
-      $scope.my_table_options.setLoading(false);
+      apiDfd.promise.then(function() {
+        $scope.api.setLoading(false);
+      });
     }, 1000);
 
   });
