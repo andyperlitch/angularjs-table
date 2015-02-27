@@ -31,15 +31,22 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
   '$timeout',
   function ($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
     // SCOPE FUNCTIONS
+    $scope.getSelectableRows = function () {
+      var tableRowFilter = $filter('mlhrTableRowFilter');
+      return angular.isArray($scope.rows) ? tableRowFilter($scope.rows, $scope.columns, $scope.searchTerms, $scope.filterState) : [];
+    };
     $scope.isSelectedAll = function () {
       if (!angular.isArray($scope.rows) || !angular.isArray($scope.selected)) {
         return false;
       }
-      return $scope.rows.length > 0 && $scope.rows.length === $scope.selected.length;
+      var rows = $scope.getSelectableRows();
+      return rows.length > 0 && rows.length === $scope.selected.length;
     };
     $scope.selectAll = function () {
       $scope.deselectAll();
-      if ($scope.rows.length <= 0)
+      // Get a list of filtered rows
+      var rows = $scope.getSelectableRows();
+      if (rows.length <= 0)
         return;
       var columns = $scope.columns;
       var selectorKey = null;
@@ -55,8 +62,8 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
         throw new Error('Unable to find selector column key for selectAll');
       }
       //select key from all rows
-      for (var i = 0; i < $scope.rows.length; i++) {
-        $scope.selected.push($scope.rows[i][selectorKey]);
+      for (var i = 0; i < rows.length; i++) {
+        $scope.selected.push(rows[i][selectorKey]);
       }
     };
     $scope.deselectAll = function () {

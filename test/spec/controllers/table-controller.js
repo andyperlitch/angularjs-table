@@ -6,7 +6,7 @@ describe('Controller: TableController', function() {
 
   beforeEach(module('datatorrent.mlhrTable.controllers.MlhrTableController'));
 
-  beforeEach(inject(function($rootScope, $controller){
+  beforeEach(inject(function($rootScope, $controller, $filter){
     sandbox = sinon.sandbox.create();
     $scope = $rootScope.$new();
     $scope.columns = [];
@@ -71,12 +71,56 @@ describe('Controller: TableController', function() {
       mlhrTableSortFunctions: mockTableSortFunctions,
       mlhrTableFilterFunctions: mockTableFilterFunctions,
       $log: mockLog,
-      $window: mockWindow
+      $window: mockWindow,
+      $filter: function(arg){
+        if (arg === 'mlhrTableRowFilter') {
+          return function(rows,columns,searchTerms,filterState) {
+            return searchTerms.first_name === 'John' ? rows.slice(1,2) : rows;
+          }
+        } else {
+          return $filter(arg);
+        }
+      }
     });
   }));
 
   afterEach(function() {
     sandbox.restore();
+  });
+
+  describe('method: getSelectableRows', function() {
+    var rowIds = [];
+    beforeEach(function() {
+      $scope.columns = [
+        { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true },
+        { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
+        { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like'},
+        { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
+        { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' }
+      ];
+      $scope.rows = [
+        {id: 1, first_name: 'Bob', last_name: 'Jones', age: 40},
+        {id: 3, first_name: 'John', last_name: 'Smith', age: 30},
+        {id: 2, first_name: 'John', last_name: 'Smith', age: 20},
+      ];
+      rowIds = $scope.rows.map(function(e){return e.id;});
+    });
+
+    it('should return empty array if $scope.rows is an array', function() {
+      $scope.rows = [];
+      expect($scope.getSelectableRows()).to.eql([]);
+    });
+
+    it('should return matching array if $scope.rows is not empty', function() {
+      expect($scope.getSelectableRows()).to.eql($scope.rows);
+    });
+
+    it('should return filtered array if $scope.rows has filter applied', function() {
+      $scope.searchTerms = {first_name: 'John'};
+      $scope.filterState = {filterCount: 2};
+      expect($scope.getSelectableRows()).to.deep.equal($scope.rows.slice(1,2));
+    });
+
   });
 
   describe('method: isSelectedAll', function() {
