@@ -76,7 +76,7 @@ describe('Controller: TableController', function() {
         if (arg === 'mlhrTableRowFilter') {
           return function(rows,columns,searchTerms,filterState) {
             return searchTerms.first_name === 'John' ? rows.slice(1,2) : rows;
-          }
+          };
         } else {
           return $filter(arg);
         }
