@@ -123,7 +123,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         'glyphicon glyphicon-chevron-down'
       ],
       onRegisterApi: function(api) {
-        // noop
+        // noop - user overrides and gets a hold of api object
       }
     });
 
@@ -219,7 +219,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       selectAll: scope.selectAll,
       deselectAll: scope.deselectAll,
       toggleSelectAll: scope.toggleSelectAll,
-
       setLoading: function(isLoading, triggerDigest) {
         scope.options.loading = isLoading;
         if (triggerDigest) {
@@ -229,8 +228,16 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
     };
 
-
+    // Register API
     scope.options.onRegisterApi(scope.api);
+
+    //Check if loadingPromise was supplied and appears to be a promise object
+    if (angular.isObject(scope.options.loadingPromise) && typeof scope.options.loadingPromise.then === 'function') {
+      scope.options.loadingPromise.then(function(){
+        scope.api.setLoading(false);
+      });
+    };
+
   }
 
   return {

@@ -89,25 +89,20 @@ angular.module('datatorrent.mlhrTable.ghPage')
     $scope.my_selected_rows = [];
 
     // table options
-    var apiDfd = $q.defer();
+    var dataDfd = $q.defer();
     $scope.my_table_options = {
       rowLimit: 10,
       storage: localStorage,
       storageKey: 'gh-page-table',
       loading: true,
-      onRegisterApi: function(api) {
-        $scope.api = api;
-        apiDfd.resolve();
-      }
+      loadingPromise: dataDfd.promise
     };
 
     // kick off interval that updates the dataset
     setInterval(function() {
       $scope.my_table_data = genRows(1000);
+      dataDfd.resolve();
       $scope.$apply();
-      apiDfd.promise.then(function() {
-        $scope.api.setLoading(false);
-      });
     }, 1000);
 
   });
