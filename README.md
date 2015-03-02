@@ -70,16 +70,18 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 | loadingText        | `String`  | 'loading'   | String to show when data is loading                                                                                                  |
 | noRowsText         | `String`  | 'no rows'   | String to show when no rows are visible                                                                                              |
 | loadingTemplateUrl | `String`  | undefined   | Path to template for td when loading                                                                                                 |
+| loadingPromise     | `Object`  | undefined   | Promise object for table data loading.  Used to resolve loading state when data is available. | 
 | noRowsTemplateUrl  | `String`  | undefined   | Path to template for td when there are no rows to show.                                                                              |
 | scrollDebounce     | `number`  | 100         | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                   |
 | bgSizeMultiplier   | `number`  | 1           | The background-size css attribute of the placeholder rows is set to bgSizeMultiplier * rowHeight.                                    |
 | defaultRowHeight   | `number`  | 40          | When there are no rows to calculate the height, this number is used as the fallback                                                  |
 | bodyHeight         | `number`  | 300         | The pixel height for the body of the table. Note that unless `fixedHeight` is set to true, this will behave as a max-height.         |
 | fixedHeight        | `boolean` | false       | If true, the table body will always have a height of `bodyHeight`, regardless of whether the rows fill up the vertical space.        |
+| onRegisterApi      | `function` | {}         | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc. | 
 
 
 ### Loading
-A common requirement for tables showing dynamically loaded data is to show loading feedback. There are several options pertaining to this: `loading`, `loadingText`, and `loadingTemplateUrl`.
+A common requirement for tables showing dynamically loaded data is to show loading feedback. There are several options pertaining to this: `loading`, `loadingText`, and `loadingTemplateUrl`.  To disable loading text, a promise object from data loading can be provided, so that `setLoading(false)` can be attached to `promise.then()`.  Optionally, `onRegisterApi` function can be specified, which provides direct access to `setLoading` and other table controller methods.  This function specifies a single argument, which is the api object provided by the table.  Example: `onRegisterApi: function(api) { $scope.tableAPI = api; }`.
 
 ### No Visible Rows
 Similar to loading state, there are two options for visual representation of when there are no rows: `noRowsText` and `noRowsTemplateUrl`.
