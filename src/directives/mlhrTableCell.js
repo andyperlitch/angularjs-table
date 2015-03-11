@@ -31,7 +31,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', [
       cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
     }
     else if (column.selector === true) {
-      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
+      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
     }
     else if (column.ngFilter) {
       cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
