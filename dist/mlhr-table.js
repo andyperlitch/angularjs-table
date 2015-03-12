@@ -50,10 +50,12 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
         return;
       var columns = $scope.columns;
       var selectorKey = null;
+      var selectObject = null;
       // Search for selector key in selector column
       for (var i = 0; i < columns.length; i++) {
         if (columns[i].selector) {
           selectorKey = columns[i].key;
+          selectObject = columns[i].selectObject;
           break;
         }
       }
@@ -61,9 +63,9 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       if (!selectorKey) {
         throw new Error('Unable to find selector column key for selectAll');
       }
-      //select key from all rows
+      //select key or entire object from all rows
       for (var i = 0; i < rows.length; i++) {
-        $scope.selected.push(rows[i][selectorKey]);
+        $scope.selected.push(selectObject ? rows[i] : rows[i][selectorKey]);
       }
     };
     $scope.deselectAll = function () {
@@ -606,7 +608,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', ['datatorrent.m
       } else if (column.templateUrl) {
         cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
       } else if (column.selector === true) {
-        cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
+        cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
       } else if (column.ngFilter) {
         cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
       } else if (column.format) {
