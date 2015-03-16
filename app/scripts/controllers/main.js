@@ -95,6 +95,9 @@ angular.module('datatorrent.mlhrTable.ghPage')
       rowLimit: 10,
       storage: localStorage,
       storageKey: 'gh-page-table',
+      // getter: function(key, row) {
+      //   return row[key];
+      // },
       loading: true,
       loadingPromise: dataDfd.promise
     };
