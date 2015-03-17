@@ -39,6 +39,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', [
     else if (column.format) {
       cellMarkup = '{{ column.format(row[column.key], row, column) }}';
     }
+    else if({}.hasOwnProperty.call(scope.options, 'getter') && typeof(scope.options.getter) === 'function') {
+      cellMarkup = '{{ options.getter(column.key, row) }}';
+    }
     else {
       cellMarkup = '{{ row[column.key] }}';
     }
