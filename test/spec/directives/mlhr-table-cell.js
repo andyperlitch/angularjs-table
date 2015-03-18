@@ -41,6 +41,7 @@ describe('Directive: mlhr-table-cell', function () {
     scope.row = {
       id: 'hello'
     };
+    scope.options = {};
 
   }));
 
@@ -102,6 +103,28 @@ describe('Directive: mlhr-table-cell', function () {
     it('should recompile the cell with the supplied filter', function() {
       var str = element.text();
       expect(str).to.equal('1,000,000');
+    });
+
+    afterEach(function() {
+      delete scope.column.ngFilter;
+    });
+  });
+
+  describe('when a getter is specified on options', function() {
+    beforeEach(function() {
+      scope.row.data = {
+        id: 'hello2 in row.data'
+      };
+      scope.options.getter = function(key, row) {
+        return row.data[key];
+      };
+      element = angular.element('<div mlhr-table-cell></div>');
+      element = compile(element)(scope);
+      scope.$digest();
+    });
+
+    it('should use getter', function() {
+      expect(element.text()).to.equal(scope.row.data.id);
     });
   });
 
