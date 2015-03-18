@@ -107,7 +107,7 @@ describe('Directive: mlhr-table-cell', function () {
 
     afterEach(function() {
       delete scope.column.ngFilter;
-    })
+    });
   });
 
   describe('when a getter is specified on options', function() {
@@ -126,7 +126,6 @@ describe('Directive: mlhr-table-cell', function () {
     it('should use getter', function() {
       expect(element.text()).to.equal(scope.row.data.id);
     });
-    
-  })
+  });
 
 });
