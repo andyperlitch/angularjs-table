@@ -53,6 +53,16 @@ describe('Directive: mlhrTableSelector', function () {
       expect(selected).to.contain(row[column.key]);
     });
 
+    it('when "selectObject: true" is specified in column, should add the entire row(an object instead of a number/string) to the selected array if it is not present already', function() {
+      column.selectObject = true;
+      $(element).trigger(e);
+      scope.$digest();
+      for(var i = 0; i<selected.length; i++) {
+        expect(typeof selected[i]).to.equal('object');
+      }
+      expect(selected).to.contain(row);
+    });
+
     it('should remove row[column.key] from the selected array if it is present', function() {
       selected.push(row[column.key]);
       $(element).trigger(e);
