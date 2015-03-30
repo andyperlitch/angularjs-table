@@ -83,6 +83,12 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       throw new Error('"columns" array not found in mlhrTable scope!');
     }
 
+    if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
+      if (typeof scope.options.getter !== 'function') {
+        throw new Error('"getter" in "options" should be a function!');
+      }
+    }
+
     // Check for rows
     // if ( !(scope.rows instanceof Array) ) {
     //   throw new Error('"rows" array not found in mlhrTable scope!');

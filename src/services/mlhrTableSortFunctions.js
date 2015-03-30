@@ -20,16 +20,34 @@ angular.module('datatorrent.mlhrTable.services.mlhrTableSortFunctions',[])
 .service('mlhrTableSortFunctions', function() {
   return {
     number: function(field){
-      return function(row1,row2) {
-        return row1[field]*1 - row2[field]*1;
+      return function(row1,row2,options) {
+        var val1, val2;
+        if (options !== undefined && {}.hasOwnProperty.call(options, 'getter')) {
+          val1 = options.getter(field, row1);
+          val2 = options.getter(field, row2);
+        }
+        else {
+          val1 = row1[field];
+          val2 = row2[field];
+        }
+        return val1*1 - val2*1;
       };
     },
     string: function(field){
-      return function(row1,row2) {
-        if ( row1[field].toString().toLowerCase() === row2[field].toString().toLowerCase() ) {
+      return function(row1,row2,options) {
+        var val1, val2;
+        if (options !== undefined && {}.hasOwnProperty.call(options, 'getter')) {
+          val1 = options.getter(field, row1);
+          val2 = options.getter(field, row2);
+        }
+        else {
+          val1 = row1[field];
+          val2 = row2[field];
+        }
+        if ( val1.toString().toLowerCase() === val2.toString().toLowerCase() ) {
           return 0;
         }
-        return row1[field].toString().toLowerCase() > row2[field].toString().toLowerCase() ? 1 : -1 ;
+        return val1.toString().toLowerCase() > val2.toString().toLowerCase() ? 1 : -1 ;
       };
     }
   };

@@ -32,10 +32,10 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
     var visible_rows;
     
     // | tableRowFilter:columns:searchTerms:filterState 
-    visible_rows = tableRowFilter(scope.rows, scope.columns, scope.searchTerms, scope.filterState);
+    visible_rows = tableRowFilter(scope.rows, scope.columns, scope.searchTerms, scope.filterState, scope.options);
     
     // | tableRowSorter:columns:sortOrder:sortDirection 
-    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection);
+    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection, scope.options);
 
     // | limitTo:rowOffset - filterState.filterCount 
     visible_rows = limitTo(visible_rows, Math.floor(scope.rowOffset) - scope.filterState.filterCount);

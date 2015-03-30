@@ -30,7 +30,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowSorter', [])
       }
     }
   }
-  return function tableRowSorter(rows, columns, sortOrder, sortDirection) {
+  return function tableRowSorter(rows, columns, sortOrder, sortDirection, options) {
     if (!sortOrder.length) {
       return rows;
     }
@@ -43,7 +43,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowSorter', [])
         var dir = sortDirection[id];
         if (column && column.sort) {
           var fn = column.sort;
-          var result = dir === '+' ? fn(a,b) : fn(b,a);
+          var result = dir === '+' ? fn(a,b,options) : fn(b,a,options);
           if (result !== 0) {
             return result;
           }

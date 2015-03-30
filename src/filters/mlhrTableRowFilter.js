@@ -20,7 +20,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter',[
 ])
 
 .filter('mlhrTableRowFilter', ['mlhrTableFilterFunctions', '$log', function(tableFilterFunctions, $log) {
-  return function tableRowFilter(rows, columns, searchTerms, filterState) {
+  return function tableRowFilter(rows, columns, searchTerms, filterState, options) {
 
     var enabledFilterColumns, result = rows;
 
@@ -60,7 +60,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter',[
           var col = enabledFilterColumns[i];
           var filter = col.filter;
           var term = searchTerms[col.id];
-          var value = row[col.key];
+          var value = (options !== undefined && {}.hasOwnProperty.call(options, 'getter'))? options.getter(col.key, row):row[col.key];
           var computedValue = typeof col.format === 'function' ? col.format(value, row) : value;
           if (!filter(term, value, computedValue, row)) {
             return false;
