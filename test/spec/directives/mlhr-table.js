@@ -169,6 +169,15 @@ describe('Directive: mlhrTable', function () {
     expect(isoScope.sortDirection).to.be.an('object');
   });
 
+  it('options.getter should be a function', function() {
+    // isoScope.options.getter = function() {
+    //   return 'valueFromGetter';
+    // };
+    if (isoScope.options !== undefined && {}.hasOwnProperty.call(isoScope.options, 'getter')) {
+      expect(isoScope.options.getter).to.be.an('function');
+    }
+  });
+
   it('should set a default trackBy to "id"', function() {
     expect(isoScope.options.trackBy).to.equal('id');
   });
