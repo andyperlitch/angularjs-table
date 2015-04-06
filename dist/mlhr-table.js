@@ -429,6 +429,9 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       return obj;
     }
     function link(scope, element) {
+      // Prevent following user input objects from being modified by making deep copies of originals
+      scope.columns = angular.copy(scope._columns);
+      scope.options = angular.copy(scope._options);
       // Look for built-in filter, sort, and format functions
       if (scope.columns instanceof Array) {
         scope.setColumns(scope.columns);
@@ -568,11 +571,11 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       restrict: 'EA',
       replace: true,
       scope: {
-        columns: '=',
+        _columns: '=columns',
         rows: '=',
         classes: '@tableClass',
         selected: '=',
-        options: '=?',
+        _options: '=?options',
         trackBy: '@?'
       },
       controller: 'MlhrTableController',
