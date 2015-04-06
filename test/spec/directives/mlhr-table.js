@@ -153,7 +153,6 @@ describe('Directive: mlhrTable', function () {
     el2 = compile(el2)($scope2);
     $scope2.$digest();
     isoScope = el2.isolateScope();
-    expect(isoScope.options).to.equal($scope2.options);
     expect(isoScope.options.bgSizeMultiplier).to.equal(3);
   }));
 
