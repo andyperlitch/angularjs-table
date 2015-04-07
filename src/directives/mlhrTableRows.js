@@ -54,12 +54,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
         }
       };
 
-      scope.$watch('rows', function(rows) {
-        if (rows) {
-          scope.visible_rows = rows.slice();
-        }
-      });
-
       scope.$watch('searchTerms', updateHandler, true);
 
       scope.$watchGroup([
