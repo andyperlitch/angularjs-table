@@ -78,7 +78,6 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
     // Prevent following user input objects from being modified by making deep copies of originals
     scope.columns = angular.copy(scope._columns);
-    scope.options = angular.copy(scope._options);
 
     // Look for built-in filter, sort, and format functions
     if (scope.columns instanceof Array) {
@@ -259,7 +258,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       rows: '=',
       classes: '@tableClass',
       selected: '=',
-      _options: '=?options',
+      options: '=?',
       trackBy: '@?'
     },
     controller: 'MlhrTableController',
