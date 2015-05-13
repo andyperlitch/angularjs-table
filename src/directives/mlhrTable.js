@@ -248,7 +248,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         },
         function(reason){
           scope.api.setLoading(false);
-          console.log('Failed loading: ' + reason);
+          $log.warn('Failed loading table data: ' + reason);
         }
       );
     }
