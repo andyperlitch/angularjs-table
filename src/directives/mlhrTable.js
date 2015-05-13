@@ -242,10 +242,16 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
     //Check if loadingPromise was supplied and appears to be a promise object
     if (angular.isObject(scope.options.loadingPromise) && typeof scope.options.loadingPromise.then === 'function') {
-      scope.options.loadingPromise.then(function(){
-        scope.api.setLoading(false);
-      });
-    };
+      scope.options.loadingPromise.then(
+        function(){
+          scope.api.setLoading(false);
+        },
+        function(reason){
+          scope.api.setLoading(false);
+          console.log('Failed loading: ' + reason);
+        }
+      );
+    }
 
   }
 
