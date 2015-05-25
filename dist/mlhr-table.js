@@ -561,9 +561,11 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       if (angular.isObject(scope.options.loadingPromise) && typeof scope.options.loadingPromise.then === 'function') {
         scope.options.loadingPromise.then(function () {
           scope.api.setLoading(false);
+        }, function (reason) {
+          scope.api.setLoading(false);
+          $log.warn('Failed loading table data: ' + reason);
         });
       }
-      ;
     }
     return {
       templateUrl: 'src/templates/mlhrTable.tpl.html',
