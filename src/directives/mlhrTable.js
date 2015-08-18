@@ -124,6 +124,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       scrollDebounce: 100,
       scrollDivisor: 1,
       loadingText: 'loading',
+      loadingError: false,
       noRowsText: 'no rows',
       trackBy: scope.trackBy,
       sortClasses: [
@@ -244,9 +245,11 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     if (angular.isObject(scope.options.loadingPromise) && typeof scope.options.loadingPromise.then === 'function') {
       scope.options.loadingPromise.then(
         function(){
+          scope.options.loadingError = false;
           scope.api.setLoading(false);
         },
         function(reason){
+          scope.options.loadingError = true;
           scope.api.setLoading(false);
           $log.warn('Failed loading table data: ' + reason);
         }

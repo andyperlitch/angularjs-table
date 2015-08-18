@@ -71,6 +71,8 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 | noRowsText         | `String`  | 'no rows'   | String to show when no rows are visible                                                                                              |
 | loadingTemplateUrl | `String`  | undefined   | Path to template for td when loading                                                                                                 |
 | loadingPromise     | `Object`  | undefined   | Promise object for table data loading.  Used to resolve loading state when data is available. | 
+| loadingErrorTemplateUrl  | `String`  | undefined   | Path to template for td when there is an error loading table data.                                                                              |
+| loadingErrorText   | `String`  | 'error loading results'   | String to show when loading fails                                                                                              |
 | noRowsTemplateUrl  | `String`  | undefined   | Path to template for td when there are no rows to show.                                                                              |
 | scrollDebounce     | `number`  | 100         | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                   |
 | bgSizeMultiplier   | `number`  | 1           | The background-size css attribute of the placeholder rows is set to bgSizeMultiplier * rowHeight.                                    |
