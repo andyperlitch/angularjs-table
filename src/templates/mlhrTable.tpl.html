@@ -67,10 +67,16 @@
       <tbody>
         <tr ng-if="visible_rows.length === 0">
           <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">
-            <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>
-            <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>
-            <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>
-            <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
+            <div ng-if="options.loadingError">
+              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>
+              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>
+            </div>
+            <div ng-if="!options.loadingError">
+              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>
+              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>
+              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>
+              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }} testing</div>
+            </div>
           </td>
         </tr>
       </tbody>
