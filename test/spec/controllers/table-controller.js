@@ -55,7 +55,8 @@ describe('Controller: TableController', function() {
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
         'glyphicon glyphicon-chevron-down'
-      ]
+      ],
+      storageHash: 'testhash123'
     });
 
     $controller('MlhrTableController', {
@@ -538,6 +539,253 @@ describe('Controller: TableController', function() {
 
     it('should add a marquee element to the $th', function() {
       expect($markup.find('.column-resizer-marquee').length).to.equal(1);
+    });
+
+  });
+
+
+  describe('method: saveToStorage', function() {
+    beforeEach(function() {
+      $scope.storage = {
+        setItem : function() {
+          return 'testVal';
+        }
+      };
+      sandbox.spy($scope.storage, 'setItem');
+    });
+
+    it('should be a function', function() {
+      expect($scope.saveToStorage).to.be.a('function');
+    });
+
+    describe('storage getItem', function() {
+      beforeEach(function() {
+        $scope.storageKey = 'testKey1';
+      });
+      it('should be called with correct storage key', function() {
+        $scope.saveToStorage();
+        expect($scope.storage.setItem).to.have.been.calledWith('testKey1');
+      });
+    });
+  });
+
+
+
+  describe('method: loadFromStorage', function() {
+
+    describe('with same hash', function() {
+
+      var rowIds = [];
+
+      var stateStr = {
+        'sortOrder': [],
+        'sortDirection': {},
+        'searchTerms': {},
+        'columns': [
+          {
+            'id': 'selected',
+            'disabled': false
+          },
+          {
+            'id': 'ID',
+            'disabled': false
+          },
+          {
+            'id': 'first_name',
+            'disabled': false
+          },
+          {
+            'id': 'last_name',
+            'disabled': false
+          },
+          {
+            'id': 'height',
+            'disabled': false
+          },
+          {
+            'id': 'weight',
+            'disabled': false
+          },
+          {
+            'id': 'age',
+            'disabled': false
+          },
+          {
+            'id': 'likes',
+            'disabled': false
+          }
+        ],
+        'options': {
+          'rowLimit': 10,
+          'storageHash': 'testhash123'
+        }
+      };
+
+      stateStr = JSON.stringify(stateStr);
+
+      beforeEach(function() {
+        $scope.columns = [
+          { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true },
+          { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
+          { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like'},
+          { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
+          { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' }
+        ];
+        $scope.rows = [
+          {id: 1, first_name: 'Bob', last_name: 'Jones', age: 40},
+          {id: 3, first_name: 'John', last_name: 'Smith', age: 30},
+          {id: 2, first_name: 'John', last_name: 'Smith', age: 20},
+        ];
+        rowIds = $scope.rows.map(function(e){return e.id;});
+
+        $scope.storage = {
+          getItem : function() {
+            return 'testVal';
+          }
+        };
+
+        sandbox.stub($scope.storage, 'getItem').returns(stateStr);
+        sandbox.spy($scope.columns, 'sort');
+      });
+
+
+      it('should be a function', function() {
+        expect($scope.loadFromStorage).to.be.a('function');
+      });
+
+
+      describe('getItem', function() {
+        beforeEach(function() {
+          $scope.storageKey = 'testKey';
+        });
+        it('is called with \'testKey\'', function() {
+          $scope.loadFromStorage();
+          expect($scope.storage.getItem).to.have.been.calledWith('testKey');
+        });
+      });
+
+
+      describe('reordering columns', function() {
+        beforeEach(function() {
+          $scope.loadFromStorage();
+          $scope.columns[0] = { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like'};
+          $scope.columns[2] = { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true };
+        });
+
+        it('sort should be called', function() {
+          expect($scope.columns.sort).to.have.been.called;
+        });
+
+        it('new row should be at the end', function() {
+          expect($scope.columns[1].id).to.equal('ID');
+        });
+      });
+
+
+      describe('inserting a new columns at the beginning', function() {
+        beforeEach(function() {
+          $scope.columns.splice(0, 0, { id: 'new_row', key: 'new_row', label: 'New Row', sort: 'string', filter: 'like'});
+        });
+
+        it('sort should be called', function() {
+          $scope.loadFromStorage();
+          expect($scope.columns.sort).to.have.been.called;
+        });
+
+        it('new row should be last now', function() {
+          $scope.loadFromStorage();
+          expect($scope.columns[5].id).to.equal('new_row');
+        });
+      });
+
+    });
+
+
+    describe('with different hash', function() {
+
+      var rowIds = [];
+
+      var stateStr = {
+        'sortOrder': [],
+        'sortDirection': {},
+        'searchTerms': {},
+        'columns': [
+          {
+            'id': 'selected',
+            'disabled': false
+          },
+          {
+            'id': 'ID',
+            'disabled': false
+          },
+          {
+            'id': 'first_name',
+            'disabled': false
+          },
+          {
+            'id': 'last_name',
+            'disabled': false
+          },
+          {
+            'id': 'height',
+            'disabled': false
+          },
+          {
+            'id': 'weight',
+            'disabled': false
+          },
+          {
+            'id': 'age',
+            'disabled': false
+          },
+          {
+            'id': 'likes',
+            'disabled': false
+          }
+        ],
+        'options': {
+          'rowLimit': 10,
+          'storageHash': 'differentHash456'
+        }
+      };
+
+      stateStr = JSON.stringify(stateStr);
+
+      beforeEach(function() {
+        $scope.columns = [
+          { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true },
+          { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
+          { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like'},
+          { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
+          { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' }
+        ];
+        $scope.rows = [
+          {id: 1, first_name: 'Bob', last_name: 'Jones', age: 40},
+          {id: 3, first_name: 'John', last_name: 'Smith', age: 30},
+          {id: 2, first_name: 'John', last_name: 'Smith', age: 20},
+        ];
+        rowIds = $scope.rows.map(function(e){return e.id;});
+
+        $scope.storage = {
+          getItem : function() {
+            return 'testVal';
+          }
+        };
+
+        sandbox.stub($scope.storage, 'getItem').returns(stateStr);
+        sandbox.spy($scope.columns, 'sort');
+      });
+
+      describe('calling loadFromStorage', function() {
+        beforeEach(function() {
+          $scope.loadFromStorage();
+        });
+
+        it('sort should not be called', function() {
+          expect($scope.columns.sort).not.to.have.been.called;
+        });
+      });
+
     });
 
   });

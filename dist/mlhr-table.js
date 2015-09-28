@@ -298,7 +298,8 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       state.options = {};
       [
         'rowLimit',
-        'pagingScheme'
+        'pagingScheme',
+        'storageHash'
       ].forEach(function (prop) {
         state.options[prop] = $scope.options[prop];
       });
@@ -319,6 +320,10 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       var state;
       try {
         state = JSON.parse(stateString);
+        // if mimatched storage hash, stop loading from storage
+        if (state.options.storageHash !== $scope.options.storageHash) {
+          return;
+        }
         // load state objects
         [
           'sortOrder',
@@ -333,6 +338,17 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
             return col.id;
           });
         $scope.columns.sort(function (a, b) {
+          var aNotThere = column_ids.indexOf(a.id) === -1;
+          var bNotThere = column_ids.indexOf(b.id) === -1;
+          if (aNotThere && bNotThere) {
+            return 0;
+          }
+          if (aNotThere) {
+            return 1;
+          }
+          if (bNotThere) {
+            return -1;
+          }
           return column_ids.indexOf(a.id) - column_ids.indexOf(b.id);
         });
         $scope.columns.forEach(function (col, i) {
@@ -343,7 +359,8 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
         // load options
         [
           'rowLimit',
-          'pagingScheme'
+          'pagingScheme',
+          'storageHash'
         ].forEach(function (prop) {
           $scope.options[prop] = state.options[prop];
         });

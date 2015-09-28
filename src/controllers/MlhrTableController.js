@@ -239,13 +239,13 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     $event.preventDefault();
     $event.originalEvent.preventDefault();
     $event.stopPropagation();
-    
+
     // init variable for new width
     var new_width = false;
-    
+
     // store initial mouse position
     var initial_x = $event.pageX;
-    
+
     // create marquee element
     var $m = $('<div class="column-resizer-marquee"></div>');
 
@@ -332,7 +332,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 
     // save non-transient options
     state.options = {};
-    ['rowLimit', 'pagingScheme'].forEach(function(prop){
+    ['rowLimit', 'pagingScheme', 'storageHash'].forEach(function(prop){
       state.options[prop] = $scope.options[prop];
     });
 
@@ -341,6 +341,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
   };
 
   $scope.loadFromStorage = function() {
+
     if (!$scope.storage) {
       return;
     }
@@ -358,6 +359,11 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     try {
       state = JSON.parse(stateString);
 
+      // if mimatched storage hash, stop loading from storage
+      if (state.options.storageHash !== $scope.options.storageHash) {
+        return;
+      }
+
       // load state objects
       ['sortOrder', 'sortDirection', 'searchTerms'].forEach(function(prop){
         $scope[prop] = state[prop];
@@ -369,9 +375,23 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       var column_ids = state.columns.map(function(col) {
         return col.id;
       });
+
       $scope.columns.sort(function(a,b) {
+        var aNotThere = column_ids.indexOf(a.id) === -1;
+        var bNotThere = column_ids.indexOf(b.id) === -1;
+
+        if (aNotThere && bNotThere) {
+          return 0;
+        }
+        if (aNotThere) {
+          return 1;
+        }
+        if (bNotThere) {
+          return -1;
+        }
         return column_ids.indexOf(a.id) - column_ids.indexOf(b.id);
       });
+
       $scope.columns.forEach(function(col, i) {
         ['disabled'].forEach(function(prop) {
           col[prop] = state.columns[i][prop];
@@ -379,7 +399,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       });
 
       // load options
-      ['rowLimit', 'pagingScheme'].forEach(function(prop) {
+      ['rowLimit', 'pagingScheme', 'storageHash'].forEach(function(prop) {
         $scope.options[prop] = state.options[prop];
       });
 
