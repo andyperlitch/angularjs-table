@@ -65,6 +65,7 @@ The options object should be available on the parent scope of the `<mlhr-table>`
 | rowPadding         | `number`  | 10          | Number of rows to add before and after the viewport                                                                                  |
 | sortClasses        | `Array`   | (see below) |                                                                                                                                      |
 | storage            | `Object`  | undefined   |                                                                                                                                      |
+| storageHash        | `String`  | undefined   | Non-sequential "version" hash used to identify and compare items in `storage`.                                                       |
 | storageKey         | `String`  | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
 | initialSorts       | `Array`   | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
 | loadingText        | `String`  | 'loading'   | String to show when data is loading                                                                                                  |
