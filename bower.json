@@ -1,6 +1,6 @@
 {
   "name": "angular-mesa",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": [
     "./dist/ap-mesa.js",
     "./dist/ap-mesa.css"
