@@ -1,5 +1,5 @@
 {
-  "name": "malhar-angular-table",
+  "name": "angular-mesa",
   "version": "1.6.1",
   "main": [
     "./dist/ap-mesa.js",

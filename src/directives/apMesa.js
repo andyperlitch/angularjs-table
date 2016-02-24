@@ -16,7 +16,7 @@
 'use strict';
 
 angular.module('apMesa.directives.apMesa', [
-  'apMesa.controllers.MlhrTableController',
+  'apMesa.controllers.ApMesaController',
   'apMesa.directives.apMesaRows',
   'apMesa.directives.apMesaDummyRows'
 ])
@@ -213,7 +213,7 @@ angular.module('apMesa.directives.apMesa', [
       debouncedScrollHandler();
     };
 
-    scope.scrollDiv = element.find('.mlhr-rows-table-wrapper');
+    scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
     scope.scrollDiv.on('scroll', scope.onScroll);
 
     // Wait for a render
@@ -270,7 +270,7 @@ angular.module('apMesa.directives.apMesa', [
       options: '=?',
       trackBy: '@?'
     },
-    controller: 'MlhrTableController',
+    controller: 'ApMesaController',
     compile: function(tElement) {
       var trackBy = tElement.attr('track-by');
       if (trackBy) {
