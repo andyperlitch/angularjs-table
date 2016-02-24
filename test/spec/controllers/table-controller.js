@@ -4,7 +4,7 @@ describe('Controller: TableController', function() {
 
   var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog, mockWindow;
 
-  beforeEach(module('apMesa.controllers.MlhrTableController'));
+  beforeEach(module('apMesa.controllers.ApMesaController'));
 
   beforeEach(inject(function($rootScope, $controller, $filter){
     sandbox = sinon.sandbox.create();
@@ -59,7 +59,7 @@ describe('Controller: TableController', function() {
       storageHash: 'testhash123'
     });
 
-    $controller('MlhrTableController', {
+    $controller('ApMesaController', {
       $scope: $scope,
       $element: {
         find: sandbox.spy(function() {

@@ -11,25 +11,25 @@
 }
 
 /* the visible table header */
-.mlhr-header-table {
+.mesa-header-table {
   border-bottom: none;
 }
-.mlhr-header-table thead > tr > th {
+.mesa-header-table thead > tr > th {
   border-width: 1px;
 }
 
 /* the invisible table header; used for correct column widths */
-.mlhr-rows-table thead {
+.mesa-rows-table thead {
   height: 0;
 }
-.mlhr-rows-table > thead > tr > th{
+.mesa-rows-table > thead > tr > th{
   border-width: 0;
   padding: 0;
 }
-.mlhr-rows-table-wrapper {
+.mesa-rows-table-wrapper {
   overflow: auto;
 }
-.mlhr-rows-table > tbody + tbody {
+.mesa-rows-table > tbody + tbody {
   border-top: none;
 }
 

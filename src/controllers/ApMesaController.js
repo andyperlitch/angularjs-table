@@ -15,13 +15,13 @@
 */
 'use strict';
 
-angular.module('apMesa.controllers.MlhrTableController', [
+angular.module('apMesa.controllers.ApMesaController', [
   'apMesa.services.apMesaSortFunctions',
   'apMesa.services.apMesaFilterFunctions',
   'apMesa.services.apMesaFormatFunctions'
 ])
 
-.controller('MlhrTableController',
+.controller('ApMesaController',
   ['$scope','$element','apMesaFormatFunctions','apMesaSortFunctions','apMesaFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
 
   // SCOPE FUNCTIONS

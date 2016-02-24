@@ -16,8 +16,8 @@ Feature List
 Installation
 ------------
 ```bash
-$ git clone git@github.com:DataTorrent/malhar-angular-table.git
-$ cd malhar-angular-table
+$ git clone git@github.com:DataTorrent/angular-mesa.git
+$ cd angular-mesa
 $ npm install .
 $ bower install
 ```
