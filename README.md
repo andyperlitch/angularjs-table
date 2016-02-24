@@ -22,15 +22,6 @@ $ npm install .
 $ bower install
 ```
 
-Running the Demo
-----------------
-
-Clone the repository and run the following:
-
-```bash
-$ grunt serve
-```
-
 Getting Started
 ---------------
 
@@ -46,6 +37,15 @@ Getting Started
     table-class="table"
     selected="array_of_selected">
 </ap-mesa>
+```
+
+Running the Demo
+----------------
+
+Clone the repository and run the following:
+
+```bash
+$ grunt serve
 ```
 
 Attributes
