@@ -15,9 +15,9 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.services.mlhrTableFormatFunctions', [])
+angular.module('apMesa.services.apMesaFormatFunctions', [])
 
-.service('mlhrTableFormatFunctions', function() {
+.service('apMesaFormatFunctions', function() {
   // TODO: add some default format functions
   return {};
 });

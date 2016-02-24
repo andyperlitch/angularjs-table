@@ -1,12 +1,12 @@
 /* main root element */
 
-.mlhr-table-wrapper {
+.ap-mesa-wrapper {
   position: relative;
 }
 
 /* styles for both header- and rows- tables */
 
-.mlhr-table {
+.ap-mesa {
   table-layout: fixed;
   width: 100%;
   margin-bottom: 0;
@@ -43,25 +43,25 @@
 
 /* general styles for all cells in both tables */
 
-.mlhr-table th {
+.ap-mesa th {
   white-space: nowrap;
   position: relative;
 }
 
-.mlhr-table td {
+.ap-mesa td {
   word-wrap: break-word;
   overflow: hidden;
 }
 
 /* this type of cell is used to show messages like "loading" */
 
-.mlhr-table td.space-holder-row-cell {
+.ap-mesa td.space-holder-row-cell {
   text-align: center;
 }
 
 /* search input */
 
-.mlhr-table tr.mlhr-table-filter-row td input {
+.ap-mesa tr.ap-mesa-filter-row td input {
   max-width: 100%;
   border-radius: 5px;
   border: 1px solid #CCC;
@@ -69,13 +69,13 @@
   text-indent: 2px;
 }
 
-.mlhr-table tr.mlhr-table-filter-row td {
+.ap-mesa tr.ap-mesa-filter-row td {
   position: relative;
 }
 
 /* button to clear search */
 
-.mlhr-table tr.mlhr-table-filter-row td .clear-search-btn {
+.ap-mesa tr.ap-mesa-filter-row td .clear-search-btn {
   position: absolute;
   border-radius: 50%;
   border: none;
@@ -92,7 +92,7 @@
 
 /* activated search input, as in when there is text in it */
 
-.mlhr-table tr.mlhr-table-filter-row td input.active {
+.ap-mesa tr.ap-mesa-filter-row td input.active {
   background-color: #3D82C2;
   color: #FFF;
   border-color: #747474;
@@ -100,13 +100,13 @@
 
 /* placeholder object for when columns are being sorted */
 
-.mlhr-table .mlhr-table-column-placeholder {
+.ap-mesa .ap-mesa-column-placeholder {
   background-color: #DDD;
 }
 
 /* handle to grab in order to resize a column */
 
-.mlhr-table th .column-resizer {
+.ap-mesa th .column-resizer {
   position: absolute;
   top: 0;
   right: 0;
@@ -121,13 +121,13 @@
 /* this class is applied to a .column-resizer 
 when a discreet width has been set on it */
 
-.mlhr-table th .column-resizer.discreet-width {
+.ap-mesa th .column-resizer.discreet-width {
   background-color: #DDD;
 }
 
 /* wrapper for text in a th */
 
-.mlhr-table th .column-text {
+.ap-mesa th .column-text {
   max-width: 100%;
   overflow: hidden;
   display: block;
@@ -135,7 +135,7 @@ when a discreet width has been set on it */
 
 /* the element showing what the new width will be */
 
-.mlhr-table th .column-resizer-marquee {
+.ap-mesa th .column-resizer-marquee {
   left: 0;
   top: 0;
   height: 100%;
@@ -145,16 +145,16 @@ when a discreet width has been set on it */
 
 /* sorting icons */
 
-.mlhr-table th span.sorting-icon {
+.ap-mesa th span.sorting-icon {
   font-size: 10px;
   margin-left: 10px;
 }
 
-.mlhr-table th span.glyphicon-sort {
+.ap-mesa th span.glyphicon-sort {
   opacity: 0.2;
 }
 
-.mlhr-table th.sortable-column {
+.ap-mesa th.sortable-column {
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -164,11 +164,11 @@ when a discreet width has been set on it */
 
 /* dummy row */
 
-.mlhr-table-dummy-row {
+.ap-mesa-dummy-row {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAlCAYAAACDKIOpAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABtJREFUeNpiuHv37n+G////MzAxAMHQIQACDAC7twbaN2nkgwAAAABJRU5ErkJggg==');
   background-repeat: repeat;
 }
 
-table tbody .mlhr-table-dummy-row td {
+table tbody .ap-mesa-dummy-row td {
   border-top: none;
 }

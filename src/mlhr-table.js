@@ -16,8 +16,8 @@
 'use strict';
 
 angular.module('apMesa', [
-  'datatorrent.mlhrTable.templates',
+  'apMesa.templates',
   'ui.sortable',
   'ngSanitize',
-  'datatorrent.mlhrTable.directives.mlhrTable'
+  'apMesa.directives.apMesa'
 ]);

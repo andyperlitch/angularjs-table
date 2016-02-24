@@ -1,5 +1,5 @@
-<div class="mlhr-table-wrapper">
-  <table ng-class="classes" class="mlhr-table mlhr-header-table">
+<div class="ap-mesa-wrapper">
+  <table ng-class="classes" class="ap-mesa mlhr-header-table">
     <thead>
       <tr ui-sortable="sortableOptions" ng-model="columns">
         <th 
@@ -29,7 +29,7 @@
           </span>
         </th>
       </tr>
-      <tr ng-if="hasFilterFields()" class="mlhr-table-filter-row">
+      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">
         <td ng-repeat="column in columns" ng-class="'column-' + column.id">
           <input 
             type="text"
@@ -55,7 +55,7 @@
     </thead>
   </table>
   <div class="mlhr-rows-table-wrapper" ng-style="tbodyNgStyle">
-    <table ng-class="classes" class="mlhr-table mlhr-rows-table">
+    <table ng-class="classes" class="ap-mesa mlhr-rows-table">
       <thead>
         <th 
             scope="col"
@@ -80,9 +80,9 @@
           </td>
         </tr>
       </tbody>
-      <tbody mlhr-table-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>
-      <tbody mlhr-table-rows class="mlhr-table-rendered-rows"></tbody>
-      <tbody mlhr-table-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>
+      <tbody ap-mesa-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>
+      <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
+      <tbody ap-mesa-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
 </div>

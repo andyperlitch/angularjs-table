@@ -8,9 +8,9 @@ describe('Service: tableSortFunctions', function() {
     sandbox = sinon.sandbox.create();
   });
 
-  beforeEach(module('datatorrent.mlhrTable'));
+  beforeEach(module('apMesa'));
 
-  beforeEach(inject(['mlhrTableSortFunctions', function(s) {
+  beforeEach(inject(['apMesaSortFunctions', function(s) {
     sorts = s;
   }]));
 

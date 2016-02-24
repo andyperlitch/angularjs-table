@@ -15,11 +15,11 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', [
-  'datatorrent.mlhrTable.directives.mlhrTableSelector'
+angular.module('apMesa.directives.apMesaCell', [
+  'apMesa.directives.apMesaSelector'
 ])
 
-.directive('mlhrTableCell', function($compile) {
+.directive('apMesaCell', function($compile) {
 
   function link(scope, element) {
     var column = scope.column;
@@ -31,7 +31,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', [
       cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
     }
     else if (column.selector === true) {
-      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
+      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" ap-mesa-selector class="ap-mesa-selector" />';
     }
     else if (column.ngFilter) {
       cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';

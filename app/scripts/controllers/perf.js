@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('datatorrent.mlhrTable.ghPage')
+angular.module('apMesa.ghPage')
   .controller('PerfCtrl', function ($scope) {
 
     // Format functions

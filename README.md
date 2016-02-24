@@ -34,7 +34,7 @@ $ grunt serve
 Getting Started
 ---------------
 
-First, include mlhr-table.js and mlhr-table.css in your project. Add the `apMesa` module to your project's angular dependencies. Then, in your markup, instantiate table instances with a `<ap-mesa>` tag:
+First, include ap-mesa.js and ap-mesa.css in your project. Add the `apMesa` module to your project's angular dependencies. Then, in your markup, instantiate table instances with a `<ap-mesa>` tag:
 
 ```HTML
 <ap-mesa 
@@ -48,7 +48,7 @@ First, include mlhr-table.js and mlhr-table.css in your project. Add the `apMesa
 
 Attributes
 ----------
-The `mlhr-table` tag can have the following attributes:
+The `ap-mesa` tag can have the following attributes:
 
 |  attribute  |  type  | required |                                                         description                                                         |
 | ----------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
@@ -62,7 +62,7 @@ The `mlhr-table` tag can have the following attributes:
 
 Options Object
 --------------
-The options object should be available on the parent scope of the `<mlhr-table>` element. It is optional (defaults are used) and has the following keys:
+The options object should be available on the parent scope of the `<ap-mesa>` element. It is optional (defaults are used) and has the following keys:
 
 |        key         |    type   |   default   |                                                             description                                                              |
 | ------------------ | --------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
@@ -102,7 +102,7 @@ If a column has a `sort` function specified, the column header will contain a `<
 If defined, this requires the presence of `storageKey`. This object should follow a subset of the API for `localStorage`; specifically having the methods `setItem`, `getItem`, and `removeItem`. It will use `storageKey` as the key to set. The most common use-case for this is simply to pass `localStorage` to this option.
 
 ### `options` decoration
-An advantage of providing an options object is that mlhrTable decorates it with a few things for greater control. Below are the things mlhrTable adds.
+An advantage of providing an options object is that apMesa decorates it with a few things for greater control. Below are the things apMesa adds.
 
 #### `options.scrollingPromise`
 When the user is scrolling, this property will be a promise that gets resolved when the user has stopped scrolling. If the user is not scrolling, this will have a value of `null`. This can be useful if the table has a lot of columns and you want to optimize performance by deferring updates to when the user stops scrolling.
@@ -187,7 +187,7 @@ Cell Formatting
 
 Row Selection
 -------------
-There is a special type of column called a selector, which will render as a checkbox that, when clicked, will populate a `selected` array that is provided through an attribute of the `mlhr-table` element. The following is an example column definition for a selector (Usually this column appears first):
+There is a special type of column called a selector, which will render as a checkbox that, when clicked, will populate a `selected` array that is provided through an attribute of the `ap-mesa` element. The following is an example column definition for a selector (Usually this column appears first):
 
     $scope.myColumns = [
         {

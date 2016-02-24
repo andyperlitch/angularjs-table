@@ -1,11 +1,11 @@
 'use strict';
-describe('Service: mlhrTableFormatFunctions', function() {
+describe('Service: apMesaFormatFunctions', function() {
 
-  beforeEach(module('datatorrent.mlhrTable'));
+  beforeEach(module('apMesa'));
 
   var formats;
 
-  beforeEach(inject(['mlhrTableFormatFunctions', function(tableFormats) {
+  beforeEach(inject(['apMesaFormatFunctions', function(tableFormats) {
     formats = tableFormats;
   }]));
 

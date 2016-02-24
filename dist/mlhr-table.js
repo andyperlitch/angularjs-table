@@ -15,16 +15,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
-  'datatorrent.mlhrTable.services.mlhrTableSortFunctions',
-  'datatorrent.mlhrTable.services.mlhrTableFilterFunctions',
-  'datatorrent.mlhrTable.services.mlhrTableFormatFunctions'
+angular.module('apMesa.controllers.MlhrTableController', [
+  'apMesa.services.apMesaSortFunctions',
+  'apMesa.services.apMesaFilterFunctions',
+  'apMesa.services.apMesaFormatFunctions'
 ]).controller('MlhrTableController', [
   '$scope',
   '$element',
-  'mlhrTableFormatFunctions',
-  'mlhrTableSortFunctions',
-  'mlhrTableFilterFunctions',
+  'apMesaFormatFunctions',
+  'apMesaSortFunctions',
+  'apMesaFilterFunctions',
   '$log',
   '$window',
   '$filter',
@@ -32,7 +32,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
   function ($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
     // SCOPE FUNCTIONS
     $scope.getSelectableRows = function () {
-      var tableRowFilter = $filter('mlhrTableRowFilter');
+      var tableRowFilter = $filter('apMesaRowFilter');
       return angular.isArray($scope.rows) ? tableRowFilter($scope.rows, $scope.columns, $scope.searchTerms, $scope.filterState) : [];
     };
     $scope.isSelectedAll = function () {
@@ -111,7 +111,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     // Clears search field for column, focus on input
     $scope.clearAndFocusSearch = function (columnId) {
       $scope.searchTerms[columnId] = '';
-      $element.find('tr.mlhr-table-filter-row th.column-' + columnId + ' input').focus();
+      $element.find('tr.ap-mesa-filter-row th.column-' + columnId + ' input').focus();
     };
     // Toggles column sorting
     $scope.toggleSort = function ($event, column) {
@@ -261,7 +261,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       axis: 'x',
       handle: '.column-text',
       helper: 'clone',
-      placeholder: 'mlhr-table-column-placeholder',
+      placeholder: 'ap-mesa-column-placeholder',
       distance: 5
     };
     $scope.getActiveColCount = function () {
@@ -369,13 +369,13 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
       }
     };
     $scope.calculateRowLimit = function () {
-      var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
+      var rowHeight = $scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
       $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight;
       $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding * 2;
     };
   }
 ]);
-// Source: dist/directives/mlhrTable.js
+// Source: dist/directives/apMesa.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -391,11 +391,11 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
-  'datatorrent.mlhrTable.controllers.MlhrTableController',
-  'datatorrent.mlhrTable.directives.mlhrTableRows',
-  'datatorrent.mlhrTable.directives.mlhrTableDummyRows'
-]).directive('mlhrTable', [
+angular.module('apMesa.directives.apMesa', [
+  'apMesa.controllers.MlhrTableController',
+  'apMesa.directives.apMesaRows',
+  'apMesa.directives.apMesaDummyRows'
+]).directive('apMesa', [
   '$log',
   '$timeout',
   '$q',
@@ -452,7 +452,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       if (scope.columns instanceof Array) {
         scope.setColumns(scope.columns);
       } else {
-        throw new Error('"columns" array not found in mlhrTable scope!');
+        throw new Error('"columns" array not found in apMesa scope!');
       }
       if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
         if (typeof scope.options.getter !== 'function') {
@@ -461,7 +461,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       }
       // Check for rows
       // if ( !(scope.rows instanceof Array) ) {
-      //   throw new Error('"rows" array not found in mlhrTable scope!');
+      //   throw new Error('"rows" array not found in apMesa scope!');
       // }
       // Object that holds search terms
       scope.searchTerms = {};
@@ -529,7 +529,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
           scope.onScroll();
         });
         scope.$watch('rowHeight', function (size) {
-          element.find('tr.mlhr-table-dummy-row').css('background-size', 'auto ' + size * scope.options.bgSizeMultiplier + 'px');
+          element.find('tr.ap-mesa-dummy-row').css('background-size', 'auto ' + size * scope.options.bgSizeMultiplier + 'px');
         });  //  - when column gets enabled or disabled
              //  TODO
       }
@@ -588,7 +588,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       }
     }
     return {
-      templateUrl: 'src/templates/mlhrTable.tpl.html',
+      templateUrl: 'src/templates/apMesa.tpl.html',
       restrict: 'EA',
       replace: true,
       scope: {
@@ -603,14 +603,14 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
       compile: function (tElement) {
         var trackBy = tElement.attr('track-by');
         if (trackBy) {
-          tElement.find('.mlhr-table-rendered-rows').attr('track-by', trackBy);
+          tElement.find('.ap-mesa-rendered-rows').attr('track-by', trackBy);
         }
         return link;
       }
     };
   }
 ]);
-// Source: dist/directives/mlhrTableCell.js
+// Source: dist/directives/apMesaCell.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -626,7 +626,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', ['datatorrent.mlhrTable.directives.mlhrTableSelector']).directive('mlhrTableCell', [
+angular.module('apMesa.directives.apMesaCell', ['datatorrent.apMesa.directives.apMesaSelector']).directive('apMesaCell', [
   '$compile',
   function ($compile) {
     function link(scope, element) {
@@ -637,7 +637,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', ['datatorrent.m
       } else if (column.templateUrl) {
         cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
       } else if (column.selector === true) {
-        cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
+        cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" ap-mesa-selector class="ap-mesa-selector" />';
       } else if (column.ngFilter) {
         cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
       } else if (column.format) {
@@ -656,7 +656,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', ['datatorrent.m
     };
   }
 ]);
-// Source: dist/directives/mlhrTableDummyRows.js
+// Source: dist/directives/apMesaDummyRows.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -674,24 +674,24 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', ['datatorrent.m
 */
 /**
  * @ngdoc directive
- * @name datatorrent.mlhrTable.directive:mlhrTableDummyRows
+ * @name apMesa.directive:apMesaDummyRows
  * @restrict A
  * @description inserts dummy <tr>s for non-rendered rows
  * @element tbody
- * @example <tbody mlhr-table-dummy-rows="[number]" columns="[column array]"></tbody>
+ * @example <tbody ap-mesa-dummy-rows="[number]" columns="[column array]"></tbody>
 **/
-angular.module('datatorrent.mlhrTable.directives.mlhrTableDummyRows', []).directive('mlhrTableDummyRows', function () {
+angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRows', function () {
   return {
-    template: '<tr class="mlhr-table-dummy-row" ng-style="{ height: dummyRowHeight + \'px\'}"><td ng-show="dummyRowHeight" ng-attr-colspan="{{columns.length}}"></td></tr>',
+    template: '<tr class="ap-mesa-dummy-row" ng-style="{ height: dummyRowHeight + \'px\'}"><td ng-show="dummyRowHeight" ng-attr-colspan="{{columns.length}}"></td></tr>',
     scope: true,
     link: function (scope, element, attrs) {
-      scope.$watch(attrs.mlhrTableDummyRows, function (count) {
+      scope.$watch(attrs.apMesaDummyRows, function (count) {
         scope.dummyRowHeight = count * scope.rowHeight;
       });
     }
   };
 });
-// Source: dist/directives/mlhrTableRows.js
+// Source: dist/directives/apMesaRows.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -707,15 +707,15 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableDummyRows', []).direct
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
-  'datatorrent.mlhrTable.directives.mlhrTableCell',
-  'datatorrent.mlhrTable.filters.mlhrTableRowFilter',
-  'datatorrent.mlhrTable.filters.mlhrTableRowSorter'
-]).directive('mlhrTableRows', [
+angular.module('apMesa.directives.apMesaRows', [
+  'apMesa.directives.apMesaCell',
+  'apMesa.filters.apMesaRowFilter',
+  'apMesa.filters.apMesaRowSorter'
+]).directive('apMesaRows', [
   '$filter',
   function ($filter) {
-    var tableRowFilter = $filter('mlhrTableRowFilter');
-    var tableRowSorter = $filter('mlhrTableRowSorter');
+    var tableRowFilter = $filter('apMesaRowFilter');
+    var tableRowSorter = $filter('apMesaRowSorter');
     var limitTo = $filter('limitTo');
     function calculateVisibleRows(scope) {
       // scope.rows
@@ -748,7 +748,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
     }
     return {
       restrict: 'A',
-      templateUrl: 'src/templates/mlhrTableRows.tpl.html',
+      templateUrl: 'src/templates/apMesaRows.tpl.html',
       compile: function (tElement, tAttrs) {
         var tr = tElement.find('tr');
         var repeatString = tr.attr('ng-repeat');
@@ -759,7 +759,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
     };
   }
 ]);
-// Source: dist/directives/mlhrTableSelector.js
+// Source: dist/directives/apMesaSelector.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -775,7 +775,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.directives.mlhrTableSelector', []).directive('mlhrTableSelector', function () {
+angular.module('apMesa.directives.apMesaSelector', []).directive('apMesaSelector', function () {
   return {
     restrict: 'A',
     scope: false,
@@ -798,7 +798,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableSelector', []).directi
     }
   };
 });
-// Source: dist/filters/mlhrTableRowFilter.js
+// Source: dist/filters/apMesaRowFilter.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -814,8 +814,8 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableSelector', []).directi
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter', ['datatorrent.mlhrTable.services.mlhrTableFilterFunctions']).filter('mlhrTableRowFilter', [
-  'mlhrTableFilterFunctions',
+angular.module('apMesa.filters.apMesaRowFilter', ['datatorrent.apMesa.services.apMesaFilterFunctions']).filter('apMesaRowFilter', [
+  'apMesaFilterFunctions',
   '$log',
   function (tableFilterFunctions, $log) {
     return function tableRowFilter(rows, columns, searchTerms, filterState, options) {
@@ -839,7 +839,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter', ['datatorrent
             column.filter = predefined;
             return true;
           }
-          $log.warn('mlhrTable: The filter function "' + column.filter + '" ' + 'specified by column(id=' + column.id + ').filter ' + 'was not found in predefined tableFilterFunctions. ' + 'Available filters: "' + Object.keys(tableFilterFunctions).join('","') + '"');
+          $log.warn('apMesa: The filter function "' + column.filter + '" ' + 'specified by column(id=' + column.id + ').filter ' + 'was not found in predefined tableFilterFunctions. ' + 'Available filters: "' + Object.keys(tableFilterFunctions).join('","') + '"');
         }
         return false;
       });
@@ -864,7 +864,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter', ['datatorrent
     };
   }
 ]);
-// Source: dist/filters/mlhrTableRowSorter.js
+// Source: dist/filters/apMesaRowSorter.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -880,7 +880,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter', ['datatorrent
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.filters.mlhrTableRowSorter', []).filter('mlhrTableRowSorter', function () {
+angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', function () {
   var column_cache = {};
   function getColumn(columns, id) {
     if (column_cache.hasOwnProperty(id)) {
@@ -918,7 +918,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowSorter', []).filter('m
     });
   };
 });
-// Source: dist/mlhr-table.js
+// Source: dist/ap-mesa.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -934,13 +934,13 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowSorter', []).filter('m
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable', [
-  'datatorrent.mlhrTable.templates',
+angular.module('apMesa', [
+  'apMesa.templates',
   'ui.sortable',
   'ngSanitize',
-  'datatorrent.mlhrTable.directives.mlhrTable'
+  'apMesa.directives.apMesa'
 ]);
-// Source: dist/services/mlhrTableFilterFunctions.js
+// Source: dist/services/apMesaFilterFunctions.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -956,7 +956,7 @@ angular.module('datatorrent.mlhrTable', [
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.services.mlhrTableFilterFunctions', []).service('mlhrTableFilterFunctions', function () {
+angular.module('apMesa.services.apMesaFilterFunctions', []).service('apMesaFilterFunctions', function () {
   function like(term, value) {
     term = term.toLowerCase().trim();
     value = value.toLowerCase();
@@ -1097,7 +1097,7 @@ angular.module('datatorrent.mlhrTable.services.mlhrTableFilterFunctions', []).se
     date: date
   };
 });
-// Source: dist/services/mlhrTableFormatFunctions.js
+// Source: dist/services/apMesaFormatFunctions.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -1113,11 +1113,11 @@ angular.module('datatorrent.mlhrTable.services.mlhrTableFilterFunctions', []).se
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.services.mlhrTableFormatFunctions', []).service('mlhrTableFormatFunctions', function () {
+angular.module('apMesa.services.apMesaFormatFunctions', []).service('apMesaFormatFunctions', function () {
   // TODO: add some default format functions
   return {};
 });
-// Source: dist/services/mlhrTableSortFunctions.js
+// Source: dist/services/apMesaSortFunctions.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
 *
@@ -1133,7 +1133,7 @@ angular.module('datatorrent.mlhrTable.services.mlhrTableFormatFunctions', []).se
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('datatorrent.mlhrTable.services.mlhrTableSortFunctions', []).service('mlhrTableSortFunctions', function () {
+angular.module('apMesa.services.apMesaSortFunctions', []).service('apMesaSortFunctions', function () {
   return {
     number: function (field) {
       return function (row1, row2, options) {
@@ -1167,26 +1167,26 @@ angular.module('datatorrent.mlhrTable.services.mlhrTableSortFunctions', []).serv
   };
 });
 // Source: dist/templates.js
-angular.module('datatorrent.mlhrTable.templates', [
-  'src/templates/mlhrTable.tpl.html',
-  'src/templates/mlhrTableDummyRows.tpl.html',
-  'src/templates/mlhrTableRows.tpl.html'
+angular.module('apMesa.templates', [
+  'src/templates/apMesa.tpl.html',
+  'src/templates/apMesaDummyRows.tpl.html',
+  'src/templates/apMesaRows.tpl.html'
 ]);
-angular.module('src/templates/mlhrTable.tpl.html', []).run([
+angular.module('src/templates/apMesa.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/mlhrTable.tpl.html', '<div class="mlhr-table-wrapper">\n' + '  <table ng-class="classes" class="mlhr-table mlhr-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="mlhr-table-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input \n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '          <button \n' + '            ng-if="(column.filter)"\n' + '            ng-show="searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mlhr-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="mlhr-table mlhr-rows-table">\n' + '      <thead>\n' + '        <th \n' + '            scope="col"\n' + '            ng-repeat="column in columns" \n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody mlhr-table-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>\n' + '      <tbody mlhr-table-rows class="mlhr-table-rendered-rows"></tbody>\n' + '      <tbody mlhr-table-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '</div>\n' + '');
+    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper">\n' + '  <table ng-class="classes" class="ap-mesa mlhr-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input \n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '          <button \n' + '            ng-if="(column.filter)"\n' + '            ng-show="searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mlhr-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="ap-mesa mlhr-rows-table">\n' + '      <thead>\n' + '        <th \n' + '            scope="col"\n' + '            ng-repeat="column in columns" \n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody ap-mesa-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ap-mesa-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '</div>\n' + '');
   }
 ]);
-angular.module('src/templates/mlhrTableDummyRows.tpl.html', []).run([
+angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/mlhrTableDummyRows.tpl.html', '');
+    $templateCache.put('src/templates/apMesaDummyRows.tpl.html', '');
   }
 ]);
-angular.module('src/templates/mlhrTableRows.tpl.html', []).run([
+angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/mlhrTableRows.tpl.html', '<tr ng-repeat="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}">\n' + '  <td ng-repeat="column in columns track by column.id" class="mlhr-table-cell" mlhr-table-cell></td>\n' + '</tr>');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}">\n' + '  <td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>\n' + '</tr>');
   }
 ]);

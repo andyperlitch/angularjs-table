@@ -15,9 +15,9 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.services.mlhrTableSortFunctions',[])
+angular.module('apMesa.services.apMesaSortFunctions',[])
 
-.service('mlhrTableSortFunctions', function() {
+.service('apMesaSortFunctions', function() {
   return {
     number: function(field){
       return function(row1,row2,options) {

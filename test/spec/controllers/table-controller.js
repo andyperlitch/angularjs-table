@@ -4,7 +4,7 @@ describe('Controller: TableController', function() {
 
   var sandbox, $scope, mockTableFormatFunctions, mockTableSortFunctions, mockTableFilterFunctions, mockLog, mockWindow;
 
-  beforeEach(module('datatorrent.mlhrTable.controllers.MlhrTableController'));
+  beforeEach(module('apMesa.controllers.MlhrTableController'));
 
   beforeEach(inject(function($rootScope, $controller, $filter){
     sandbox = sinon.sandbox.create();
@@ -68,13 +68,13 @@ describe('Controller: TableController', function() {
           };
         })
       },
-      mlhrTableFormatFunctions: mockTableFormatFunctions,
-      mlhrTableSortFunctions: mockTableSortFunctions,
-      mlhrTableFilterFunctions: mockTableFilterFunctions,
+      apMesaFormatFunctions: mockTableFormatFunctions,
+      apMesaSortFunctions: mockTableSortFunctions,
+      apMesaFilterFunctions: mockTableFilterFunctions,
       $log: mockLog,
       $window: mockWindow,
       $filter: function(arg){
-        if (arg === 'mlhrTableRowFilter') {
+        if (arg === 'apMesaRowFilter') {
           return function(rows,columns,searchTerms,filterState) {
             return searchTerms.first_name === 'John' ? rows.slice(1,2) : rows;
           };

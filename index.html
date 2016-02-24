@@ -3,9 +3,9 @@
 <head>
     <title>Angular Table</title>
     <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="dist/mlhr-table.css">
+    <link rel="stylesheet" type="text/css" href="dist/ap-mesa.css">
 </head>
-<body ng-app="datatorrent.mlhrTable.ghPage">
+<body ng-app="apMesa.ghPage">
     
     <div class="container">
       <header>
@@ -24,14 +24,14 @@
     <div class="container" ng-controller="MainCtrl">
         Selected rows: 
 
-        <mlhr-table 
+        <ap-mesa 
           columns="my_table_columns" 
           rows="my_table_data"
           selected="my_selected_rows"
           class="col-sm-9"
           options="my_table_options"
           table-class="table">
-        </mlhr-table>
+        </ap-mesa>
 
 
         <pre class="col-sm-3">{{my_selected_rows | json}}</pre>
@@ -49,12 +49,12 @@
     <script src="vendor/hash-key-copier.js"></script>
 
     <!-- malhar-angular-table -->
-    <script src="dist/mlhr-table.js"></script>
+    <script src="dist/ap-mesa.js"></script>
 
     <!-- demo code -->
     <script>
-    angular.module('datatorrent.mlhrTable.ghPage', [
-      'datatorrent.mlhrTable',
+    angular.module('apMesa.ghPage', [
+      'apMesa',
       'bennadel.HashKeyCopier'
     ]);
     </script>

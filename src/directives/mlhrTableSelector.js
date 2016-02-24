@@ -15,9 +15,9 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.directives.mlhrTableSelector', [])
+angular.module('apMesa.directives.apMesaSelector', [])
 
-.directive('mlhrTableSelector', function() {
+.directive('apMesaSelector', function() {
   return {
     restrict: 'A',
     scope: false,

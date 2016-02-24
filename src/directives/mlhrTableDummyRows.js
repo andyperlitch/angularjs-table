@@ -17,21 +17,21 @@
 
 /**
  * @ngdoc directive
- * @name datatorrent.mlhrTable.directive:mlhrTableDummyRows
+ * @name apMesa.directive:apMesaDummyRows
  * @restrict A
  * @description inserts dummy <tr>s for non-rendered rows
  * @element tbody
- * @example <tbody mlhr-table-dummy-rows="[number]" columns="[column array]"></tbody>
+ * @example <tbody ap-mesa-dummy-rows="[number]" columns="[column array]"></tbody>
 **/
-angular.module('datatorrent.mlhrTable.directives.mlhrTableDummyRows', [])
-.directive('mlhrTableDummyRows', function() {
+angular.module('apMesa.directives.apMesaDummyRows', [])
+.directive('apMesaDummyRows', function() {
 
   return {
-    template: '<tr class="mlhr-table-dummy-row" ng-style="{ height: dummyRowHeight + \'px\'}"><td ng-show="dummyRowHeight" ng-attr-colspan="{{columns.length}}"></td></tr>',
+    template: '<tr class="ap-mesa-dummy-row" ng-style="{ height: dummyRowHeight + \'px\'}"><td ng-show="dummyRowHeight" ng-attr-colspan="{{columns.length}}"></td></tr>',
     scope: true,
     link: function(scope, element, attrs) {
 
-      scope.$watch(attrs.mlhrTableDummyRows, function(count) {
+      scope.$watch(attrs.apMesaDummyRows, function(count) {
         scope.dummyRowHeight = count * scope.rowHeight;
       });
 

@@ -15,18 +15,18 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
-  'datatorrent.mlhrTable.services.mlhrTableSortFunctions',
-  'datatorrent.mlhrTable.services.mlhrTableFilterFunctions',
-  'datatorrent.mlhrTable.services.mlhrTableFormatFunctions'
+angular.module('apMesa.controllers.MlhrTableController', [
+  'apMesa.services.apMesaSortFunctions',
+  'apMesa.services.apMesaFilterFunctions',
+  'apMesa.services.apMesaFormatFunctions'
 ])
 
 .controller('MlhrTableController',
-  ['$scope','$element','mlhrTableFormatFunctions','mlhrTableSortFunctions','mlhrTableFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
+  ['$scope','$element','apMesaFormatFunctions','apMesaSortFunctions','apMesaFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
 
   // SCOPE FUNCTIONS
   $scope.getSelectableRows = function() {
-    var tableRowFilter = $filter('mlhrTableRowFilter');
+    var tableRowFilter = $filter('apMesaRowFilter');
     return angular.isArray($scope.rows) ? tableRowFilter($scope.rows, $scope.columns, $scope.searchTerms, $scope.filterState) : [];
   };
 
@@ -109,7 +109,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
   // Clears search field for column, focus on input
   $scope.clearAndFocusSearch = function(columnId) {
     $scope.searchTerms[columnId] = '';
-    $element.find('tr.mlhr-table-filter-row th.column-' + columnId + ' input').focus();
+    $element.find('tr.ap-mesa-filter-row th.column-' + columnId + ' input').focus();
   };
   // Toggles column sorting
   $scope.toggleSort = function($event, column) {
@@ -296,7 +296,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     axis: 'x',
     handle: '.column-text',
     helper: 'clone',
-    placeholder: 'mlhr-table-column-placeholder',
+    placeholder: 'ap-mesa-column-placeholder',
     distance: 5
   };
 
@@ -409,7 +409,7 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
   };
 
   $scope.calculateRowLimit = function() {
-    var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
+    var rowHeight = $scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
     $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight;
     $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding*2;
   };

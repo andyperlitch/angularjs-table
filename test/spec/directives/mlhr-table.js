@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: mlhrTable', function () {
+describe('Directive: apMesa', function () {
 
   var element,
   scope,
@@ -23,7 +23,7 @@ describe('Directive: mlhrTable', function () {
   });
 
   // load the directive's module
-  beforeEach(module('datatorrent.mlhrTable', function($provide) {
+  beforeEach(module('apMesa', function($provide) {
     $provide.value('$log', mockLog);
   }));
 
@@ -88,7 +88,7 @@ describe('Directive: mlhrTable', function () {
     scope.my_table_data = data = genRows(30);
 
     createElement = function() {
-      element = angular.element('<mlhr-table columns="my_table_columns" rows="my_table_data" class="table" track-by="id"></mlhr-table>');
+      element = angular.element('<ap-mesa columns="my_table_columns" rows="my_table_data" class="table" track-by="id"></ap-mesa>');
       element = compile(element)(scope);
       scope.$digest();
       isoScope = element.isolateScope();
@@ -117,7 +117,7 @@ describe('Directive: mlhrTable', function () {
 
   it('should display the data passed to it', function () {
     var expected = data[0].first_name;
-    var actual = element.find('table:eq(1) tbody.mlhr-table-rendered-rows tr:eq(0) td:eq(2)').text();
+    var actual = element.find('table:eq(1) tbody.ap-mesa-rendered-rows tr:eq(0) td:eq(2)').text();
     actual = $.trim(actual);
     expect(actual).to.equal(expected);
   });
@@ -126,7 +126,7 @@ describe('Directive: mlhrTable', function () {
     scope.my_table_data = genRows(30);
     scope.$apply();
     var expected = scope.my_table_data[0].first_name;
-    var actual = element.find('table:eq(1) tbody.mlhr-table-rendered-rows tr:eq(0) td:eq(2)').text();
+    var actual = element.find('table:eq(1) tbody.ap-mesa-rendered-rows tr:eq(0) td:eq(2)').text();
     actual = $.trim(actual);
     expect(actual).to.equal(expected);
   });
@@ -134,7 +134,7 @@ describe('Directive: mlhrTable', function () {
   it('should throw if no columns array was found on the scope', inject(function($rootScope) {
     var scope2 = $rootScope.$new();
     scope2.rows = [];
-    var el2 = angular.element('<mlhr-table columns="nonexistent_columns" rows="rows" class="table"></mlhr-table>');
+    var el2 = angular.element('<ap-mesa columns="nonexistent_columns" rows="rows" class="table"></ap-mesa>');
     var fn = function() {
       el2 = compile(el2)(scope2);
       scope.$digest();
@@ -149,7 +149,7 @@ describe('Directive: mlhrTable', function () {
     $scope2.options = {
       bgSizeMultiplier: 3
     };
-    var el2 = angular.element('<mlhr-table columns="columns" rows="rows" options="options" class="table"></mlhr-table>');
+    var el2 = angular.element('<ap-mesa columns="columns" rows="rows" options="options" class="table"></ap-mesa>');
     el2 = compile(el2)($scope2);
     $scope2.$digest();
     isoScope = el2.isolateScope();

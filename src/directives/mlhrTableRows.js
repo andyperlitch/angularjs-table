@@ -15,16 +15,16 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
-  'datatorrent.mlhrTable.directives.mlhrTableCell',
-  'datatorrent.mlhrTable.filters.mlhrTableRowFilter',
-  'datatorrent.mlhrTable.filters.mlhrTableRowSorter'
+angular.module('apMesa.directives.apMesaRows',[
+  'apMesa.directives.apMesaCell',
+  'apMesa.filters.apMesaRowFilter',
+  'apMesa.filters.apMesaRowSorter'
 ])
 
-.directive('mlhrTableRows', function($filter) {
+.directive('apMesaRows', function($filter) {
 
-  var tableRowFilter = $filter('mlhrTableRowFilter');
-  var tableRowSorter = $filter('mlhrTableRowSorter');
+  var tableRowFilter = $filter('apMesaRowFilter');
+  var tableRowSorter = $filter('apMesaRowSorter');
   var limitTo = $filter('limitTo');
 
   function calculateVisibleRows(scope) {
@@ -69,7 +69,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows',[
 
   return {
     restrict: 'A',
-    templateUrl: 'src/templates/mlhrTableRows.tpl.html',
+    templateUrl: 'src/templates/apMesaRows.tpl.html',
     compile: function(tElement, tAttrs) {
       var tr = tElement.find('tr');
       var repeatString = tr.attr('ng-repeat');

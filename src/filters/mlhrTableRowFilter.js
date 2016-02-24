@@ -15,11 +15,11 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter',[
-  'datatorrent.mlhrTable.services.mlhrTableFilterFunctions'
+angular.module('apMesa.filters.apMesaRowFilter',[
+  'apMesa.services.apMesaFilterFunctions'
 ])
 
-.filter('mlhrTableRowFilter', ['mlhrTableFilterFunctions', '$log', function(tableFilterFunctions, $log) {
+.filter('apMesaRowFilter', ['apMesaFilterFunctions', '$log', function(tableFilterFunctions, $log) {
   return function tableRowFilter(rows, columns, searchTerms, filterState, options) {
 
     var enabledFilterColumns, result = rows;
@@ -45,7 +45,7 @@ angular.module('datatorrent.mlhrTable.filters.mlhrTableRowFilter',[
           column.filter = predefined;
           return true;
         }
-        $log.warn('mlhrTable: The filter function "'+column.filter+'" ' +
+        $log.warn('apMesa: The filter function "'+column.filter+'" ' +
           'specified by column(id='+column.id+').filter ' +
           'was not found in predefined tableFilterFunctions. ' +
           'Available filters: "'+Object.keys(tableFilterFunctions).join('","')+'"');

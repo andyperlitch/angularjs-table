@@ -1,12 +1,12 @@
 'use strict';
-describe('Service: mlhrTableFilterFunctions', function() {
+describe('Service: apMesaFilterFunctions', function() {
 
-  beforeEach(module('datatorrent.mlhrTable'));
+  beforeEach(module('apMesa'));
 
   var tff;
 
-  beforeEach(inject(['mlhrTableFilterFunctions', function(mlhrTableFilterFunctions) {
-    tff = mlhrTableFilterFunctions;
+  beforeEach(inject(['apMesaFilterFunctions', function(apMesaFilterFunctions) {
+    tff = apMesaFilterFunctions;
   }]));
 
   it('should return an object containing functions', function() {

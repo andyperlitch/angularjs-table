@@ -40,7 +40,7 @@ module.exports = function (grunt) {
         tasks: ['newer:jshint:test', 'karma:unit']
       },
       styles: {
-        files: ['<%= yeoman.src %>/mlhr-table.css'],
+        files: ['<%= yeoman.src %>/ap-mesa.css'],
         tasks: ['newer:copy:styles', 'autoprefixer']
       },
       gruntfile: {
@@ -69,7 +69,7 @@ module.exports = function (grunt) {
       development: {
         options: {
           base: '.',
-          module: 'datatorrent.mlhrTable.templates'
+          module: 'apMesa.templates'
         },
         src: ['<%= yeoman.src %>/**/*.tpl.html'],
         dest: '.tmp/scripts/templates.js'
@@ -77,7 +77,7 @@ module.exports = function (grunt) {
       dist: {
         options: {
           base: '.',
-          module: 'datatorrent.mlhrTable.templates'
+          module: 'apMesa.templates'
         },
         src: ['<%= yeoman.src %>/templates/*.tpl.html'],
         dest: '<%= yeoman.dist %>/templates.js'
@@ -203,7 +203,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>/',
-          src: 'mlhr-table.css',
+          src: 'ap-mesa.css',
           dest: '<%= yeoman.dist %>/'
         }]
       }
@@ -295,7 +295,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>/',
-          src: 'mlhr-table.js',
+          src: 'ap-mesa.js',
           dest: '<%= yeoman.dist %>/'
         }]
       }
@@ -320,7 +320,7 @@ module.exports = function (grunt) {
         expand: true,
         cwd: '<%= yeoman.src %>',
         dest: '.tmp/styles/',
-        src: 'mlhr-table.css'
+        src: 'ap-mesa.css'
       }
     },
 
@@ -345,8 +345,8 @@ module.exports = function (grunt) {
     cssmin: {
       dist: {
         files: {
-          '<%= yeoman.dist %>/mlhr-table.min.css': [
-            '<%= yeoman.dist %>/mlhr-table.css'
+          '<%= yeoman.dist %>/ap-mesa.min.css': [
+            '<%= yeoman.dist %>/ap-mesa.css'
           ]
         }
       }
@@ -354,8 +354,8 @@ module.exports = function (grunt) {
     uglify: {
       dist: {
         files: {
-          '<%= yeoman.dist %>/mlhr-table.min.js': [
-            '<%= yeoman.dist %>/mlhr-table.js'
+          '<%= yeoman.dist %>/ap-mesa.min.js': [
+            '<%= yeoman.dist %>/ap-mesa.js'
           ]
         }
       }
@@ -370,7 +370,7 @@ module.exports = function (grunt) {
           }
         },
         src: ['<%= yeoman.dist %>/**/*.js'],
-        dest: '<%= yeoman.dist %>/mlhr-table.js'
+        dest: '<%= yeoman.dist %>/ap-mesa.js'
       }
     },
 

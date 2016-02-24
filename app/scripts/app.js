@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('datatorrent.mlhrTable.ghPage', [
+angular.module('apMesa.ghPage', [
   'ngSanitize',
   'ngRoute',
-  'datatorrent.mlhrTable'
+  'apMesa'
 ])
 .config(function ($routeProvider) {
   $routeProvider

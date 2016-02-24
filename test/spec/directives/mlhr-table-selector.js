@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: mlhrTableSelector', function () {
+describe('Directive: apMesaSelector', function () {
 
   var element, scope, rootScope, isoScope, compile, sandbox, selected, row, column;
 
@@ -11,7 +11,7 @@ describe('Directive: mlhrTableSelector', function () {
   });
 
   // load the directive's module
-  beforeEach(module('datatorrent.mlhrTable', function($provide) {
+  beforeEach(module('apMesa', function($provide) {
     // Inject dependencies like this:
     // $provide.value('', mockThing);
 
@@ -31,7 +31,7 @@ describe('Directive: mlhrTableSelector', function () {
     scope.column = column = { key: 'id' };
 
     // Define and compile the element
-    element = angular.element('<div mlhr-table-selector></div>');
+    element = angular.element('<div ap-mesa-selector></div>');
     element = compile(element)(scope);
     scope.$digest();
     isoScope = element.isolateScope();

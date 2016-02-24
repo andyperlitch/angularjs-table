@@ -15,9 +15,9 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.services.mlhrTableFilterFunctions', [])
+angular.module('apMesa.services.apMesaFilterFunctions', [])
 
-.service('mlhrTableFilterFunctions', function() {
+.service('apMesaFilterFunctions', function() {
 
   function like(term, value) {
     term = term.toLowerCase().trim();

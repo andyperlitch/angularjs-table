@@ -4,12 +4,12 @@ describe('Filter: tableRowSorter', function() {
 
   var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder, sortDirection;
 
-  beforeEach(module('datatorrent.mlhrTable'));
+  beforeEach(module('apMesa'));
 
-  beforeEach(inject(function(mlhrTableRowSorterFilter) {
+  beforeEach(inject(function(apMesaRowSorterFilter) {
     sandbox = sinon.sandbox.create();
 
-    sorter = mlhrTableRowSorterFilter;
+    sorter = apMesaRowSorterFilter;
 
     stringSort = sandbox.spy(function(a,b) {
       return a.key1 < b.key1 ? -1 : a.key1 > b.key1 ? 1 : 0 ;

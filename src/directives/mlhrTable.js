@@ -15,13 +15,13 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
-  'datatorrent.mlhrTable.controllers.MlhrTableController',
-  'datatorrent.mlhrTable.directives.mlhrTableRows',
-  'datatorrent.mlhrTable.directives.mlhrTableDummyRows'
+angular.module('apMesa.directives.apMesa', [
+  'apMesa.controllers.MlhrTableController',
+  'apMesa.directives.apMesaRows',
+  'apMesa.directives.apMesaDummyRows'
 ])
 
-.directive('mlhrTable', ['$log', '$timeout', '$q', function ($log, $timeout, $q) {
+.directive('apMesa', ['$log', '$timeout', '$q', function ($log, $timeout, $q) {
 
   function debounce(func, wait, immediate) {
     var timeout, args, context, timestamp, result;
@@ -83,7 +83,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     if (scope.columns instanceof Array) {
       scope.setColumns(scope.columns);
     } else {
-      throw new Error('"columns" array not found in mlhrTable scope!');
+      throw new Error('"columns" array not found in apMesa scope!');
     }
 
     if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
@@ -94,7 +94,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
 
     // Check for rows
     // if ( !(scope.rows instanceof Array) ) {
-    //   throw new Error('"rows" array not found in mlhrTable scope!');
+    //   throw new Error('"rows" array not found in apMesa scope!');
     // }
 
     // Object that holds search terms
@@ -174,7 +174,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
         scope.onScroll();
       });
       scope.$watch('rowHeight', function(size) {
-        element.find('tr.mlhr-table-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
+        element.find('tr.ap-mesa-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
       });
       //  - when column gets enabled or disabled
       //  TODO
@@ -259,7 +259,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
   }
 
   return {
-    templateUrl: 'src/templates/mlhrTable.tpl.html',
+    templateUrl: 'src/templates/apMesa.tpl.html',
     restrict: 'EA',
     replace: true,
     scope: {
@@ -274,7 +274,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTable', [
     compile: function(tElement) {
       var trackBy = tElement.attr('track-by');
       if (trackBy) {
-        tElement.find('.mlhr-table-rendered-rows').attr('track-by', trackBy);
+        tElement.find('.ap-mesa-rendered-rows').attr('track-by', trackBy);
       }
       return link;
     }

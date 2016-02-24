@@ -15,9 +15,9 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable.filters.mlhrTableRowSorter', [])
+angular.module('apMesa.filters.apMesaRowSorter', [])
 
-.filter('mlhrTableRowSorter', function() {
+.filter('apMesaRowSorter', function() {
   var column_cache = {};
   function getColumn(columns,id) {
     if (column_cache.hasOwnProperty(id)) {

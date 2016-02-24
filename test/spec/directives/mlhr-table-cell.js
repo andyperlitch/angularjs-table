@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: mlhr-table-cell', function () {
+describe('Directive: ap-mesa-cell', function () {
 
   var element, scope, rootScope, isoScope, compile;
 
@@ -9,7 +9,7 @@ describe('Directive: mlhr-table-cell', function () {
   });
 
   // load the directive's module
-  beforeEach(module('datatorrent.mlhrTable', function($provide, $filterProvider) {
+  beforeEach(module('apMesa', function($provide, $filterProvider) {
     // Inject dependencies like this:
     $filterProvider.register('commaGroups', function() {
       function commaGroups(value) {
@@ -54,7 +54,7 @@ describe('Directive: mlhr-table-cell', function () {
     beforeEach(function() {
       scope.column.template = '<strong>{{ row[column.key] }}</strong>';
       // Define and compile the element
-      element = angular.element('<div mlhr-table-cell></div>');
+      element = angular.element('<div ap-mesa-cell></div>');
       element = compile(element)(scope);
       scope.$digest();
       isoScope = element.isolateScope();
@@ -74,7 +74,7 @@ describe('Directive: mlhr-table-cell', function () {
       $templateCache.put(scope.column.templateUrl, '<strong>{{ row[column.key] }}</strong>');
 
       // Define and compile the element
-      element = angular.element('<div mlhr-table-cell></div>');
+      element = angular.element('<div ap-mesa-cell></div>');
       element = compile(element)(scope);
       scope.$digest();
       isoScope = element.isolateScope();
@@ -94,7 +94,7 @@ describe('Directive: mlhr-table-cell', function () {
       $templateCache.put(scope.column.templateUrl, '<strong>{{ row[column.key] }}</strong>');
 
       // Define and compile the element
-      element = angular.element('<div mlhr-table-cell></div>');
+      element = angular.element('<div ap-mesa-cell></div>');
       element = compile(element)(scope);
       scope.$digest();
       isoScope = element.isolateScope();
@@ -118,7 +118,7 @@ describe('Directive: mlhr-table-cell', function () {
       scope.options.getter = function(key, row) {
         return row.data[key];
       };
-      element = angular.element('<div mlhr-table-cell></div>');
+      element = angular.element('<div ap-mesa-cell></div>');
       element = compile(element)(scope);
       scope.$digest();
     });

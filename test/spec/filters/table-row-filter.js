@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Filter: mlhrTableRowFilter', function() {
+describe('Filter: apMesaRowFilter', function() {
 
   var columns, rows, searchTerms, filter, fakeSearchFn1, fakeSearchFn2, sandbox, mockLog;
 
@@ -9,13 +9,13 @@ describe('Filter: mlhrTableRowFilter', function() {
   });
 
   // load the filter's module
-  beforeEach(module('datatorrent.mlhrTable', function($provide) {
+  beforeEach(module('apMesa', function($provide) {
     mockLog = { warn: sandbox.spy() };
     $provide.value('$log', mockLog);
   }));
 
   beforeEach(inject(function($filter){
-    filter = $filter('mlhrTableRowFilter');
+    filter = $filter('apMesaRowFilter');
 
     fakeSearchFn1 = function(term, value) {
       return value === term;

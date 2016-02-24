@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('datatorrent.mlhrTable.ghPage')
+angular.module('apMesa.ghPage')
 
   // angular filter, to be used with the "ngFilter" option in column definitions below
   .filter('commaGroups', function() {
