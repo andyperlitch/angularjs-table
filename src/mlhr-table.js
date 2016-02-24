@@ -15,7 +15,7 @@
 */
 'use strict';
 
-angular.module('datatorrent.mlhrTable', [
+angular.module('apMesa', [
   'datatorrent.mlhrTable.templates',
   'ui.sortable',
   'ngSanitize',

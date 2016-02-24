@@ -1,5 +1,6 @@
-malhar-angular-table
+angular-mesa
 ====================
+
 A table component built with angular that is catered to real-time data.
 
 Feature List
@@ -23,6 +24,9 @@ $ bower install
 
 Running the Demo
 ----------------
+
+Clone the repository and run the following:
+
 ```bash
 $ grunt serve
 ```
@@ -30,16 +34,16 @@ $ grunt serve
 Getting Started
 ---------------
 
-First, include mlhr-table.js and mlhr-table.css in your project. Then, in your markup, instantiate table instances with an `<mlhr-table>` tag:
+First, include mlhr-table.js and mlhr-table.css in your project. Add the `apMesa` module to your project's angular dependencies. Then, in your markup, instantiate table instances with a `<ap-mesa>` tag:
 
 ```HTML
-<mlhr-table 
+<ap-mesa 
     options="options" 
     columns="columns" 
     rows="rows"
     table-class="table"
     selected="array_of_selected">
-</mlhr-table>
+</ap-mesa>
 ```
 
 Attributes
