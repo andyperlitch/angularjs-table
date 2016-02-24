@@ -34,7 +34,9 @@ $ grunt serve
 Getting Started
 ---------------
 
-First, include ap-mesa.js and ap-mesa.css in your project. Add the `apMesa` module to your project's angular dependencies. Then, in your markup, instantiate table instances with a `<ap-mesa>` tag:
+- Include ap-mesa.js and ap-mesa.css in your project.
+- Add the `apMesa` module to your project's angular dependencies.
+- Instantiate table instances with a `<ap-mesa>` tag:
 
 ```HTML
 <ap-mesa 
