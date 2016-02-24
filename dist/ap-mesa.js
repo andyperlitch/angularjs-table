@@ -1,4 +1,26 @@
 'use strict';
+// Source: dist/ap-mesa.js
+/*
+* Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+angular.module('apMesa', [
+  'apMesa.templates',
+  'ui.sortable',
+  'ngSanitize',
+  'apMesa.directives.apMesa'
+]);
 // Source: dist/controllers/ApMesaController.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
@@ -626,7 +648,7 @@ angular.module('apMesa.directives.apMesa', [
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('apMesa.directives.apMesaCell', ['datatorrent.apMesa.directives.apMesaSelector']).directive('apMesaCell', [
+angular.module('apMesa.directives.apMesaCell', ['apMesa.directives.apMesaSelector']).directive('apMesaCell', [
   '$compile',
   function ($compile) {
     function link(scope, element) {
@@ -814,7 +836,7 @@ angular.module('apMesa.directives.apMesaSelector', []).directive('apMesaSelector
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-angular.module('apMesa.filters.apMesaRowFilter', ['datatorrent.apMesa.services.apMesaFilterFunctions']).filter('apMesaRowFilter', [
+angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterFunctions']).filter('apMesaRowFilter', [
   'apMesaFilterFunctions',
   '$log',
   function (tableFilterFunctions, $log) {
@@ -918,28 +940,6 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
     });
   };
 });
-// Source: dist/ap-mesa.js
-/*
-* Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-angular.module('apMesa', [
-  'apMesa.templates',
-  'ui.sortable',
-  'ngSanitize',
-  'apMesa.directives.apMesa'
-]);
 // Source: dist/services/apMesaFilterFunctions.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
@@ -1187,6 +1187,6 @@ angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}">\n' + '  <td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>\n' + '</tr>');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}">\n' + '  <td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>\n' + '</tr>\n' + '');
   }
 ]);
