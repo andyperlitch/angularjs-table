@@ -163,22 +163,31 @@ angular.module('apMesa.directives.apMesa', [
       scope.$watchCollection('searchTerms', scope.saveToStorage);
       //  - paging scheme
       scope.$watch('options.pagingScheme', scope.saveToStorage);
-      //  - row limit
-      scope.$watch('options.bodyHeight', function() {
-        scope.calculateRowLimit();
-        scope.tbodyNgStyle = {};
-        scope.tbodyNgStyle[ scope.options.fixedHeight ? 'height' : 'max-height' ] = scope.options.bodyHeight + 'px';
-        scope.saveToStorage();
-      });
-      scope.$watch('filterState.filterCount', function() {
-        scope.onScroll();
-      });
-      scope.$watch('rowHeight', function(size) {
-        element.find('tr.ap-mesa-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
-      });
       //  - when column gets enabled or disabled
       //  TODO
     }
+
+    if (scope.options.fillHeight) {
+      // calculate available space
+      scope.$on('apMesa:resize', function() {
+        scope.options.bodyHeight = element.parent().height() - element.find('.mesa-header-table').outerHeight(true);
+      });
+      scope.$emit('apMesa:resize');
+    }
+
+    //  - row limit
+    scope.$watch('options.bodyHeight', function() {
+      scope.calculateRowLimit();
+      scope.tbodyNgStyle = {};
+      scope.tbodyNgStyle[ scope.options.fixedHeight ? 'height' : 'max-height' ] = scope.options.bodyHeight + 'px';
+      scope.saveToStorage();
+    });
+    scope.$watch('filterState.filterCount', function() {
+      scope.onScroll();
+    });
+    scope.$watch('rowHeight', function(size) {
+      element.find('tr.ap-mesa-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
+    });
 
     var scrollDeferred;
     var debouncedScrollHandler = debounce(function() {
