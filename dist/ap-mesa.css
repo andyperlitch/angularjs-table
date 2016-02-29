@@ -30,7 +30,7 @@
 
 .mesa-rows-table > thead > tr > th {
   border-width: 0;
-  padding: 0;
+  padding: 0 !important;
 }
 
 .mesa-rows-table-wrapper {

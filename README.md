@@ -172,7 +172,12 @@ If a `filter` function is set on a Column Definition Object, that column will co
         return value.indexOf(term) >= 0;
     }
 
-When there is a value provided by the user in the filter field, every row in the dataset is passed through this function. If the function returns true, the row will be included in the resulting rows that get displayed. Otherwise it is left out.
+When there is a value provided by the user in the filter field, every row in the dataset is passed through this function. If the function returns true, the row will be included in the resulting rows that get displayed. Otherwise it is left out. To set placeholder text for the filter field, simply add a `placeholder` attribute directly to the filter function. To add a title/tooltip, add a `title` attribute, e.g.:
+
+```js
+MyFilterFunction.placeholder = "enter text";
+MyFilterFunction.title = "Perform a simple text search";
+```
 
 There are several common filter functions that are built-in. Use them by passing one of the following strings instead of a function:
 
