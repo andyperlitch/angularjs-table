@@ -50,11 +50,12 @@
 
 /* search input */
 .ap-mesa tr.ap-mesa-filter-row td input {
-  max-width: 100%;
-  border-radius: 5px;
+  width: 100%;
+  border-radius: 2em;
   border: 1px solid #CCC;
   outline: none;
-  text-indent: 2px;
+  text-indent: 0.3em;
+  font-size: 90%;
 }
 .ap-mesa tr.ap-mesa-filter-row td {
   position: relative;
@@ -65,7 +66,8 @@
   border-radius: 50%;
   border: none;
   right: 1em;
-  top: 30%;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 12px;
   opacity: 0.2;
   color: white;
@@ -131,7 +133,6 @@ when a discreet width has been set on it */
   opacity: 0.2;
 }
 .ap-mesa th.sortable-column {
-
   cursor: pointer;
   user-select: none
 }
