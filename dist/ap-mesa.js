@@ -966,7 +966,7 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
 angular.module('apMesa.services.apMesaFilterFunctions', []).service('apMesaFilterFunctions', function () {
   function like(term, value) {
     term = term.toLowerCase().trim();
-    value = value.toLowerCase();
+    value = String(value).toLowerCase();
     var first = term[0];
     // negate
     if (first === '!') {

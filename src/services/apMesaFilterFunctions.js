@@ -21,7 +21,7 @@ angular.module('apMesa.services.apMesaFilterFunctions', [])
 
   function like(term, value) {
     term = term.toLowerCase().trim();
-    value = value.toLowerCase();
+    value = String(value).toLowerCase();
     var first = term[0];
 
     // negate
