@@ -64,7 +64,7 @@ angular.module('apMesa.directives.apMesaRows',[
 
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
-      scope.$watch('rows', updateHandler, true);
+      scope.$watch('rows', updateHandler);
     }
 
   return {
