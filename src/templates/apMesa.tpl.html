@@ -65,7 +65,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-if="visible_rows.length === 0">
+        <tr ng-if="visible_rows.length === 0 || options.loading">
           <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">
             <div ng-if="options.loadingError">
               <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>
@@ -80,9 +80,9 @@
           </td>
         </tr>
       </tbody>
-      <tbody ap-mesa-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>
-      <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
-      <tbody ap-mesa-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>
+      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>
+      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
+      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
 </div>

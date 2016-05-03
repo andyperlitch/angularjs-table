@@ -188,6 +188,19 @@ angular.module('apMesa.directives.apMesa', [
     scope.$watch('rowHeight', function(size) {
       element.find('tr.ap-mesa-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
     });
+    scope.$watch('options.loadingPromise', function(promise) {
+      if (angular.isObject(promise) && typeof promise.then === 'function') {
+        scope.api.setLoading(true);
+        promise.then(function () {
+          scope.options.loadingError = false;
+          scope.api.setLoading(false);
+        }, function (reason) {
+          scope.options.loadingError = true;
+          scope.api.setLoading(false);
+          $log.warn('Failed loading table data: ' + reason);
+        });
+      }
+    });
 
     var scrollDeferred;
     var debouncedScrollHandler = debounce(function() {
@@ -249,21 +262,6 @@ angular.module('apMesa.directives.apMesa', [
 
     // Register API
     scope.options.onRegisterApi(scope.api);
-
-    //Check if loadingPromise was supplied and appears to be a promise object
-    if (angular.isObject(scope.options.loadingPromise) && typeof scope.options.loadingPromise.then === 'function') {
-      scope.options.loadingPromise.then(
-        function(){
-          scope.options.loadingError = false;
-          scope.api.setLoading(false);
-        },
-        function(reason){
-          scope.options.loadingError = true;
-          scope.api.setLoading(false);
-          $log.warn('Failed loading table data: ' + reason);
-        }
-      );
-    }
 
   }
 
