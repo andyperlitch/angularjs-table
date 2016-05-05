@@ -61,7 +61,7 @@ angular.module('apMesa.filters.apMesaRowFilter',[
           var filter = col.filter;
           var term = searchTerms[col.id];
           var value = (options !== undefined && {}.hasOwnProperty.call(options, 'getter'))? options.getter(col.key, row):row[col.key];
-          var computedValue = typeof col.format === 'function' ? col.format(value, row) : value;
+          var computedValue = typeof col.format === 'function' ? col.format(value, row, col) : value;
           if (!filter(term, value, computedValue, row)) {
             return false;
           }

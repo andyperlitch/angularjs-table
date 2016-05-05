@@ -149,7 +149,7 @@ The rows of the table can be sortable based on a column by setting the `sort` at
 
 The returned value should mirror how `Array.prototype.sort` works: If the returned value is negative, rowA will be placed above rowB in the ascending sort order. If it is negative, rowB will be placed above rowA in the ascending sort order. If it is zero, the two rows will be considered the same in terms of sorting precedence.
 
-There are two built-in sort functions availablewhich handle the two most common use-cases: `"string"` and `"number"`. To use these, simply set the `sort` attribute to one of these strings.
+There are four built-in sort functions available which handle the most common use-cases: `"string"`, `"number"`, `"stringFormatted"`, and `"numberFormatted"`. To use these, simply set the `sort` attribute to one of these strings.
 
 Sorting can be set by the user by clicking the headers of sortable columns, and can be stacked by holding shift and clicking. The initial sort order can be set using the `initialSorts` option in the Options Object, shown in the table above.
 
@@ -191,7 +191,22 @@ There are several common filter functions that are built-in. Use them by passing
 
 Cell Formatting
 ---------------
+You can format the result of `row[key]` by specifying a `format` function on the column definition object. For example, perhaps you want to add a dollar sign to a column which represents an amount of money:
 
+```javascript
+var columns = [
+    {
+        key: 'price',
+        format: function(price) {
+            return '$' + price.toFixed(2);
+        }
+    }
+];
+var rows = [
+    { price: 12 },
+    { price: 14 }
+];
+```
 
 Row Selection
 -------------

@@ -882,7 +882,7 @@ angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterF
             var filter = col.filter;
             var term = searchTerms[col.id];
             var value = options !== undefined && {}.hasOwnProperty.call(options, 'getter') ? options.getter(col.key, row) : row[col.key];
-            var computedValue = typeof col.format === 'function' ? col.format(value, row) : value;
+            var computedValue = typeof col.format === 'function' ? col.format(value, row, col) : value;
             if (!filter(term, value, computedValue, row)) {
               return false;
             }
@@ -939,7 +939,7 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
         var dir = sortDirection[id];
         if (column && column.sort) {
           var fn = column.sort;
-          var result = dir === '+' ? fn(a, b, options) : fn(b, a, options);
+          var result = dir === '+' ? fn(a, b, options, column) : fn(b, a, options, column);
           if (result !== 0) {
             return result;
           }
@@ -1167,10 +1167,37 @@ angular.module('apMesa.services.apMesaSortFunctions', []).service('apMesaSortFun
           val1 = row1[field];
           val2 = row2[field];
         }
-        if (val1.toString().toLowerCase() === val2.toString().toLowerCase()) {
-          return 0;
+        return val1.toString().toLowerCase().localeCompare(val2.toString().toLowerCase());
+      };
+    },
+    stringFormatted: function (field) {
+      return function (row1, row2, options, column) {
+        var val1, val2;
+        if (options !== undefined && {}.hasOwnProperty.call(options, 'getter')) {
+          val1 = options.getter(field, row1);
+          val2 = options.getter(field, row2);
+        } else {
+          val1 = row1[field];
+          val2 = row2[field];
         }
-        return val1.toString().toLowerCase() > val2.toString().toLowerCase() ? 1 : -1;
+        val1 = column.format(val1, row1, column);
+        val2 = column.format(val2, row2, column);
+        return val1.toString().toLowerCase().localeCompare(val2.toString().toLowerCase());
+      };
+    },
+    numberFormatted: function (field) {
+      return function (row1, row2, options, column) {
+        var val1, val2;
+        if (options !== undefined && {}.hasOwnProperty.call(options, 'getter')) {
+          val1 = options.getter(field, row1);
+          val2 = options.getter(field, row2);
+        } else {
+          val1 = row1[field];
+          val2 = row2[field];
+        }
+        val1 = column.format(val1, row1, column);
+        val2 = column.format(val2, row2, column);
+        return val1 * 1 - val2 * 1;
       };
     }
   };

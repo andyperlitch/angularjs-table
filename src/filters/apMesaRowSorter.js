@@ -43,7 +43,7 @@ angular.module('apMesa.filters.apMesaRowSorter', [])
         var dir = sortDirection[id];
         if (column && column.sort) {
           var fn = column.sort;
-          var result = dir === '+' ? fn(a,b,options) : fn(b,a,options);
+          var result = dir === '+' ? fn(a,b,options,column) : fn(b,a,options,column);
           if (result !== 0) {
             return result;
           }
