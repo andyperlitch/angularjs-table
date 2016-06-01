@@ -28,6 +28,12 @@ angular.module('apMesa.directives.apMesaRows',[
   var limitTo = $filter('limitTo');
 
   function calculateVisibleRows(scope) {
+
+    // sanity check
+    if (!scope.rows || !scope.columns) {
+      return [];
+    }
+
     // scope.rows
     var visible_rows;
     
@@ -48,10 +54,11 @@ angular.module('apMesa.directives.apMesaRows',[
 
   function link(scope) {
 
-      var updateHandler = function() {
-        if (scope.rows) {
-          scope.visible_rows = calculateVisibleRows(scope);
+      var updateHandler = function(newValue, oldValue) {
+        if (newValue === oldValue) {
+          return;
         }
+        scope.visible_rows = calculateVisibleRows(scope);
       };
 
       scope.$watch('searchTerms', updateHandler, true);
@@ -59,6 +66,7 @@ angular.module('apMesa.directives.apMesaRows',[
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
       scope.$watch('rows', updateHandler);
+      updateHandler(true, false);
     }
 
   return {

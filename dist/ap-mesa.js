@@ -749,6 +749,10 @@ angular.module('apMesa.directives.apMesaRows', [
     var tableRowSorter = $filter('apMesaRowSorter');
     var limitTo = $filter('limitTo');
     function calculateVisibleRows(scope) {
+      // sanity check
+      if (!scope.rows || !scope.columns) {
+        return [];
+      }
       // scope.rows
       var visible_rows;
       // | tableRowFilter:columns:searchTerms:filterState 
@@ -762,16 +766,18 @@ angular.module('apMesa.directives.apMesaRows', [
       return visible_rows;
     }
     function link(scope) {
-      var updateHandler = function () {
-        if (scope.rows) {
-          scope.visible_rows = calculateVisibleRows(scope);
+      var updateHandler = function (newValue, oldValue) {
+        if (newValue === oldValue) {
+          return;
         }
+        scope.visible_rows = calculateVisibleRows(scope);
       };
       scope.$watch('searchTerms', updateHandler, true);
       scope.$watch('[filterState.filterCount,rowOffset,rowLimit]', updateHandler);
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
       scope.$watch('rows', updateHandler);
+      updateHandler(true, false);
     }
     return {
       restrict: 'A',
