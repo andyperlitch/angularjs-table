@@ -34,7 +34,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', [
       cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" mlhr-table-selector class="mlhr-table-selector" />';
     }
     else if (column.ngFilter) {
-      cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
+      cellMarkup = '{{ row[column.key] | ' + column.ngFilter + '}}';
     }
     else if (column.format) {
       cellMarkup = '{{ column.format(row[column.key], row, column) }}';
