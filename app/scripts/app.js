@@ -19,6 +19,10 @@ angular.module('apMesa.ghPage', [
       templateUrl: 'views/max-height.html',
       controller: 'MaxHeightCtrl'
     })
+    .when('/expandable', {
+      templateUrl: 'views/expandable.html',
+      controller: 'ExpandableCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });
