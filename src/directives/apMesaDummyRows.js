@@ -31,8 +31,16 @@ angular.module('apMesa.directives.apMesaDummyRows', [])
     scope: true,
     link: function(scope, element, attrs) {
 
-      scope.$watch(attrs.apMesaDummyRows, function(count) {
-        scope.dummyRowHeight = count * scope.rowHeight;
+      scope.$watch(attrs.apMesaDummyRows, function(offsetRange) {
+        console.log(offsetRange);
+        var rowsHeight = (offsetRange[1] - offsetRange[0]) * scope.rowHeight;
+        for (var k in scope.expandedRows) {
+          var kInt = parseInt(k);
+          if (kInt >= offsetRange[0] && kInt <= offsetRange[1]) {
+            rowsHeight += scope.expandedRows[k];
+          }
+        }
+        scope.dummyRowHeight = rowsHeight;
       });
 
     }

@@ -92,10 +92,8 @@ angular.module('apMesa.directives.apMesa', [
       }
     }
 
-    // Check for rows
-    // if ( !(scope.rows instanceof Array) ) {
-    //   throw new Error('"rows" array not found in apMesa scope!');
-    // }
+    // State of expanded rows
+    scope.expandedRows = {};
 
     // Object that holds search terms
     scope.searchTerms = {};

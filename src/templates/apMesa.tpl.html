@@ -80,9 +80,9 @@
           </td>
         </tr>
       </tbody>
-      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>
+      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[0,rowOffset]" columns="columns" cell-content="..."></tbody>
       <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
-      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>
+      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[rowOffset + visible_rows.length, filterState.filterCount - 1]" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
 </div>

@@ -4,7 +4,6 @@ angular.module('apMesa.ghPage')
 .controller('ExpandableCtrl', function($scope, $q, phoneData, $templateCache) {
 
   $scope.my_table_options = {
-    expandableKey: 'expanded',
     expandableTemplateUrl: 'views/expandable-panel.html'
   };
   $scope.my_selected_rows = [];
@@ -12,10 +11,10 @@ angular.module('apMesa.ghPage')
     {
       id: 'name',
       key: 'DeviceName',
-      label: 'Device',
-      template: '<a href="" ng-click="row.expanded = !row.expanded">' +
-                  '<i class="glyphicon glyphicon-triangle-right" ng-if="!row.expanded"></i>' +
-                  '<i class="glyphicon glyphicon-triangle-bottom" ng-if="row.expanded"></i>' +
+      label: 'Phone',
+      template: '<a href="" ng-click="toggleRowExpand()">' +
+                  '<i class="glyphicon glyphicon-triangle-right" ng-if="!rowIsExpanded"></i>' +
+                  '<i class="glyphicon glyphicon-triangle-bottom" ng-if="rowIsExpanded"></i>' +
                   '{{ row.DeviceName }}' +
                 '</a>'
     },

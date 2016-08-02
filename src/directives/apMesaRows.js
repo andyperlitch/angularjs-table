@@ -16,7 +16,7 @@
 'use strict';
 
 angular.module('apMesa.directives.apMesaRows',[
-  'apMesa.directives.apMesaCell',
+  'apMesa.directives.apMesaRow',
   'apMesa.filters.apMesaRowFilter',
   'apMesa.filters.apMesaRowSorter'
 ])
@@ -54,29 +54,29 @@ angular.module('apMesa.directives.apMesaRows',[
 
   function link(scope) {
 
-      var updateHandler = function(newValue, oldValue) {
-        if (newValue === oldValue) {
-          return;
-        }
-        scope.visible_rows = calculateVisibleRows(scope);
-      };
+    var updateHandler = function(newValue, oldValue) {
+      if (newValue === oldValue) {
+        return;
+      }
+      scope.visible_rows = calculateVisibleRows(scope);
+    };
 
-      scope.$watch('searchTerms', updateHandler, true);
-      scope.$watch('[filterState.filterCount,rowOffset,rowLimit]', updateHandler);
-      scope.$watch('sortOrder', updateHandler, true);
-      scope.$watch('sortDirection', updateHandler, true);
-      scope.$watch('rows', updateHandler);
-      updateHandler(true, false);
-    }
+    scope.$watch('searchTerms', updateHandler, true);
+    scope.$watch('[filterState.filterCount,rowOffset,rowLimit]', updateHandler);
+    scope.$watch('sortOrder', updateHandler, true);
+    scope.$watch('sortDirection', updateHandler, true);
+    scope.$watch('rows', updateHandler);
+    updateHandler(true, false);
+  }
 
   return {
     restrict: 'A',
     templateUrl: 'src/templates/apMesaRows.tpl.html',
     compile: function(tElement, tAttrs) {
-      var tr = tElement.find('tr');
-      var repeatString = tr.attr('ng-repeat');
+      var tr = tElement.find('tr[ng-repeat-start]');
+      var repeatString = tr.attr('ng-repeat-start');
       repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by $index';
-      tr.attr('ng-repeat', repeatString);
+      tr.attr('ng-repeat-start', repeatString);
       return link;
     }
   };

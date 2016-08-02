@@ -1,3 +1,8 @@
-<tr ng-repeat="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? 'odd' : 'even' }}">
-  <td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>
+<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? 'odd' : 'even' }}" ap-mesa-row></tr>
+<tr ng-repeat-end ng-show="expandedRows[$index + rowOffset]" class="ap-mesa-expand-panel">
+  <td
+    ng-if="expandedRows[$index + rowOffset]"
+    ng-attr-colspan="{{ columns.length }}"
+    ng-include="options.expandableTemplateUrl">
+  </td>
 </tr>
