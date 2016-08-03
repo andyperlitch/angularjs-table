@@ -45,6 +45,8 @@ Running the Demo
 Clone the repository and run the following:
 
 ```bash
+$ npm install
+$ bower install
 $ grunt serve
 ```
 
