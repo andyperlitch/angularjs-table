@@ -36,14 +36,14 @@ angular.module('apMesa.directives.apMesaRows',[
 
     // scope.rows
     var visible_rows;
-    
-    // | tableRowFilter:columns:searchTerms:filterState 
+
+    // | tableRowFilter:columns:searchTerms:filterState
     visible_rows = tableRowFilter(scope.rows, scope.columns, scope.searchTerms, scope.filterState, scope.options);
-    
-    // | tableRowSorter:columns:sortOrder:sortDirection 
+
+    // | tableRowSorter:columns:sortOrder:sortDirection
     visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection, scope.options);
 
-    // | limitTo:rowOffset - filterState.filterCount 
+    // | limitTo:rowOffset - filterState.filterCount
     visible_rows = limitTo(visible_rows, Math.floor(scope.rowOffset) - scope.filterState.filterCount);
 
     // | limitTo:rowLimit
@@ -59,10 +59,19 @@ angular.module('apMesa.directives.apMesaRows',[
         return;
       }
       scope.visible_rows = calculateVisibleRows(scope);
+      scope.expandedRows = {};
     };
 
+    var updateHandlerWithoutClearingCollapsed = function(newValue, oldValue) {
+      if (newValue === oldValue) {
+        return;
+      }
+      scope.visible_rows = calculateVisibleRows(scope);
+    }
+
     scope.$watch('searchTerms', updateHandler, true);
-    scope.$watch('[filterState.filterCount,rowOffset,rowLimit]', updateHandler);
+    scope.$watch('[rowOffset,rowLimit]', updateHandlerWithoutClearingCollapsed);
+    scope.$watch('filterState.filterCount', updateHandler);
     scope.$watch('sortOrder', updateHandler, true);
     scope.$watch('sortDirection', updateHandler, true);
     scope.$watch('rows', updateHandler);

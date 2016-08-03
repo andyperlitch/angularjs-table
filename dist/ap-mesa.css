@@ -175,4 +175,5 @@ when a discreet width has been set on it */
 
 table tbody .ap-mesa-dummy-row td {
   border-top: none;
+  padding: 0;
 }

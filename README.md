@@ -68,7 +68,7 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 
 |        key         |    type   |   default   |                                                             description                                                              |
 | ------------------ | --------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| rowPadding         | `number`  | 10          | Number of rows to add before and after the viewport                                                                                  |
+| rowPadding         | `number`  | 10          | Number of pixels to pre-render before and after the viewport                                                                                  |
 | sortClasses        | `Array`   | (see below) |                                                                                                                                      |
 | storage            | `Object`  | undefined   |                                                                                                                                      |
 | storageHash        | `String`  | undefined   | Non-sequential "version" hash used to identify and compare items in `storage`.                                                       |
@@ -88,7 +88,8 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | fillHeight         | `boolean` | false       | If true, the table will fill the calculated height of the parent element. Note that this overrides `bodyHeight`. The table will listen for `'apMesa:resize'` events from the rootScope to recalculate the height. |
 | fixedHeight        | `boolean` | false       | If true, the table body will always have a height of `bodyHeight`, regardless of whether the rows fill up the vertical space.        |
 | onRegisterApi      | `function` | {}         | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc.              | 
-| getter             | `function` | {}         | Customize the way to get column value. If not specified, get columen value by row[column.key]                                        | 
+| getter             | `function` | {}         | Customize the way to get column value. If not specified, get columen value by row[column.key]                                        |
+| expandableTemplateUrl | `String` | undefined | A template reference to be used for the expandable row feature. See *Expandable Rows* below. |
 
 
 ### Loading
@@ -226,6 +227,30 @@ There is a special type of column called a selector, which will render as a chec
                                      // selected array.
         }
     ]
+
+
+Expandable Rows
+---------------
+
+To use the expandable rows feature, you will need to specify a expandableTemplateUrl call `toggleRowExpand()` from a custom column template. For example, a column definition may look like: 
+
+```javascript
+$scope.tableOptions = {
+    expandableTemplateUrl: 'path/to/panel-template.html'
+};
+$scope.columns = [
+    {
+        id: 'foo',
+        template: '<a href="" ng-click="toggleRowExpand()">CLICK TO EXPAND</a>'
+    },
+    ...
+];
+```
+
+There will also be a property on row scope called `rowIsExpanded` which is a boolean indicating if the row's panel is expanded.
+It's also recommended to make the `rowPadding` option at least as large as the expected pixel height of the expanded panels.
+
+For a complete example, please check out `/app/scripts/controllers/expandable.js`.
 
 
 

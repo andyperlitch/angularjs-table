@@ -115,7 +115,7 @@ angular.module('apMesa.directives.apMesa', [
     scope.options = scope.options || {};
     defaults(scope.options, {
       bgSizeMultiplier: 1,
-      rowPadding: 10,
+      rowPadding: 300,
       bodyHeight: 300,
       fixedHeight: false,
       defaultRowHeight: 40,
@@ -205,7 +205,7 @@ angular.module('apMesa.directives.apMesa', [
 
       scope.calculateRowLimit();
 
-      var scrollTop = scope.scrollDiv[0].scrollTop;
+      var scrollTop = scope.scrollDiv[0].scrollTop - scope.options.rowPadding;
 
       var rowHeight = scope.rowHeight;
 
@@ -213,7 +213,46 @@ angular.module('apMesa.directives.apMesa', [
         return false;
       }
 
-      scope.rowOffset = Math.max(0, Math.floor(scrollTop / rowHeight) - scope.options.rowPadding);
+      var rowOffset = 0;
+      var runningTotalScroll = 0;
+      var expandedOffsets = Object.keys(scope.expandedRows)
+        .map(function(i) { return parseInt(i); })
+        .sort();
+
+      // push the max offset so this works in constant time
+      // when no expanded rows are present
+      expandedOffsets.push(scope.filterState.filterCount);
+
+      // a counter that holds the last offset of an expanded row
+      for (var i = 0; i <= expandedOffsets.length; i++) {
+        // the offset of the expanded row
+        var expandedOffset = expandedOffsets[i];
+
+        // the height of the collapsed rows before this expanded row
+        // and after the previous expanded row
+        var rowsHeight = (expandedOffset - rowOffset) * rowHeight;
+
+        // check if the previous rows is more than enough
+        if (runningTotalScroll + rowsHeight >= scrollTop) {
+          rowOffset += Math.floor((scrollTop - runningTotalScroll)/rowHeight);
+          break;
+        }
+        // otherwise add it to the running total
+        runningTotalScroll += rowsHeight;
+
+        // the pixels that this row's expanded panel displaces
+        var expandedPixels = scope.expandedRows[expandedOffset];
+        runningTotalScroll += expandedPixels;
+        rowOffset = expandedOffset;
+
+        // Check if the expanded panel put us over the edge
+        if (runningTotalScroll >= scrollTop) {
+          rowOffset--;
+          break;
+        }
+      }
+
+      scope.rowOffset = Math.max(0, rowOffset);
 
       scrollDeferred.resolve();
 

@@ -411,7 +411,7 @@ angular.module('apMesa.controllers.ApMesaController', [
   $scope.calculateRowLimit = function() {
     var rowHeight = $scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
     $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight || 20;
-    $scope.rowLimit = Math.ceil($scope.options.bodyHeight / $scope.rowHeight) + $scope.options.rowPadding*2;
+    $scope.rowLimit = Math.ceil(($scope.options.bodyHeight + $scope.options.rowPadding*2) / $scope.rowHeight);
   };
 
 }]);

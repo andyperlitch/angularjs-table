@@ -393,7 +393,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     $scope.calculateRowLimit = function () {
       var rowHeight = $scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
       $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight || 20;
-      $scope.rowLimit = Math.ceil($scope.options.bodyHeight / $scope.rowHeight) + $scope.options.rowPadding * 2;
+      $scope.rowLimit = Math.ceil(($scope.options.bodyHeight + $scope.options.rowPadding * 2) / $scope.rowHeight);
     };
   }
 ]);
@@ -481,10 +481,8 @@ angular.module('apMesa.directives.apMesa', [
           throw new Error('"getter" in "options" should be a function!');
         }
       }
-      // Check for rows
-      // if ( !(scope.rows instanceof Array) ) {
-      //   throw new Error('"rows" array not found in apMesa scope!');
-      // }
+      // State of expanded rows
+      scope.expandedRows = {};
       // Object that holds search terms
       scope.searchTerms = {};
       // Array and Object for sort order+direction
@@ -499,7 +497,7 @@ angular.module('apMesa.directives.apMesa', [
       scope.options = scope.options || {};
       defaults(scope.options, {
         bgSizeMultiplier: 1,
-        rowPadding: 10,
+        rowPadding: 300,
         bodyHeight: 300,
         fixedHeight: false,
         defaultRowHeight: 40,
@@ -578,12 +576,44 @@ angular.module('apMesa.directives.apMesa', [
       var scrollDeferred;
       var debouncedScrollHandler = debounce(function () {
           scope.calculateRowLimit();
-          var scrollTop = scope.scrollDiv[0].scrollTop;
+          var scrollTop = scope.scrollDiv[0].scrollTop - scope.options.rowPadding;
           var rowHeight = scope.rowHeight;
           if (rowHeight === 0) {
             return false;
           }
-          scope.rowOffset = Math.max(0, Math.floor(scrollTop / rowHeight) - scope.options.rowPadding);
+          var rowOffset = 0;
+          var runningTotalScroll = 0;
+          var expandedOffsets = Object.keys(scope.expandedRows).map(function (i) {
+              return parseInt(i);
+            }).sort();
+          // push the max offset so this works in constant time
+          // when no expanded rows are present
+          expandedOffsets.push(scope.filterState.filterCount);
+          // a counter that holds the last offset of an expanded row
+          for (var i = 0; i <= expandedOffsets.length; i++) {
+            // the offset of the expanded row
+            var expandedOffset = expandedOffsets[i];
+            // the height of the collapsed rows before this expanded row
+            // and after the previous expanded row
+            var rowsHeight = (expandedOffset - rowOffset) * rowHeight;
+            // check if the previous rows is more than enough
+            if (runningTotalScroll + rowsHeight >= scrollTop) {
+              rowOffset += Math.floor((scrollTop - runningTotalScroll) / rowHeight);
+              break;
+            }
+            // otherwise add it to the running total
+            runningTotalScroll += rowsHeight;
+            // the pixels that this row's expanded panel displaces
+            var expandedPixels = scope.expandedRows[expandedOffset];
+            runningTotalScroll += expandedPixels;
+            rowOffset = expandedOffset;
+            // Check if the expanded panel put us over the edge
+            if (runningTotalScroll >= scrollTop) {
+              rowOffset--;
+              break;
+            }
+          }
+          scope.rowOffset = Math.max(0, rowOffset);
           scrollDeferred.resolve();
           scrollDeferred = null;
           scope.options.scrollingPromise = null;
@@ -716,12 +746,51 @@ angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRo
     template: '<tr class="ap-mesa-dummy-row" ng-style="{ height: dummyRowHeight + \'px\'}"><td ng-show="dummyRowHeight" ng-attr-colspan="{{columns.length}}"></td></tr>',
     scope: true,
     link: function (scope, element, attrs) {
-      scope.$watch(attrs.apMesaDummyRows, function (count) {
-        scope.dummyRowHeight = count * scope.rowHeight;
+      scope.$watch(attrs.apMesaDummyRows, function (offsetRange) {
+        var rowsHeight = (offsetRange[1] - offsetRange[0]) * scope.rowHeight;
+        for (var k in scope.expandedRows) {
+          var kInt = parseInt(k);
+          if (kInt >= offsetRange[0] && kInt < offsetRange[1]) {
+            rowsHeight += scope.expandedRows[k];
+          }
+        }
+        scope.dummyRowHeight = rowsHeight;
       });
     }
   };
 });
+// Source: dist/directives/apMesaRow.js
+angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).directive('apMesaRow', [
+  '$timeout',
+  function ($timeout) {
+    return {
+      template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>',
+      scope: true,
+      link: function (scope, element) {
+        var index = scope.index = scope.$index + scope.rowOffset;
+        var expandPanel = element.next('tr.ap-mesa-expand-panel');
+        scope.toggleRowExpand = function () {
+          scope.expandedRows[index] = !scope.expandedRows[index];
+          $timeout(function () {
+            var newHeight = expandPanel.height();
+            if (newHeight === 0) {
+              delete scope.expandedRows[index];
+            } else {
+              scope.expandedRows[index] = newHeight;
+            }
+          });
+        };
+        scope.$watch('rowOffset', function (rowOffset) {
+          index = scope.$index + scope.rowOffset;
+          scope.rowIsExpanded = !!scope.expandedRows[index];
+        });
+        scope.$watch('expandedRows[index]', function () {
+          scope.rowIsExpanded = scope.expandedRows[index];
+        });
+      }
+    };
+  }
+]);
 // Source: dist/directives/apMesaRows.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
@@ -739,7 +808,7 @@ angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRo
 * limitations under the License.
 */
 angular.module('apMesa.directives.apMesaRows', [
-  'apMesa.directives.apMesaCell',
+  'apMesa.directives.apMesaRow',
   'apMesa.filters.apMesaRowFilter',
   'apMesa.filters.apMesaRowSorter'
 ]).directive('apMesaRows', [
@@ -755,11 +824,11 @@ angular.module('apMesa.directives.apMesaRows', [
       }
       // scope.rows
       var visible_rows;
-      // | tableRowFilter:columns:searchTerms:filterState 
+      // | tableRowFilter:columns:searchTerms:filterState
       visible_rows = tableRowFilter(scope.rows, scope.columns, scope.searchTerms, scope.filterState, scope.options);
-      // | tableRowSorter:columns:sortOrder:sortDirection 
+      // | tableRowSorter:columns:sortOrder:sortDirection
       visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection, scope.options);
-      // | limitTo:rowOffset - filterState.filterCount 
+      // | limitTo:rowOffset - filterState.filterCount
       visible_rows = limitTo(visible_rows, Math.floor(scope.rowOffset) - scope.filterState.filterCount);
       // | limitTo:rowLimit
       visible_rows = limitTo(visible_rows, scope.rowLimit + Math.ceil(scope.rowOffset % 1));
@@ -771,9 +840,17 @@ angular.module('apMesa.directives.apMesaRows', [
           return;
         }
         scope.visible_rows = calculateVisibleRows(scope);
+        scope.expandedRows = {};
+      };
+      var updateHandlerWithoutClearingCollapsed = function (newValue, oldValue) {
+        if (newValue === oldValue) {
+          return;
+        }
+        scope.visible_rows = calculateVisibleRows(scope);
       };
       scope.$watch('searchTerms', updateHandler, true);
-      scope.$watch('[filterState.filterCount,rowOffset,rowLimit]', updateHandler);
+      scope.$watch('[rowOffset,rowLimit]', updateHandlerWithoutClearingCollapsed);
+      scope.$watch('filterState.filterCount', updateHandler);
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
       scope.$watch('rows', updateHandler);
@@ -783,10 +860,10 @@ angular.module('apMesa.directives.apMesaRows', [
       restrict: 'A',
       templateUrl: 'src/templates/apMesaRows.tpl.html',
       compile: function (tElement, tAttrs) {
-        var tr = tElement.find('tr');
-        var repeatString = tr.attr('ng-repeat');
+        var tr = tElement.find('tr[ng-repeat-start]');
+        var repeatString = tr.attr('ng-repeat-start');
         repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by $index';
-        tr.attr('ng-repeat', repeatString);
+        tr.attr('ng-repeat-start', repeatString);
         return link;
       }
     };
@@ -1213,7 +1290,7 @@ angular.module('apMesa.templates', [
 angular.module('src/templates/apMesa.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input \n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '          <button \n' + '            ng-if="(column.filter)"\n' + '            ng-show="searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th \n' + '            scope="col"\n' + '            ng-repeat="column in columns" \n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0 || options.loading">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="rowOffset" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="filterState.filterCount - rowOffset - visible_rows.length" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '</div>\n' + '');
+    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th \n' + '          scope="col" \n' + '          ng-repeat="column in columns" \n' + '          ng-click="toggleSort($event,column)" \n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector}" \n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '            <span \n' + '              ng-if="column.sort" \n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '          </span>\n' + '          <span \n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input \n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '          <button \n' + '            ng-if="(column.filter)"\n' + '            ng-show="searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th \n' + '            scope="col"\n' + '            ng-repeat="column in columns" \n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0 || options.loading">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[0,rowOffset]" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[rowOffset + visible_rows.length, filterState.filterCount]" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '</div>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
@@ -1225,6 +1302,6 @@ angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}">\n' + '  <td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>\n' + '</tr>\n' + '');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-show="expandedRows[$index + rowOffset]" class="ap-mesa-expand-panel">\n' + '  <td\n' + '    ng-if="expandedRows[$index + rowOffset]"\n' + '    ng-attr-colspan="{{ columns.length }}"\n' + '    ng-include="options.expandableTemplateUrl">\n' + '  </td>\n' + '</tr>\n' + '');
   }
 ]);
