@@ -370,8 +370,8 @@ angular.module('datatorrent.mlhrTable.controllers.MlhrTableController', [
     };
     $scope.calculateRowLimit = function () {
       var rowHeight = $scope.scrollDiv.find('.mlhr-table-rendered-rows tr').height();
-      $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight;
-      $scope.rowLimit = Math.ceil($scope.options.bodyHeight / rowHeight) + $scope.options.rowPadding * 2;
+      $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight || 20;
+      $scope.rowLimit = Math.ceil($scope.options.bodyHeight / $scope.rowHeight) + $scope.options.rowPadding * 2;
     };
   }
 ]);
@@ -737,11 +737,7 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableRows', [
         }
       };
       scope.$watch('searchTerms', updateHandler, true);
-      scope.$watchGroup([
-        'filterState.filterCount',
-        'rowOffset',
-        'rowLimit'
-      ], updateHandler);
+      scope.$watch('[filterState.filterCount,rowOffset,rowLimit]', updateHandler);
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
       scope.$watch('rows', updateHandler, true);
