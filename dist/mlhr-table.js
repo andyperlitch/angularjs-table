@@ -641,7 +641,11 @@ angular.module('datatorrent.mlhrTable.directives.mlhrTableCell', ['datatorrent.m
       } else if (column.ngFilter) {
         cellMarkup = '{{ row[column.key] | ' + column.ngFilter + '}}';
       } else if (column.format) {
-        cellMarkup = '{{ column.format(row[column.key], row, column) }}';
+        if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
+          cellMarkup = '{{ column.format(options.getter(column.key, row), row, column) }}';
+        } else {
+          cellMarkup = '{{ column.format(row[column.key], row, column) }}';
+        }
       } else if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
         cellMarkup = '{{ options.getter(column.key, row) }}';
       } else {
