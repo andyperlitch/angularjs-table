@@ -767,25 +767,24 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
       template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>',
       scope: true,
       link: function (scope, element) {
-        var index = scope.index = scope.$index + scope.rowOffset;
-        var expandPanel = element.next('tr.ap-mesa-expand-panel');
         scope.toggleRowExpand = function () {
+          var index = scope.$index + scope.rowOffset;
           scope.expandedRows[index] = !scope.expandedRows[index];
           $timeout(function () {
-            var newHeight = expandPanel.height();
-            if (newHeight === 0) {
+            if (!scope.expandedRows[index]) {
               delete scope.expandedRows[index];
             } else {
+              var newHeight = element.next('tr.ap-mesa-expand-panel').height();
               scope.expandedRows[index] = newHeight;
             }
           });
         };
         scope.$watch('rowOffset', function (rowOffset) {
-          index = scope.$index + scope.rowOffset;
+          var index = scope.$index + scope.rowOffset;
           scope.rowIsExpanded = !!scope.expandedRows[index];
         });
-        scope.$watch('expandedRows[index]', function () {
-          scope.rowIsExpanded = scope.expandedRows[index];
+        scope.$watch('expandedRows[$index + rowOffset]', function (isExpanded) {
+          scope.rowIsExpanded = !!isExpanded;
         });
       }
     };
