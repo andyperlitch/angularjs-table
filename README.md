@@ -1,7 +1,7 @@
 angular-mesa
 ====================
 
-A table component built with angular that is catered to real-time data.
+A table component built in angular. Handles large datasets by virtualizing rows.
 
 Feature List
 ------------
@@ -30,9 +30,9 @@ Getting Started
 - Instantiate table instances with a `<ap-mesa>` tag:
 
 ```HTML
-<ap-mesa 
-    options="options" 
-    columns="columns" 
+<ap-mesa
+    options="options"
+    columns="columns"
     rows="rows"
     table-class="table"
     selected="array_of_selected">
@@ -79,7 +79,7 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | loadingText        | `String`  | 'loading'   | String to show when data is loading                                                                                                  |
 | noRowsText         | `String`  | 'no rows'   | String to show when no rows are visible                                                                                              |
 | loadingTemplateUrl | `String`  | undefined   | Path to template for td when loading                                                                                                 |
-| loadingPromise     | `Object`  | undefined   | Promise object for table data loading.  Used to resolve loading state when data is available. | 
+| loadingPromise     | `Object`  | undefined   | Promise object for table data loading.  Used to resolve loading state when data is available. |
 | loadingErrorTemplateUrl  | `String`  | undefined   | Path to template for td when there is an error loading table data.                                                                              |
 | loadingErrorText   | `String`  | 'error loading results'   | String to show when loading fails                                                                                              |
 | noRowsTemplateUrl  | `String`  | undefined   | Path to template for td when there are no rows to show.                                                                              |
@@ -89,10 +89,25 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | bodyHeight         | `number`  | 300         | The pixel height for the body of the table. Note that unless `fixedHeight` is set to true, this will behave as a max-height.         |
 | fillHeight         | `boolean` | false       | If true, the table will fill the calculated height of the parent element. Note that this overrides `bodyHeight`. The table will listen for `'apMesa:resize'` events from the rootScope to recalculate the height. |
 | fixedHeight        | `boolean` | false       | If true, the table body will always have a height of `bodyHeight`, regardless of whether the rows fill up the vertical space.        |
-| onRegisterApi      | `function` | {}         | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc.              | 
+| onRegisterApi      | `function` | {}         | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc.              |
 | getter             | `function` | {}         | Customize the way to get column value. If not specified, get columen value by row[column.key]                                        |
 | expandableTemplateUrl | `String` | undefined | A template reference to be used for the expandable row feature. See *Expandable Rows* below. |
 
+The options object is also the correct place to pass arbitrary data to table cell templates because it will be available as `options` in the table cell template scope. For example, if you want a click in a cell to call a function that is
+otherwise out of the scope of the table, you can do this:
+
+```javscript
+scope.myTableOptions = {
+    myFunction: function() { console.log('hello'); }
+};
+scope.myTableColumns = [
+    {
+        id: 'foo',
+        key: 'foo',
+        template: '<a href ng-click="options.myFunction()">{{ row.foo }}</a>'
+    }
+];
+```
 
 ### Loading
 A common requirement for tables showing dynamically loaded data is to show loading feedback. There are several options pertaining to this: `loading`, `loadingText`, and `loadingTemplateUrl`.  To disable loading text, a promise object from data loading can be provided, so that `setLoading(false)` can be attached to `promise.then()`.  Optionally, `onRegisterApi` function can be specified, which provides direct access to `setLoading` and other table controller methods.  This function specifies a single argument, which is the api object provided by the table.  Example: `onRegisterApi: function(api) { $scope.tableAPI = api; }`.
@@ -129,7 +144,7 @@ The columns should be an array of Column Definition Objects. The order in which 
 | width        | `string` or `number`   | no       | 'auto'        | width of column, can include units, e.g. '30px'                                        |
 | lockWidth   | `boolean`              | no       | false         | If true, column will not be resizable.                                                 |
 | ngFilter     | `string`               | no       | undefined     | Name of a registered filter to use on row[column.key]                                  |
-| template     | `string`               | no       | undefined     | A string template for the cell contents                                                |
+| template     | `string`               | no       | undefined     | A string template for the cell contents. Scope variables available: row, column, options, toggleRowExpand, refreshExpandedHeight, rowIsExpanded |
 | templateUrl  | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                  |
 | title        | `string`               | no       | undefined     | A tooltip for a column header.                                                         |
 
@@ -142,10 +157,10 @@ The rows of the table can be sortable based on a column by setting the `sort` at
      * Defines sort function for ascending order.
      * @param {Object} rowA     First row being compared
      * @param {Object} rowB     Second row being compared
-     * @return {Number}         Result of comparison. 
+     * @return {Number}         Result of comparison.
      */
     function MySortFunction(rowA, rowB) {
-        // Assuming propertyKey is numeric, 
+        // Assuming propertyKey is numeric,
         // this would work as a number sorter:
         return rowA.propertyKey - rowB.propertyKey;
     }
@@ -186,7 +201,7 @@ There are several common filter functions that are built-in. Use them by passing
 
 | string | description |
 |--------|-------------|
-| like   | Search by simple substring, eg. "foo" matches "foobar" but not "fobar". Use "!" to exclude and "=" to match exact text, e.g. "!bar" or "=baz". | 
+| like   | Search by simple substring, eg. "foo" matches "foobar" but not "fobar". Use "!" to exclude and "=" to match exact text, e.g. "!bar" or "=baz". |
 | likeFormatted | Same as "like", but looks at formatted cell value instead of raw. |
 | number | Search by number, e.g. "123". Optionally use comparator expressions like ">=10" or "<1000". Use "~" for approx. int values, eg. "~3" will match "3.2". |
 | numberFormatted | Same as number, but looks at formatted cell value instead of raw |
@@ -223,9 +238,9 @@ There is a special type of column called a selector, which will render as a chec
             selector: true,
             width: '40px',           // Fixed width of 40px
             lockWidth: true,         // to keep it narrow
-            selectObject: true       // Optional: by default, selecting a row puts the value of 
+            selectObject: true       // Optional: by default, selecting a row puts the value of
                                      // row[idKeyOfObjects] into the selected array. If this option
-                                     // is set to true, the entire object will be placed into the 
+                                     // is set to true, the entire object will be placed into the
                                      // selected array.
         }
     ]
@@ -234,25 +249,30 @@ There is a special type of column called a selector, which will render as a chec
 Expandable Rows
 ---------------
 
-To use the expandable rows feature, you will need to specify a expandableTemplateUrl call `toggleRowExpand()` from a custom column template. For example, a column definition may look like: 
+To use the expandable rows feature, you will need to specify an `expandableTemplate` or `expandableTemplateUrl` and call `toggleRowExpand()` from a custom column template. For example, a column definition may look like:
 
 ```javascript
 $scope.tableOptions = {
-    expandableTemplateUrl: 'path/to/panel-template.html'
+    expandableTemplate: '<h3>Row Details:</h3> <pre>{{ row | json }}</pre>'
+    // expandableTemplateUrl: 'path/to/panel-template.html'
 };
-$scope.columns = [
+$scope.tableColumns = [
     {
         id: 'foo',
-        template: '<a href="" ng-click="toggleRowExpand()">CLICK TO EXPAND</a>'
+        key: 'foo',
+        template: '<a href="" ng-click="toggleRowExpand()">CLICK TO {{ rowIsExpanded ? 'COLLAPSE' : 'EXPAND' }}</a>'
     },
     ...
 ];
 ```
 
-There will also be a property on row scope called `rowIsExpanded` which is a boolean indicating if the row's panel is expanded.
+As shown above, there will also be a property on the row scope called `rowIsExpanded` which is a boolean indicating if the row's panel is expanded.
 It's also recommended to make the `rowPadding` option at least as large as the expected pixel height of the expanded panels.
 
 For a complete example, please check out `/app/scripts/controllers/expandable.js`.
+
+If the content of the panel is dynamic and changes height, there is a method in the row scope called `refreshExpandedHeight` which should
+be called when the height has changed.
 
 
 

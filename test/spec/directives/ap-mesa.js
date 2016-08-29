@@ -131,7 +131,7 @@ describe('Directive: apMesa', function () {
     expect(actual).to.equal(expected);
   });
 
-  it('should throw if no columns array was found on the scope', inject(function($rootScope) {
+  it('should not throw if no columns array was found on the scope', inject(function($rootScope) {
     var scope2 = $rootScope.$new();
     scope2.rows = [];
     var el2 = angular.element('<ap-mesa columns="nonexistent_columns" rows="rows" class="table"></ap-mesa>');
@@ -139,7 +139,7 @@ describe('Directive: apMesa', function () {
       el2 = compile(el2)(scope2);
       scope.$digest();
     };
-    expect(fn).to.throw();
+    expect(fn).not.to.throw();
   }));
 
   it('should allow an options object to be passed, and should use override default options', inject(function($rootScope) {

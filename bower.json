@@ -6,16 +6,16 @@
     "./dist/ap-mesa.css"
   ],
   "dependencies": {
-    "angular": "~1.3",
+    "angular": "^1.5.8",
     "jquery": "~2.0.3",
     "angular-sanitize": "~1.3",
     "angular-ui-sortable": "~0.13",
     "jquery-ui": ">=1.11.0"
   },
   "devDependencies": {
-    "angular-route": "~1.3",
+    "angular-route": "^1.5.8",
     "bootstrap": "~3.0.3",
-    "angular-mocks": "~1.3",
+    "angular-mocks": "^1.5.8",
     "mocha": "~1.18.2",
     "chai": "~1.9.1",
     "sinon": "~1.9.0",
@@ -30,6 +30,6 @@
     "**/.*"
   ],
   "resolutions": {
-    "angular": "1.3.0"
+    "angular": "1.5.8"
   }
 }

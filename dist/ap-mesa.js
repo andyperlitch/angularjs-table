@@ -123,6 +123,9 @@ angular.module('apMesa.controllers.ApMesaController', [
     };
     // Checks if columns have any filter fileds
     $scope.hasFilterFields = function () {
+      if (!$scope.columns) {
+        return false;
+      }
       for (var i = $scope.columns.length - 1; i >= 0; i--) {
         if (typeof $scope.columns[i].filter !== 'undefined') {
           return true;
@@ -416,7 +419,8 @@ angular.module('apMesa.controllers.ApMesaController', [
 angular.module('apMesa.directives.apMesa', [
   'apMesa.controllers.ApMesaController',
   'apMesa.directives.apMesaRows',
-  'apMesa.directives.apMesaDummyRows'
+  'apMesa.directives.apMesaDummyRows',
+  'apMesa.directives.apMesaExpandable'
 ]).directive('apMesa', [
   '$log',
   '$timeout',
@@ -467,20 +471,7 @@ angular.module('apMesa.directives.apMesa', [
       }
       return obj;
     }
-    function link(scope, element) {
-      // Prevent following user input objects from being modified by making deep copies of originals
-      scope.columns = angular.copy(scope._columns);
-      // Look for built-in filter, sort, and format functions
-      if (scope.columns instanceof Array) {
-        scope.setColumns(scope.columns);
-      } else {
-        throw new Error('"columns" array not found in apMesa scope!');
-      }
-      if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
-        if (typeof scope.options.getter !== 'function') {
-          throw new Error('"getter" in "options" should be a function!');
-        }
-      }
+    function resetState(scope) {
       // State of expanded rows
       scope.expandedRows = {};
       // Object that holds search terms
@@ -493,6 +484,14 @@ angular.module('apMesa.directives.apMesa', [
       // Offset and limit
       scope.rowOffset = 0;
       scope.rowLimit = 10;
+    }
+    function initOptions(scope) {
+      // Sanity check for getter
+      if (scope.options !== undefined && scope.options.hasOwnProperty('getter')) {
+        if (typeof scope.options.getter !== 'function') {
+          throw new Error('"getter" in "options" should be a function!');
+        }
+      }
       // Default Options, extend provided ones
       scope.options = scope.options || {};
       defaults(scope.options, {
@@ -515,38 +514,80 @@ angular.module('apMesa.directives.apMesa', [
         onRegisterApi: function (api) {
         }
       });
+      initSorts(scope);
+    }
+    function initSorts(scope) {
       // Look for initial sort order
       if (scope.options.initialSorts) {
         angular.forEach(scope.options.initialSorts, function (sort) {
           scope.addSort(sort.id, sort.dir);
         });
       }
-      // Check for localStorage persistence
-      if (scope.options.storage && scope.options.storageKey) {
-        // Set the storage object on the scope
-        scope.storage = scope.options.storage;
-        scope.storageKey = scope.options.storageKey;
-        // Try loading from storage
-        scope.loadFromStorage();
-        // Watch various things to save state
-        //  Save state on the following action:
-        //  - sort change
-        //  occurs in $scope.toggleSort
-        //  - column order change 
-        scope.$watchCollection('columns', scope.saveToStorage);
-        //  - search terms change
-        scope.$watchCollection('searchTerms', scope.saveToStorage);
-        //  - paging scheme
-        scope.$watch('options.pagingScheme', scope.saveToStorage);  //  - when column gets enabled or disabled
-                                                                    //  TODO
+    }
+    function resetColumns(scope) {
+      if (scope._columns && scope._columns.length) {
+        scope.columns = angular.copy(scope._columns);
+        scope.setColumns(scope.columns);
+        resetState(scope);
       }
-      if (scope.options.fillHeight) {
-        // calculate available space
-        scope.$on('apMesa:resize', function () {
-          scope.options.bodyHeight = element.parent().height() - element.find('.mesa-header-table').outerHeight(true);
-        });
-        scope.$emit('apMesa:resize');
-      }
+    }
+    function link(scope, element) {
+      var deregStorageWatchers = [];
+      resetColumns(scope);
+      scope.$watch('_columns', function (columns, oldColumns) {
+        if (columns !== oldColumns) {
+          resetColumns(scope);
+          initSorts(scope);
+        }
+      });
+      resetState(scope);
+      initOptions(scope);
+      scope.$watch('options', function (newOptions, oldOptions) {
+        if (newOptions === oldOptions) {
+          return;
+        }
+        resetState(scope);
+        initOptions(scope);
+      });
+      scope.$watch('options.storage', function (storage) {
+        if (storage) {
+          if (!scope.options.storageKey) {
+            throw new Error('apMesa: the storage option requires the storageKey option as well. See the README.');
+          }
+          // Set the storage object on the scope
+          scope.storage = scope.options.storage;
+          scope.storageKey = scope.options.storageKey;
+          // Try loading from storage
+          scope.loadFromStorage();
+          // Watch various things to save state
+          //  Save state on the following action:
+          //  - sort change
+          //  occurs in $scope.toggleSort
+          //  - column order change
+          deregStorageWatchers.push(scope.$watchCollection('columns', scope.saveToStorage));
+          //  - search terms change
+          deregStorageWatchers.push(scope.$watchCollection('searchTerms', scope.saveToStorage));
+          //  - paging scheme
+          deregStorageWatchers.push(scope.$watch('options.pagingScheme', scope.saveToStorage));
+        } else if (deregStorageWatchers.length) {
+          deregStorageWatchers.forEach(function (d) {
+            d();
+          });
+          deregStorageWatchers = [];
+        }
+      });
+      var fillHeightWatcher;
+      scope.$watch('options.fillHeight', function (fillHeight) {
+        if (fillHeight) {
+          // calculate available space
+          fillHeightWatcher = scope.$on('apMesa:resize', function () {
+            scope.options.bodyHeight = element.parent().height() - element.find('.mesa-header-table').outerHeight(true);
+          });
+          scope.$emit('apMesa:resize');
+        } else if (fillHeightWatcher) {
+          fillHeightWatcher();
+        }
+      });
       //  - row limit
       scope.$watch('options.bodyHeight', function () {
         scope.calculateRowLimit();
@@ -759,6 +800,30 @@ angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRo
     }
   };
 });
+// Source: dist/directives/apMesaExpandable.js
+angular.module('apMesa.directives.apMesaExpandable', []).directive('apMesaExpandable', [
+  '$compile',
+  function ($compile) {
+    return {
+      scope: false,
+      link: function (scope, element, attrs) {
+        scope.$watch('row', function () {
+          var innerEl;
+          if (scope.options.expandableTemplateUrl) {
+            innerEl = angular.element('<div ng-include="options.expandableTemplateUrl"></div>');
+          } else if (scope.options.expandableTemplate) {
+            innerEl = angular.element(scope.options.expandableTemplate);
+          } else {
+            return;
+          }
+          $compile(innerEl)(scope);
+          element.html('');
+          element.append(innerEl);
+        });
+      }
+    };
+  }
+]);
 // Source: dist/directives/apMesaRow.js
 angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).directive('apMesaRow', [
   '$timeout',
@@ -774,10 +839,14 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
             if (!scope.expandedRows[index]) {
               delete scope.expandedRows[index];
             } else {
-              var newHeight = element.next('tr.ap-mesa-expand-panel').height();
-              scope.expandedRows[index] = newHeight;
+              scope.refreshExpandedHeight();
             }
           });
+        };
+        scope.refreshExpandedHeight = function () {
+          var index = scope.$index + scope.rowOffset;
+          var newHeight = element.next('tr.ap-mesa-expand-panel').height();
+          scope.expandedRows[index] = newHeight;
         };
         scope.$watch('rowOffset', function (rowOffset) {
           var index = scope.$index + scope.rowOffset;
@@ -1301,6 +1370,6 @@ angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-show="expandedRows[$index + rowOffset]" class="ap-mesa-expand-panel">\n' + '  <td\n' + '    ng-if="expandedRows[$index + rowOffset]"\n' + '    ng-attr-colspan="{{ columns.length }}"\n' + '    ng-include="options.expandableTemplateUrl">\n' + '  </td>\n' + '</tr>\n' + '');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="expandedRows[$index + rowOffset]" class="ap-mesa-expand-panel">\n' + '  <td\n' + '    ng-if="expandedRows[$index + rowOffset]"\n' + '    ng-attr-colspan="{{ columns.length }}"\n' + '    ap-mesa-expandable>\n' + '  </td>\n' + '</tr>\n' + '');
   }
 ]);

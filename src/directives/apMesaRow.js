@@ -13,10 +13,14 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell'])
           if (!scope.expandedRows[index]) {
             delete scope.expandedRows[index];
           } else {
-            var newHeight = element.next('tr.ap-mesa-expand-panel').height();
-            scope.expandedRows[index] = newHeight;
+            scope.refreshExpandedHeight();
           }
         });
+      };
+      scope.refreshExpandedHeight = function() {
+        var index = scope.$index + scope.rowOffset;
+        var newHeight = element.next('tr.ap-mesa-expand-panel').height();
+        scope.expandedRows[index] = newHeight;
       };
       scope.$watch('rowOffset', function(rowOffset) {
         var index = scope.$index + scope.rowOffset;

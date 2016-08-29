@@ -99,6 +99,9 @@ angular.module('apMesa.controllers.ApMesaController', [
   };
   // Checks if columns have any filter fileds
   $scope.hasFilterFields = function() {
+    if (!$scope.columns) {
+      return false;
+    }
     for (var i = $scope.columns.length - 1; i >= 0; i--) {
       if (typeof $scope.columns[i].filter !== 'undefined') {
         return true;
