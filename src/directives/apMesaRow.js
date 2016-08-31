@@ -3,7 +3,7 @@
 angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell'])
 .directive('apMesaRow', function($timeout) {
   return {
-    template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>',
+    template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell col-{{column.id}}" ap-mesa-cell></td>',
     scope: true,
     link: function(scope, element) {
       scope.toggleRowExpand = function() {

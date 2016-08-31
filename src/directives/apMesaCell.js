@@ -22,31 +22,32 @@ angular.module('apMesa.directives.apMesaCell', [
 .directive('apMesaCell', function($compile) {
 
   function link(scope, element) {
-    var column = scope.column;
-    var cellMarkup = '';
-    if (column.template) {
-      cellMarkup = column.template;
-    }
-    else if (column.templateUrl) {
-      cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
-    }
-    else if (column.selector === true) {
-      cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" ap-mesa-selector class="ap-mesa-selector" />';
-    }
-    else if (column.ngFilter) {
-      cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
-    }
-    else if (column.format) {
-      cellMarkup = '{{ column.format(row[column.key], row, column) }}';
-    }
-    else if(scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
-      cellMarkup = '{{ options.getter(column.key, row) }}';
-    }
-    else {
-      cellMarkup = '{{ row[column.key] }}';
-    }
-    element.html(cellMarkup);
-    $compile(element.contents())(scope);
+    scope.$watch('column', function(column) {
+      var cellMarkup = '';
+      if (column.template) {
+        cellMarkup = column.template;
+      }
+      else if (column.templateUrl) {
+        cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
+      }
+      else if (column.selector === true) {
+        cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" ap-mesa-selector class="ap-mesa-selector" />';
+      }
+      else if (column.ngFilter) {
+        cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
+      }
+      else if (column.format) {
+        cellMarkup = '{{ column.format(row[column.key], row, column) }}';
+      }
+      else if(scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
+        cellMarkup = '{{ options.getter(column.key, row) }}';
+      }
+      else {
+        cellMarkup = '{{ row[column.key] }}';
+      }
+      element.html(cellMarkup);
+      $compile(element.contents())(scope);
+    });
   }
 
   return {

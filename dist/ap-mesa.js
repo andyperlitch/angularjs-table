@@ -732,25 +732,26 @@ angular.module('apMesa.directives.apMesaCell', ['apMesa.directives.apMesaSelecto
   '$compile',
   function ($compile) {
     function link(scope, element) {
-      var column = scope.column;
-      var cellMarkup = '';
-      if (column.template) {
-        cellMarkup = column.template;
-      } else if (column.templateUrl) {
-        cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
-      } else if (column.selector === true) {
-        cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" ap-mesa-selector class="ap-mesa-selector" />';
-      } else if (column.ngFilter) {
-        cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
-      } else if (column.format) {
-        cellMarkup = '{{ column.format(row[column.key], row, column) }}';
-      } else if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
-        cellMarkup = '{{ options.getter(column.key, row) }}';
-      } else {
-        cellMarkup = '{{ row[column.key] }}';
-      }
-      element.html(cellMarkup);
-      $compile(element.contents())(scope);
+      scope.$watch('column', function (column) {
+        var cellMarkup = '';
+        if (column.template) {
+          cellMarkup = column.template;
+        } else if (column.templateUrl) {
+          cellMarkup = '<div ng-include="\'' + column.templateUrl + '\'"></div>';
+        } else if (column.selector === true) {
+          cellMarkup = '<input type="checkbox" ng-checked="selected.indexOf(column.selectObject ? row : row[column.key]) >= 0" ap-mesa-selector class="ap-mesa-selector" />';
+        } else if (column.ngFilter) {
+          cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
+        } else if (column.format) {
+          cellMarkup = '{{ column.format(row[column.key], row, column) }}';
+        } else if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
+          cellMarkup = '{{ options.getter(column.key, row) }}';
+        } else {
+          cellMarkup = '{{ row[column.key] }}';
+        }
+        element.html(cellMarkup);
+        $compile(element.contents())(scope);
+      });
     }
     return {
       scope: true,
@@ -829,7 +830,7 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
   '$timeout',
   function ($timeout) {
     return {
-      template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell" ap-mesa-cell></td>',
+      template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell col-{{column.id}}" ap-mesa-cell></td>',
       scope: true,
       link: function (scope, element) {
         scope.toggleRowExpand = function () {
