@@ -49,6 +49,11 @@ angular.module('apMesa.directives.apMesaRows',[
     // | limitTo:rowLimit
     visible_rows = limitTo(visible_rows, scope.rowLimit + Math.ceil(scope.rowOffset % 1));
 
+    var idx = scope.rowOffset;
+    visible_rows.forEach(function(row) {
+      row.$$$index = idx++;
+    });
+
     return visible_rows;
   }
 
@@ -84,7 +89,7 @@ angular.module('apMesa.directives.apMesaRows',[
     compile: function(tElement, tAttrs) {
       var tr = tElement.find('tr[ng-repeat-start]');
       var repeatString = tr.attr('ng-repeat-start');
-      repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by $index';
+      repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by row.$$$index';
       tr.attr('ng-repeat-start', repeatString);
       return link;
     }
