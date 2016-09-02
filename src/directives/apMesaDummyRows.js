@@ -36,7 +36,7 @@ angular.module('apMesa.directives.apMesaDummyRows', [])
         for (var k in scope.expandedRows) {
           var kInt = parseInt(k);
           if (kInt >= offsetRange[0] && kInt < offsetRange[1]) {
-            rowsHeight += scope.expandedRows[k];
+            rowsHeight += scope.expandedRowHeights[k];
           }
         }
         scope.dummyRowHeight = rowsHeight;

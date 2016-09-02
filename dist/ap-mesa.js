@@ -474,6 +474,7 @@ angular.module('apMesa.directives.apMesa', [
     function resetState(scope) {
       // State of expanded rows
       scope.expandedRows = {};
+      scope.expandedRowHeights = {};
       // Object that holds search terms
       scope.searchTerms = {};
       // Array and Object for sort order+direction
@@ -645,7 +646,7 @@ angular.module('apMesa.directives.apMesa', [
             // otherwise add it to the running total
             runningTotalScroll += rowsHeight;
             // the pixels that this row's expanded panel displaces
-            var expandedPixels = scope.expandedRows[expandedOffset];
+            var expandedPixels = scope.expandedRowHeights[expandedOffset];
             runningTotalScroll += expandedPixels;
             rowOffset = expandedOffset;
             // Check if the expanded panel put us over the edge
@@ -793,7 +794,7 @@ angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRo
         for (var k in scope.expandedRows) {
           var kInt = parseInt(k);
           if (kInt >= offsetRange[0] && kInt < offsetRange[1]) {
-            rowsHeight += scope.expandedRows[k];
+            rowsHeight += scope.expandedRowHeights[k];
           }
         }
         scope.dummyRowHeight = rowsHeight;
@@ -831,7 +832,7 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
   function ($timeout) {
     return {
       template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell col-{{column.id}}" ap-mesa-cell></td>',
-      scope: true,
+      scope: false,
       link: function (scope, element) {
         scope.toggleRowExpand = function () {
           var index = scope.$index + scope.rowOffset;
@@ -839,6 +840,7 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
           $timeout(function () {
             if (!scope.expandedRows[index]) {
               delete scope.expandedRows[index];
+              delete scope.expandedRowHeights[index];
             } else {
               scope.refreshExpandedHeight();
             }
@@ -847,11 +849,10 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
         scope.refreshExpandedHeight = function () {
           var index = scope.$index + scope.rowOffset;
           var newHeight = element.next('tr.ap-mesa-expand-panel').height();
-          scope.expandedRows[index] = newHeight;
+          scope.expandedRowHeights[index] = newHeight;
         };
         scope.$watch('rowOffset', function (rowOffset) {
-          var index = scope.$index + scope.rowOffset;
-          scope.rowIsExpanded = !!scope.expandedRows[index];
+          var index = scope.$index + scope.rowOffset;  // scope.rowIsExpanded = !!scope.expandedRows[index];
         });
         scope.$watch('expandedRows[$index + rowOffset]', function (isExpanded) {
           scope.rowIsExpanded = !!isExpanded;
@@ -1371,6 +1372,6 @@ angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="expandedRows[$index + rowOffset]" class="ap-mesa-expand-panel">\n' + '  <td\n' + '    ng-if="expandedRows[$index + rowOffset]"\n' + '    ng-attr-colspan="{{ columns.length }}"\n' + '    ap-mesa-expandable>\n' + '  </td>\n' + '</tr>\n' + '');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-show="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td\n' + '    ng-if="rowIsExpanded"\n' + '    ng-attr-colspan="{{ columns.length }}"\n' + '    ap-mesa-expandable>\n' + '  </td>\n' + '</tr>\n' + '');
   }
 ]);

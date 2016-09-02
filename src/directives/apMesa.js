@@ -78,6 +78,7 @@ angular.module('apMesa.directives.apMesa', [
   function resetState(scope) {
     // State of expanded rows
     scope.expandedRows = {};
+    scope.expandedRowHeights = {};
 
     // Object that holds search terms
     scope.searchTerms = {};
@@ -278,7 +279,7 @@ angular.module('apMesa.directives.apMesa', [
         runningTotalScroll += rowsHeight;
 
         // the pixels that this row's expanded panel displaces
-        var expandedPixels = scope.expandedRows[expandedOffset];
+        var expandedPixels = scope.expandedRowHeights[expandedOffset];
         runningTotalScroll += expandedPixels;
         rowOffset = expandedOffset;
 
