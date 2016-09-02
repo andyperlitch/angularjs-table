@@ -485,6 +485,7 @@ angular.module('apMesa.directives.apMesa', [
       // Offset and limit
       scope.rowOffset = 0;
       scope.rowLimit = 10;
+      scope.$broadcast('apMesa:stateReset');
     }
     function initOptions(scope) {
       // Sanity check for getter
@@ -834,9 +835,10 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
       template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell col-{{column.id}}" ap-mesa-cell></td>',
       scope: false,
       link: function (scope, element) {
+        var index = scope.$index + scope.rowOffset;
+        scope.rowIsExpanded = !!scope.expandedRows[index];
         scope.toggleRowExpand = function () {
-          var index = scope.$index + scope.rowOffset;
-          scope.expandedRows[index] = !scope.expandedRows[index];
+          scope.expandedRows[index] = scope.rowIsExpanded = !scope.expandedRows[index];
           $timeout(function () {
             if (!scope.expandedRows[index]) {
               delete scope.expandedRows[index];
@@ -847,15 +849,13 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
           });
         };
         scope.refreshExpandedHeight = function () {
-          var index = scope.$index + scope.rowOffset;
           var newHeight = element.next('tr.ap-mesa-expand-panel').height();
           scope.expandedRowHeights[index] = newHeight;
         };
-        scope.$watch('rowOffset', function (rowOffset) {
-          var index = scope.$index + scope.rowOffset;  // scope.rowIsExpanded = !!scope.expandedRows[index];
-        });
-        scope.$watch('expandedRows[$index + rowOffset]', function (isExpanded) {
-          scope.rowIsExpanded = !!isExpanded;
+        scope.$watch('expandedRows', function (nv, ov) {
+          if (nv !== ov) {
+            scope.rowIsExpanded = false;
+          }
         });
       }
     };
@@ -1376,6 +1376,6 @@ angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-show="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td\n' + '    ng-if="rowIsExpanded"\n' + '    ng-attr-colspan="{{ columns.length }}"\n' + '    ap-mesa-expandable>\n' + '  </td>\n' + '</tr>\n' + '');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
   }
 ]);

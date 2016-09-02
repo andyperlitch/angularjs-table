@@ -95,6 +95,8 @@ angular.module('apMesa.directives.apMesa', [
     // Offset and limit
     scope.rowOffset = 0;
     scope.rowLimit = 10;
+
+    scope.$broadcast('apMesa:stateReset');
   }
 
   function initOptions(scope) {
