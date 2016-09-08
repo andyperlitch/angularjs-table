@@ -156,7 +156,7 @@ angular.module('apMesa.directives.apMesa', [
     var deregStorageWatchers = [];
     resetColumns(scope);
     scope.$watch('_columns', function(columns, oldColumns) {
-      if (columns !== oldColumns) {
+      if (columns !== scope.columns) {
         resetColumns(scope);
         initSorts(scope);
       }
@@ -165,9 +165,6 @@ angular.module('apMesa.directives.apMesa', [
     resetState(scope);
     initOptions(scope);
     scope.$watch('options', function(newOptions, oldOptions) {
-      if (newOptions === oldOptions) {
-        return;
-      }
       resetState(scope);
       initOptions(scope);
     });

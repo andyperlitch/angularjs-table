@@ -48,7 +48,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     var selectObject = null;
     // Search for selector key in selector column
     for (var i=0; i< columns.length; i++) {
-      if (columns[i].selector) { 
+      if (columns[i].selector) {
         selectorKey = columns[i].key;
         selectObject = columns[i].selectObject;
         break;
@@ -60,7 +60,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     }
     //select key or entire object from all rows
     for ( var i = 0; i < rows.length; i++) {
-      $scope.selected.push(selectObject ? rows[i] : rows[i][selectorKey]); 
+      $scope.selected.push(selectObject ? rows[i] : rows[i][selectorKey]);
     }
   };
 
@@ -151,7 +151,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       else {
         $scope.addSort(column.id, '+');
       }
-      
+
     }
 
     $scope.saveToStorage();
@@ -186,8 +186,8 @@ angular.module('apMesa.controllers.ApMesaController', [
               $log.warn('format function reference in column(id=' + column.id + ') ' +
                     'was not found in built-in format functions or $filters. ' +
                     'format function given: "' + format + '". ' +
-                    'Available built-ins: ' + Object.keys(formats).join(',') + '. ' + 
-                    'If you supplied a $filter, ensure it is available on this module');  
+                    'Available built-ins: ' + Object.keys(formats).join(',') + '. ' +
+                    'If you supplied a $filter, ensure it is available on this module');
             }
 
           }
@@ -231,7 +231,7 @@ angular.module('apMesa.controllers.ApMesaController', [
           }
         } else {
           delete column.filter;
-        } 
+        }
       }
     });
   };
@@ -264,7 +264,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       var current_x = e.pageX;
       var diff = current_x - initial_x;
       new_width = initial_width + diff;
-      
+
       // update marquee dimensions
       $m.css('width', new_width + 'px');
     }
@@ -283,7 +283,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       // remove marquee, remove window mousemove listener
       $m.remove();
       $($window).off('mousemove', mousemove);
-      
+
       // set new width on th
       // if a new width was set
       if (new_width === false) {
@@ -291,7 +291,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       } else {
         column.width = Math.max(new_width, 0);
       }
-      
+
       $scope.$apply();
     });
   };
