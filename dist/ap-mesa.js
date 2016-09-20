@@ -484,7 +484,6 @@ angular.module('apMesa.directives.apMesa', [
       scope.filterState = { filterCount: scope.rows ? scope.rows.length : 0 };
       // Offset and limit
       scope.rowOffset = 0;
-      scope.rowLimit = 10;
       scope.$broadcast('apMesa:stateReset');
     }
     function initOptions(scope) {
