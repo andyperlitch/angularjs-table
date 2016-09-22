@@ -12,12 +12,12 @@
         >
           <span class="column-text">
             <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />
-            {{column.hasOwnProperty('label') ? column.label : column.id }}
             <span
               ng-if="column.sort"
               title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."
               class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"
             ></span>
+            {{column.hasOwnProperty('label') ? column.label : column.id }}
           </span>
           <span
             ng-if="!column.lockWidth"
