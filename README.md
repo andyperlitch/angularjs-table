@@ -128,6 +128,19 @@ An advantage of providing an options object is that apMesa decorates it with a f
 #### `options.scrollingPromise`
 When the user is scrolling, this property will be a promise that gets resolved when the user has stopped scrolling. If the user is not scrolling, this will have a value of `null`. This can be useful if the table has a lot of columns and you want to optimize performance by deferring updates to when the user stops scrolling.
 
+### Setting Default Options with apMesaProvider
+A common use-case is to set default options for all tables in a given project. This can be achieved using the `apMesa` service provider. Add the following to a config block in your project:
+
+```js
+angular
+  .module('myApp')
+  .config(function(apMesaProvider) {
+    apMesaProvider.setDefaultOptions({
+      sortClasses: ['glyphicon glyphicon-sort', 'glyphicon glyphicon-sort-by-attributes', 'glyphicon glyphicon-sort-by-attributes-alt'],
+      defaultRowHeight: 45
+    });
+  });
+```
 
 Column Definitions
 -----------------
