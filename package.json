@@ -3,6 +3,8 @@
   "version": "2.6.1",
   "license": "Apache License, v2.0",
   "dependencies": {},
+  "main": "dist/ap-mesa.js",
+  "style": "dist/ap-mesa.css",
   "devDependencies": {
     "chai": "^1.9.1",
     "grunt": "~0.4.1",
