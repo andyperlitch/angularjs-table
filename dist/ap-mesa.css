@@ -26,6 +26,7 @@
 
 .mesa-rows-table thead {
   height: 0;
+  visibility: hidden;
 }
 
 .mesa-rows-table > thead > tr > th {

@@ -21,6 +21,7 @@
 /* the invisible table header; used for correct column widths */
 .mesa-rows-table thead {
   height: 0;
+  visibility: hidden;
 }
 .mesa-rows-table > thead > tr > th{
   border-width: 0;
