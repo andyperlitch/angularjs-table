@@ -879,7 +879,8 @@ angular.module('apMesa.directives.apMesaRows', [
   'apMesa.filters.apMesaRowSorter'
 ]).directive('apMesaRows', [
   '$filter',
-  function ($filter) {
+  '$timeout',
+  function ($filter, $timeout) {
     var tableRowFilter = $filter('apMesaRowFilter');
     var tableRowSorter = $filter('apMesaRowSorter');
     var limitTo = $filter('limitTo');
@@ -924,7 +925,9 @@ angular.module('apMesa.directives.apMesaRows', [
       scope.$watch('sortOrder', updateHandler, true);
       scope.$watch('sortDirection', updateHandler, true);
       scope.$watch('rows', updateHandler);
-      updateHandler(true, false);
+      $timeout(function () {
+        updateHandler(true, false);
+      });
     }
     return {
       restrict: 'A',

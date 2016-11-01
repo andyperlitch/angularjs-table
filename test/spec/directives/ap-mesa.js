@@ -27,7 +27,7 @@ describe('Directive: apMesa', function () {
     $provide.value('$log', mockLog);
   }));
 
-  beforeEach(inject(function ($compile, $rootScope) {
+  beforeEach(inject(function ($compile, $rootScope, $timeout) {
     // Format functions
     function inches2feet(inches){
       var feet = Math.floor(inches/12);
@@ -92,6 +92,7 @@ describe('Directive: apMesa', function () {
       element = compile(element)(scope);
       scope.$digest();
       isoScope = element.isolateScope();
+      $timeout.flush();
     };
 
     createElement();
