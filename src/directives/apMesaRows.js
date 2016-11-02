@@ -79,10 +79,12 @@ angular.module('apMesa.directives.apMesaRows',[
     scope.$watch('filterState.filterCount', updateHandler);
     scope.$watch('sortOrder', updateHandler, true);
     scope.$watch('sortDirection', updateHandler, true);
-    scope.$watch('rows', updateHandler);
-    $timeout(function() {
-      updateHandler(true, false);
+    scope.$watch('rows', function(newRows) {
+      if (angular.isArray(newRows)) {
+        updateHandler(true, false);
+      }
     });
+    updateHandler(true, false);
   }
 
   return {
