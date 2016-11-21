@@ -107,8 +107,6 @@ declare namespace angular.apMesa {
     getter?:  (key: string, row: any) => string;
     //  undefined  A template reference to be used for the expandable row feature. See Expandable Rows below.
     expandableTemplateUrl?:  string;
-    // any additional arbitrary data
-    [key: string]: any;
   }
   interface IRowScope extends ng.IScope {
     toggleRowExpand: Function;
