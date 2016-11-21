@@ -741,7 +741,8 @@ angular.module('apMesa.directives.apMesaCell', ['apMesa.directives.apMesaSelecto
         } else if (column.ngFilter) {
           cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
         } else if (column.format) {
-          cellMarkup = '{{ column.format(row[column.key], row, column) }}';
+          var valueExpr = scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter') ? 'options.getter(column.key, row)' : 'row[column.key]';
+          cellMarkup = '{{ column.format(' + valueExpr + ', row, column, options) }}';
         } else if (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
           cellMarkup = '{{ options.getter(column.key, row) }}';
         } else {
@@ -1036,8 +1037,8 @@ angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterF
             var filter = col.filter;
             var term = searchTerms[col.id];
             var value = options !== undefined && {}.hasOwnProperty.call(options, 'getter') ? options.getter(col.key, row) : row[col.key];
-            var computedValue = typeof col.format === 'function' ? col.format(value, row, col) : value;
-            if (!filter(term, value, computedValue, row)) {
+            var computedValue = typeof col.format === 'function' ? col.format(value, row, col, options) : value;
+            if (!filter(term, value, computedValue, row, col, options)) {
               return false;
             }
           }

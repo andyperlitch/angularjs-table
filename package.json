@@ -3,6 +3,7 @@
   "version": "2.6.5",
   "license": "Apache License, v2.0",
   "dependencies": {},
+  "types": "./angular-mesa.d.ts",
   "main": "dist/ap-mesa.js",
   "style": "dist/ap-mesa.css",
   "devDependencies": {

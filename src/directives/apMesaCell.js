@@ -37,9 +37,11 @@ angular.module('apMesa.directives.apMesaCell', [
         cellMarkup = '{{ row[column.key] | ' + column.ngFilter + ':row }}';
       }
       else if (column.format) {
-        cellMarkup = '{{ column.format(row[column.key], row, column) }}';
+        var valueExpr = (scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) ? 'options.getter(column.key, row)' : 'row[column.key]';
+        cellMarkup = '{{ column.format(' + valueExpr + ', row, column, options) }}';
       }
       else if(scope.options !== undefined && {}.hasOwnProperty.call(scope.options, 'getter')) {
+
         cellMarkup = '{{ options.getter(column.key, row) }}';
       }
       else {
