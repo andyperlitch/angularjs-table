@@ -92,6 +92,11 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | onRegisterApi      | `function` | {}         | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc.              |
 | getter             | `function` | {}         | Customize the way to get column value. If not specified, get columen value by row[column.key]                                        |
 | expandableTemplateUrl | `String` | undefined | A template reference to be used for the expandable row feature. See *Expandable Rows* below. |
+| pagingStrategy | 'PAGINATE' | 'SCROLL' | 'NONE' | 'SCROLL' | Sets the paging strategy. See paging strategies below. |
+| rowsPerPage | `number` | 10 | The number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE` |
+| rowsPerPageChoices | `number[]` | [10, 25, 50, 100] | The choices for number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE` |
+| showRowsPerPageCtrls | `boolean` | true | Whether or not to show the control for rows-per-page. Only applicable when `pagingStrategy` is `PAGINATE` |
+| maxPageLinks | `number` | 8 | Number of page links to display when paginating. |
 
 The options object is also the correct place to pass arbitrary data to table cell templates because it will be available as `options` in the table cell template scope. For example, if you want a click in a cell to call a function that is
 otherwise out of the scope of the table, you can do this:
@@ -287,6 +292,20 @@ For a complete example, please check out `/app/scripts/controllers/expandable.js
 If the content of the panel is dynamic and changes height, there is a method in the row scope called `refreshExpandedHeight` which should
 be called when the height has changed.
 
+
+
+Paging Strategies
+-----------------
+
+You can specify the paging strategy as `'PAGINATE'`, `'SCROLL'`, or `'NONE'`.
+
+### SCROLL (default)
+
+The default paging strategy is a scrollable table body with height defined by the `tableHeight`, `fillHeight`, and `fixedHeight` options.
+
+### PAGINATE
+
+This strategy will render the table as pages instead of an endlessly scrolling `tbody`. The `tableHeight`, `fillHeight`, and `fixedHeight` options will NOT be honored
 
 
 Browser Support

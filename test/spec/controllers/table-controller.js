@@ -34,23 +34,18 @@ describe('Controller: TableController', function() {
     };
     mockWindow = angular.element('<div></div')[0];
 
-    // Object that holds search terms
-    $scope.searchTerms = {};
-
-    // Array and Object for sort order+direction
-    $scope.sortOrder = [];
-    $scope.sortDirection = {};
+    $scope.persistentState = {
+      sortOrder: [],
+      searchTerms: {}
+    };
 
     // Holds filtered rows count
-    $scope.filterState = {
+    $scope.transientState = {
       filterCount: $scope.rows.length
     };
 
     // Default Options, extend provided ones
     $scope.options = angular.extend({}, {
-      rowLimit: 50,
-      rowOffset: 0,
-      pagingScheme: 'scroll',
       sortClasses: [
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
@@ -75,8 +70,8 @@ describe('Controller: TableController', function() {
       $window: mockWindow,
       $filter: function(arg){
         if (arg === 'apMesaRowFilter') {
-          return function(rows,columns,searchTerms,filterState) {
-            return searchTerms.first_name === 'John' ? rows.slice(1,2) : rows;
+          return function(rows,columns,persistentState,transientState) {
+            return persistentState.searchTerms.first_name === 'John' ? rows.slice(1,2) : rows;
           };
         } else {
           return $filter(arg);
@@ -117,8 +112,8 @@ describe('Controller: TableController', function() {
     });
 
     it('should return filtered array if $scope.rows has filter applied', function() {
-      $scope.searchTerms = {first_name: 'John'};
-      $scope.filterState = {filterCount: 2};
+      $scope.persistentState.searchTerms = {first_name: 'John'};
+      $scope.transientState = {filterCount: 2};
       expect($scope.getSelectableRows()).to.deep.equal($scope.rows.slice(1,2));
     });
 
@@ -257,23 +252,21 @@ describe('Controller: TableController', function() {
 
   describe('method: addSort', function() {
 
-    it('should add the column id to $scope.sortOrder and sort direction to $scope.sortDirection', function() {
+    it('should add the column id to $scope.persistentState.sortOrder and sort direction to $scope.sortDirection', function() {
       $scope.addSort('myId', '+');
-      expect($scope.sortOrder).to.contain('myId');
-      expect($scope.sortDirection.myId).to.equal('+');
+      expect($scope.persistentState.sortOrder).to.contain({id: 'myId', dir: '+'});
     });
 
     it('should only add the direction to sortDirection if it already exists in the sortOrder array', function() {
-      $scope.sortOrder = ['myId'];
-      $scope.sortDirection.myId = '+';
+      $scope.persistentState.sortOrder = [{id: 'myId', dir: '+'}];
       $scope.addSort('myId', '-');
-      expect($scope.sortDirection.myId).to.equal('-');
+      expect($scope.persistentState.sortOrder[0].dir).to.equal('-');
     });
 
     it('should add the id to the end of the sortOrder array', function() {
-      $scope.sortOrder = ['otherId'];
+      $scope.persistentState.sortOrder = [{id: 'otherId', dir: '+'}];
       $scope.addSort('myId', '+');
-      expect($scope.sortOrder).to.eql(['otherId', 'myId']);
+      expect($scope.persistentState.sortOrder.map(function(i) { return i.id; })).to.eql(['otherId', 'myId']);
     });
 
   });
@@ -281,17 +274,9 @@ describe('Controller: TableController', function() {
   describe('method: removeSort', function() {
 
     it('should remove the id from the sortOrder array and delete it from sortDirection', function() {
-      $scope.sortOrder = ['myId'];
-      $scope.sortDirection.myId = '+';
+      $scope.persistentState.sortOrder = [{id: 'myId', dir: '+'}];
       $scope.removeSort('myId');
-      expect($scope.sortOrder).not.to.contain('myId');
-      expect($scope.sortDirection.myId).to.equal(undefined);
-    });
-
-    it('should only delete the sortDirection key if nothing is found in sortOrder', function() {
-      $scope.sortDirection.myId = '+';
-      $scope.removeSort('myId');
-      expect($scope.sortDirection.myId).to.equal(undefined);
+      expect($scope.persistentState.sortOrder.map(function(i) { return i.id; })).not.to.contain('myId');
     });
 
   });
@@ -299,11 +284,9 @@ describe('Controller: TableController', function() {
   describe('method: clearSort', function() {
 
     it('should clear sortOrder and sortDirection', function() {
-      $scope.sortOrder = ['testing'];
-      $scope.sortDirection = {'testing': '+'};
+      $scope.persistentState.sortOrder = [{id: 'testing', dir: '+'}];
       $scope.clearSort();
-      expect($scope.sortOrder).to.eql([]);
-      expect($scope.sortDirection).to.eql({});
+      expect($scope.persistentState.sortOrder).to.eql([]);
     });
 
   });
@@ -364,34 +347,25 @@ describe('Controller: TableController', function() {
 
       it('should add the column to sortOrder and sortDirection as "+" if it was not being sorted', function() {
         $scope.toggleSort( $event, col1 );
-        expect($scope.sortOrder).to.eql(['k1']);
-        expect($scope.sortDirection.k1).to.equal('+');
+        expect($scope.persistentState.sortOrder).to.eql([{id: 'k1', dir: '+'}]);
       });
 
       it('should set sortDirection[column.id] to "-" if "+" is the current value', function() {
-        $scope.sortOrder = ['k1'];
-        $scope.sortDirection.k1 = '+';
+        $scope.persistentState.sortOrder = [{id: 'k1', dir: '+'}];
         $scope.toggleSort( $event, col1 );
-        expect($scope.sortOrder).to.eql(['k1']);
-        expect($scope.sortDirection.k1).to.equal('-');
+        expect($scope.persistentState.sortOrder).to.eql([{id: 'k1', dir: '-'}]);
       });
 
       it('should clear out sortDirection[column.id] attribute on all other columns', function() {
-        $scope.sortOrder = ['k1','k3'];
-        $scope.sortDirection.k1 = '+';
-        $scope.sortDirection.k3 = '-';
+        $scope.persistentState.sortOrder = [{ id: 'k1', dir: '+' },{ id: 'k3', dir: '-' }];
         $scope.toggleSort( $event, col2 );
-
-        expect($scope.sortOrder).to.eql(['k2']);
-        expect($scope.sortDirection.k2).to.equal('+');
-        expect($scope.sortDirection).not.to.have.property('k1');
-        expect($scope.sortDirection).not.to.have.property('k3');
+        expect($scope.persistentState.sortOrder).to.eql([{id: 'k2', dir: '+'}]);
       });
 
       it('should do nothing if the column has no "sort" attribute', function() {
         delete col1.sort;
         $scope.toggleSort($event, col1);
-        expect($scope.sortOrder).not.to.include('k1');
+        expect($scope.persistentState.sortOrder.map(function(i) { return i.id; })).not.to.include('k1');
       });
 
     });
@@ -407,11 +381,11 @@ describe('Controller: TableController', function() {
       it('should do nothing if the column has no "sort" attribute', function() {
         delete col1.sort;
         $scope.toggleSort($event, col1);
-        expect($scope.sortDirection).not.to.have.property('k1');
+        expect($scope.persistentState.sortOrder).to.eql([]);
       });
 
       it('should not clear out sorting on all other columns', function() {
-        $scope.sortOrder = ['k1','k2'];
+        $scope.persistentState.sortOrder = ['k1','k2'];
         $scope.sortDirection = { k1: '-', k2: '+' };
         $scope.toggleSort($event, col3);
         expect($scope.sortDirection.k1).to.equal('-');
@@ -420,16 +394,13 @@ describe('Controller: TableController', function() {
 
       it('should toggle sorting of column between three states: "+", "-", undefined', function() {
         $scope.toggleSort($event, col1);
-        expect($scope.sortDirection.k1).to.equal('+');
-        expect($scope.sortOrder.indexOf('k1')).to.not.equal(-1);
+        expect($scope.persistentState.sortOrder.map(function(i) { return i.id; }).indexOf('k1')).to.not.equal(-1);
 
         $scope.toggleSort($event, col1);
-        expect($scope.sortDirection.k1).to.equal('-');
-        expect($scope.sortOrder.indexOf('k1')).to.not.equal(-1);
+        expect($scope.persistentState.sortOrder.map(function(i) { return i.id; }).indexOf('k1')).to.not.equal(-1);
 
         $scope.toggleSort($event, col1);
-        expect($scope.sortDirection.k1).to.equal(undefined);
-        expect($scope.sortOrder.indexOf('k1')).to.equal(-1);
+        expect($scope.persistentState.sortOrder.map(function(i) { return i.id; }).indexOf('k1')).to.equal(-1);
       });
 
     });

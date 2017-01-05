@@ -27,7 +27,7 @@ angular.module('apMesa.controllers.ApMesaController', [
   // SCOPE FUNCTIONS
   $scope.getSelectableRows = function() {
     var tableRowFilter = $filter('apMesaRowFilter');
-    return angular.isArray($scope.rows) ? tableRowFilter($scope.rows, $scope.columns, $scope.searchTerms, $scope.filterState) : [];
+    return angular.isArray($scope.rows) ? tableRowFilter($scope.rows, $scope.columns, $scope.persistentState, $scope.transientState) : [];
   };
 
   $scope.isSelectedAll = function() {
@@ -79,23 +79,41 @@ angular.module('apMesa.controllers.ApMesaController', [
     }
   };
 
-  $scope.addSort = function(id, dir) {
-    var idx = $scope.sortOrder.indexOf(id);
-    if (idx === -1) {
-      $scope.sortOrder.push(id);
+  function findSortItemIndex(id) {
+    var sortLen = $scope.persistentState.sortOrder.length;
+    for (var i = 0; i < sortLen; i++) {
+      if ($scope.persistentState.sortOrder[i].id === id) {
+        return i;
+      }
     }
-    $scope.sortDirection[id] = dir;
+  }
+
+  function findSortItem(id) {
+    var index = findSortItemIndex(id);
+    if (index > -1) {
+      return $scope.persistentState.sortOrder[index];
+    }
+  }
+
+  $scope.addSort = function(id, dir) {
+    var sortItem = findSortItem(id);
+    if (sortItem) {
+      sortItem.dir = dir;
+    } else {
+      $scope.persistentState.sortOrder.push({
+        id: id,
+        dir: dir
+      });
+    }
   };
   $scope.removeSort = function(id) {
-    var idx = $scope.sortOrder.indexOf(id);
+    var idx = findSortItemIndex(id);
     if (idx !== -1) {
-      $scope.sortOrder.splice(idx, 1);
+      $scope.persistentState.sortOrder.splice(idx, 1);
     }
-    delete $scope.sortDirection[id];
   };
   $scope.clearSort = function() {
-    $scope.sortOrder = [];
-    $scope.sortDirection = {};
+    $scope.persistentState.sortOrder = [];
   };
   // Checks if columns have any filter fileds
   $scope.hasFilterFields = function() {
@@ -111,7 +129,7 @@ angular.module('apMesa.controllers.ApMesaController', [
   };
   // Clears search field for column, focus on input
   $scope.clearAndFocusSearch = function(columnId) {
-    $scope.searchTerms[columnId] = '';
+    $scope.persistentState.searchTerms[columnId] = '';
     $element.find('tr.ap-mesa-filter-row th.column-' + columnId + ' input').focus();
   };
   // Toggles column sorting
@@ -122,28 +140,27 @@ angular.module('apMesa.controllers.ApMesaController', [
       return;
     }
 
+    // check for existing sort on this column
+    var sortItem = findSortItem(column.id);
+
     if ( $event.shiftKey ) {
       // shift is down, ignore other columns
       // but toggle between three states
-      switch ($scope.sortDirection[column.id]) {
-        case '+':
-          // Make descending
-          $scope.sortDirection[column.id] = '-';
-          break;
-        case '-':
-          // Remove from sortOrder and direction
+      if (sortItem) {
+        if (sortItem.dir === '+') {
+          sortItem.dir = '-';
+        } else if (sortItem.dir === '-') {
           $scope.removeSort(column.id);
-          break;
-        default:
-          // Make ascending
-          $scope.addSort(column.id, '+');
-          break;
+        }
+      } else {
+        // Make ascending
+        $scope.addSort(column.id, '+');
       }
 
     } else {
       // shift is not down, disable other
       // columns but toggle two states
-      var lastState = $scope.sortDirection[column.id];
+      var lastState = sortItem ? sortItem.dir : '';
       $scope.clearSort();
       if (lastState === '+') {
         $scope.addSort(column.id, '-');
@@ -321,8 +338,8 @@ angular.module('apMesa.controllers.ApMesaController', [
     var state = {};
 
     // save state objects
-    ['sortOrder', 'sortDirection', 'searchTerms'].forEach(function(prop) {
-      state[prop] = $scope[prop];
+    ['sortOrder', 'searchTerms'].forEach(function(prop) {
+      state[prop] = $scope.persistentState[prop];
     });
 
     // serialize columns
@@ -368,8 +385,8 @@ angular.module('apMesa.controllers.ApMesaController', [
       }
 
       // load state objects
-      ['sortOrder', 'sortDirection', 'searchTerms'].forEach(function(prop){
-        $scope[prop] = state[prop];
+      ['sortOrder', 'searchTerms'].forEach(function(prop){
+        $scope.persistentState[prop] = state[prop];
       });
 
       // validate (compare ids)
@@ -409,12 +426,6 @@ angular.module('apMesa.controllers.ApMesaController', [
     } catch (e) {
       $log.warn('Loading from storage failed!');
     }
-  };
-
-  $scope.calculateRowLimit = function() {
-    var rowHeight = $scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
-    $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight || 20;
-    $scope.rowLimit = Math.ceil(($scope.options.bodyHeight + $scope.options.rowPadding*2) / $scope.rowHeight);
   };
 
 }]);

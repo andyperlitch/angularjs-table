@@ -30,7 +30,7 @@ angular.module('apMesa.filters.apMesaRowSorter', [])
       }
     }
   }
-  return function tableRowSorter(rows, columns, sortOrder, sortDirection, options) {
+  return function tableRowSorter(rows, columns, sortOrder, options) {
     if (!sortOrder.length) {
       return rows;
     }
@@ -38,9 +38,9 @@ angular.module('apMesa.filters.apMesaRowSorter', [])
     for ( var i = 0; i < rows.length; i++) { arrayCopy.push(rows[i]); }
     return arrayCopy.sort(function(a,b) {
       for (var i = 0; i < sortOrder.length; i++) {
-        var id = sortOrder[i];
-        var column = getColumn(columns,id);
-        var dir = sortDirection[id];
+        var sortItem = sortOrder[i];
+        var column = getColumn(columns,sortItem.id);
+        var dir = sortItem.dir;
         if (column && column.sort) {
           var fn = column.sort;
           var result = dir === '+' ? fn(a,b,options,column) : fn(b,a,options,column);

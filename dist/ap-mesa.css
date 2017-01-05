@@ -177,3 +177,14 @@ table tbody .ap-mesa-dummy-row td {
   border-top: none;
   padding: 0;
 }
+
+.ap-mesa-pagination {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.ap-mesa-pagination .rows-per-page-ctrl {
+  float: right;
+}

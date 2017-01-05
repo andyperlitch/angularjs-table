@@ -1,4 +1,4 @@
-<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? 'odd' : 'even' }}" ap-mesa-row></tr>
+<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? 'odd' : 'even' }}" ap-mesa-row></tr>
 <tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">
   <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>
 </tr>

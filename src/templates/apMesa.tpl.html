@@ -34,14 +34,14 @@
           <input
             type="text"
             ng-if="(column.filter)"
-            ng-model="searchTerms[column.id]"
+            ng-model="persistentState.searchTerms[column.id]"
             ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"
             ng-attr-title="{{ column.filter && column.filter.title }}"
-            ng-class="{'active': searchTerms[column.id] }"
+            ng-class="{'active': persistentState.searchTerms[column.id] }"
           >
           <button
             ng-if="(column.filter)"
-            ng-show="searchTerms[column.id]"
+            ng-show="persistentState.searchTerms[column.id]"
             class="clear-search-btn"
             role="button"
             type="button"
@@ -80,9 +80,10 @@
           </td>
         </tr>
       </tbody>
-      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[0,rowOffset]" columns="columns" cell-content="..."></tbody>
+      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ng-show="!options.loading" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>
       <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
-      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[rowOffset + visible_rows.length, filterState.filterCount]" columns="columns" cell-content="..."></tbody>
+      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
+  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === 'PAGINATE'" ap-mesa-pagination-ctrls></div>
 </div>

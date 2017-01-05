@@ -20,7 +20,8 @@
     'apMesa.controllers.ApMesaController',
     'apMesa.directives.apMesaRows',
     'apMesa.directives.apMesaDummyRows',
-    'apMesa.directives.apMesaExpandable'
+    'apMesa.directives.apMesaExpandable',
+    'apMesa.directives.apMesaPaginationCtrls'
   ])
   .provider('apMesa', function ApMesaService() {
     var defaultOptions = {
@@ -34,6 +35,11 @@
       loadingText: 'loading',
       loadingError: false,
       noRowsText: 'no rows',
+      pagingStrategy: 'SCROLL',
+      rowsPerPage: 10, // for when pagingStrategy === 'PAGINATE'
+      rowsPerPageChoices: [10, 25, 50, 100],
+      showRowsPerPageCtrls: true,
+      maxPageLinks: 8,
       sortClasses: [
         'glyphicon glyphicon-sort',
         'glyphicon glyphicon-chevron-up',
@@ -93,24 +99,21 @@
     }
 
     function resetState(scope) {
-      // State of expanded rows
-      scope.expandedRows = {};
-      scope.expandedRowHeights = {};
 
-      // Object that holds search terms
-      scope.searchTerms = {};
-
-      // Array and Object for sort order+direction
-      scope.sortOrder = [];
-      scope.sortDirection = {};
-
-      // Holds filtered rows count
-      scope.filterState = {
-        filterCount: scope.rows ? scope.rows.length : 0
+      scope.persistentState = {
+        rowLimit: 1,
+        searchTerms: {},
+        sortOrder: []
       };
 
-      // Offset and limit
-      scope.rowOffset = 0;
+      // Holds filtered rows count
+      scope.transientState = {
+        filterCount: scope.rows ? scope.rows.length : 0,
+        rowOffset: 0,
+        pageOffset: 0,
+        expandedRows: {},
+        expandedRowHeights: {}
+      };
 
       scope.$broadcast('apMesa:stateReset');
     }
@@ -151,6 +154,7 @@
     function link(scope, element) {
 
       var deregStorageWatchers = [];
+      scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
       resetColumns(scope);
       scope.$watch('_columns', function(columns, oldColumns) {
         if (columns !== scope.columns) {
@@ -181,13 +185,11 @@
           // Watch various things to save state
           //  Save state on the following action:
           //  - sort change
-          //  occurs in $scope.toggleSort
+          //  occurs in scope.toggleSort
           //  - column order change
           deregStorageWatchers.push(scope.$watchCollection('columns', scope.saveToStorage));
           //  - search terms change
-          deregStorageWatchers.push(scope.$watchCollection('searchTerms', scope.saveToStorage));
-          //  - paging scheme
-          deregStorageWatchers.push(scope.$watch('options.pagingScheme', scope.saveToStorage));
+          deregStorageWatchers.push(scope.$watchCollection('persistentState.searchTerms', scope.saveToStorage));
         } else if (deregStorageWatchers.length) {
           deregStorageWatchers.forEach(function(d) { d(); });
           deregStorageWatchers = [];
@@ -196,6 +198,9 @@
 
       var fillHeightWatcher;
       scope.$watch('options.fillHeight', function(fillHeight) {
+        if (scope.options.pagingStrategy !== 'SCROLL') {
+          return;
+        }
         if (fillHeight) {
           // calculate available space
           fillHeightWatcher = scope.$on('apMesa:resize', function() {
@@ -209,13 +214,18 @@
 
       //  - row limit
       scope.$watch('options.bodyHeight', function() {
+        if (scope.options.pagingStrategy !== 'SCROLL') {
+          return;
+        }
         scope.calculateRowLimit();
         scope.tbodyNgStyle = {};
         scope.tbodyNgStyle[ scope.options.fixedHeight ? 'height' : 'max-height' ] = scope.options.bodyHeight + 'px';
         scope.saveToStorage();
       });
-      scope.$watch('filterState.filterCount', function() {
-        scope.onScroll();
+      scope.$watch('transientState.filterCount', function() {
+        if (scope.options && scope.options.pagingStrategy === 'SCROLL') {
+          scope.onScroll();
+        }
       });
       scope.$watch('rowHeight', function(size) {
         element.find('tr.ap-mesa-dummy-row').css('background-size','auto ' + size * scope.options.bgSizeMultiplier + 'px');
@@ -233,6 +243,27 @@
           });
         }
       });
+      scope.$watch('options.rowsPerPage', function(count, oldCount) {
+        if (count !== oldCount) {
+          scope.calculateRowLimit();
+        }
+      });
+      scope.$watch('options.pagingStrategy', function(strategy) {
+        if (strategy === 'SCROLL') {
+          scope.scrollDiv.off('scroll');
+          scope.scrollDiv.on('scroll', scope.onScroll);
+        } else if (strategy === 'PAGINATE') {
+
+        }
+      });
+      scope.$watch('persistentState.sortOrder', function(sortOrder) {
+        if (sortOrder) {
+          scope.sortDirection = {};
+          sortOrder.forEach(function(sortItem) {
+            scope.sortDirection[sortItem.id] = sortItem.dir;
+          });
+        }
+      }, true);
 
       var scrollDeferred;
       var debouncedScrollHandler = debounce(function() {
@@ -249,13 +280,13 @@
 
         var rowOffset = 0;
         var runningTotalScroll = 0;
-        var expandedOffsets = Object.keys(scope.expandedRows)
+        var expandedOffsets = Object.keys(scope.transientState.expandedRows)
           .map(function(i) { return parseInt(i); })
           .sort();
 
         // push the max offset so this works in constant time
         // when no expanded rows are present
-        expandedOffsets.push(scope.filterState.filterCount);
+        expandedOffsets.push(scope.transientState.filterCount);
 
         // a counter that holds the last offset of an expanded row
         for (var i = 0; i <= expandedOffsets.length; i++) {
@@ -286,7 +317,7 @@
           }
         }
 
-        scope.rowOffset = Math.max(0, rowOffset);
+        scope.transientState.rowOffset = Math.max(0, rowOffset);
 
         scrollDeferred.resolve();
 
@@ -306,8 +337,15 @@
         debouncedScrollHandler();
       };
 
-      scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
-      scope.scrollDiv.on('scroll', scope.onScroll);
+      scope.calculateRowLimit = function() {
+        var rowHeight = scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
+        scope.rowHeight = rowHeight || scope.options.defaultRowHeight || 20;
+        if (scope.options.pagingStrategy === 'SCROLL') {
+          scope.persistentState.rowLimit = Math.ceil((scope.options.bodyHeight + scope.options.rowPadding*2) / scope.rowHeight);
+        } else if (scope.options.pagingStrategy === 'PAGINATE') {
+          scope.persistentState.rowLimit = scope.options.rowsPerPage;
+        }
+      };
 
       // Wait for a render
       $timeout(function() {

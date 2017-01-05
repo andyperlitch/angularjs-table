@@ -156,16 +156,12 @@ describe('Directive: apMesa', function () {
     expect(isoScope.options.bgSizeMultiplier).to.equal(3);
   }));
 
-  it('should attach a searchTerms object to the scope', function() {
-    expect(isoScope.searchTerms).to.be.an('object');
+  it('should attach a persistentState.searchTerms object to the scope', function() {
+    expect(isoScope.persistentState.searchTerms).to.be.an('object');
   });
 
   it('should attach a sortOrder array to the scope', function() {
-    expect(isoScope.sortOrder).to.be.instanceof(Array);
-  });
-
-  it('should attach a sortDirection object to the scope', function() {
-    expect(isoScope.sortDirection).to.be.an('object');
+    expect(isoScope.persistentState.sortOrder).to.be.instanceof(Array);
   });
 
   it('options.getter should be a function', function() {
