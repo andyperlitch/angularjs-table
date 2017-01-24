@@ -20,15 +20,15 @@ angular.module('apMesa.filters.apMesaRowFilter',[
 ])
 
 .filter('apMesaRowFilter', ['apMesaFilterFunctions', '$log', function(tableFilterFunctions, $log) {
-  return function tableRowFilter(rows, columns, searchTerms, filterState, options) {
+  return function tableRowFilter(rows, columns, persistentState, transientState, options) {
 
     var enabledFilterColumns, result = rows;
 
     // gather enabled filter functions
     enabledFilterColumns = columns.filter(function(column) {
       // check search term
-      var term = searchTerms[column.id];
-      if (searchTerms.hasOwnProperty(column.id) && typeof term === 'string') {
+      var term = persistentState.searchTerms[column.id];
+      if (persistentState.searchTerms.hasOwnProperty(column.id) && typeof term === 'string') {
 
         // filter empty strings and whitespace
         if (!term.trim()) {
@@ -59,7 +59,7 @@ angular.module('apMesa.filters.apMesaRowFilter',[
         for (var i = enabledFilterColumns.length - 1; i >= 0; i--) {
           var col = enabledFilterColumns[i];
           var filter = col.filter;
-          var term = searchTerms[col.id];
+          var term = persistentState.searchTerms[col.id];
           var value = (options !== undefined && {}.hasOwnProperty.call(options, 'getter'))? options.getter(col.key, row):row[col.key];
           var computedValue = typeof col.format === 'function' ? col.format(value, row, col, options) : value;
           if (!filter(term, value, computedValue, row, col, options)) {
@@ -69,7 +69,7 @@ angular.module('apMesa.filters.apMesaRowFilter',[
         return true;
       });
     }
-    filterState.filterCount = result.length;
+    transientState.filterCount = result.length;
     return result;
   };
 }]);

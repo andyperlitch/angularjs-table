@@ -55,7 +55,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     // SCOPE FUNCTIONS
     $scope.getSelectableRows = function () {
       var tableRowFilter = $filter('apMesaRowFilter');
-      return angular.isArray($scope.rows) ? tableRowFilter($scope.rows, $scope.columns, $scope.searchTerms, $scope.filterState) : [];
+      return angular.isArray($scope.rows) ? tableRowFilter($scope.rows, $scope.columns, $scope.persistentState, $scope.transientState) : [];
     };
     $scope.isSelectedAll = function () {
       if (!angular.isArray($scope.rows) || !angular.isArray($scope.selected)) {
@@ -103,23 +103,39 @@ angular.module('apMesa.controllers.ApMesaController', [
         $scope.deselectAll();
       }
     };
-    $scope.addSort = function (id, dir) {
-      var idx = $scope.sortOrder.indexOf(id);
-      if (idx === -1) {
-        $scope.sortOrder.push(id);
+    function findSortItemIndex(id) {
+      var sortLen = $scope.persistentState.sortOrder.length;
+      for (var i = 0; i < sortLen; i++) {
+        if ($scope.persistentState.sortOrder[i].id === id) {
+          return i;
+        }
       }
-      $scope.sortDirection[id] = dir;
+    }
+    function findSortItem(id) {
+      var index = findSortItemIndex(id);
+      if (index > -1) {
+        return $scope.persistentState.sortOrder[index];
+      }
+    }
+    $scope.addSort = function (id, dir) {
+      var sortItem = findSortItem(id);
+      if (sortItem) {
+        sortItem.dir = dir;
+      } else {
+        $scope.persistentState.sortOrder.push({
+          id: id,
+          dir: dir
+        });
+      }
     };
     $scope.removeSort = function (id) {
-      var idx = $scope.sortOrder.indexOf(id);
+      var idx = findSortItemIndex(id);
       if (idx !== -1) {
-        $scope.sortOrder.splice(idx, 1);
+        $scope.persistentState.sortOrder.splice(idx, 1);
       }
-      delete $scope.sortDirection[id];
     };
     $scope.clearSort = function () {
-      $scope.sortOrder = [];
-      $scope.sortDirection = {};
+      $scope.persistentState.sortOrder = [];
     };
     // Checks if columns have any filter fileds
     $scope.hasFilterFields = function () {
@@ -135,7 +151,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     };
     // Clears search field for column, focus on input
     $scope.clearAndFocusSearch = function (columnId) {
-      $scope.searchTerms[columnId] = '';
+      $scope.persistentState.searchTerms[columnId] = '';
       $element.find('tr.ap-mesa-filter-row th.column-' + columnId + ' input').focus();
     };
     // Toggles column sorting
@@ -144,27 +160,25 @@ angular.module('apMesa.controllers.ApMesaController', [
       if (!column.sort) {
         return;
       }
+      // check for existing sort on this column
+      var sortItem = findSortItem(column.id);
       if ($event.shiftKey) {
         // shift is down, ignore other columns
         // but toggle between three states
-        switch ($scope.sortDirection[column.id]) {
-        case '+':
-          // Make descending
-          $scope.sortDirection[column.id] = '-';
-          break;
-        case '-':
-          // Remove from sortOrder and direction
-          $scope.removeSort(column.id);
-          break;
-        default:
+        if (sortItem) {
+          if (sortItem.dir === '+') {
+            sortItem.dir = '-';
+          } else if (sortItem.dir === '-') {
+            $scope.removeSort(column.id);
+          }
+        } else {
           // Make ascending
           $scope.addSort(column.id, '+');
-          break;
         }
       } else {
         // shift is not down, disable other
         // columns but toggle two states
-        var lastState = $scope.sortDirection[column.id];
+        var lastState = sortItem ? sortItem.dir : '';
         $scope.clearSort();
         if (lastState === '+') {
           $scope.addSort(column.id, '-');
@@ -307,10 +321,9 @@ angular.module('apMesa.controllers.ApMesaController', [
       // save state objects
       [
         'sortOrder',
-        'sortDirection',
         'searchTerms'
       ].forEach(function (prop) {
-        state[prop] = $scope[prop];
+        state[prop] = $scope.persistentState[prop];
       });
       // serialize columns
       state.columns = $scope.columns.map(function (col) {
@@ -352,10 +365,9 @@ angular.module('apMesa.controllers.ApMesaController', [
         // load state objects
         [
           'sortOrder',
-          'sortDirection',
           'searchTerms'
         ].forEach(function (prop) {
-          $scope[prop] = state[prop];
+          $scope.persistentState[prop] = state[prop];
         });
         // validate (compare ids)
         // reorder columns and merge
@@ -393,11 +405,6 @@ angular.module('apMesa.controllers.ApMesaController', [
         $log.warn('Loading from storage failed!');
       }
     };
-    $scope.calculateRowLimit = function () {
-      var rowHeight = $scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
-      $scope.rowHeight = rowHeight || $scope.options.defaultRowHeight || 20;
-      $scope.rowLimit = Math.ceil(($scope.options.bodyHeight + $scope.options.rowPadding * 2) / $scope.rowHeight);
-    };
   }
 ]);
 // Source: dist/directives/apMesa.js
@@ -420,7 +427,8 @@ angular.module('apMesa.controllers.ApMesaController', [
     'apMesa.controllers.ApMesaController',
     'apMesa.directives.apMesaRows',
     'apMesa.directives.apMesaDummyRows',
-    'apMesa.directives.apMesaExpandable'
+    'apMesa.directives.apMesaExpandable',
+    'apMesa.directives.apMesaPaginationCtrls'
   ]).provider('apMesa', function ApMesaService() {
     var defaultOptions = {
         bgSizeMultiplier: 1,
@@ -433,6 +441,16 @@ angular.module('apMesa.controllers.ApMesaController', [
         loadingText: 'loading',
         loadingError: false,
         noRowsText: 'no rows',
+        pagingStrategy: 'SCROLL',
+        rowsPerPage: 10,
+        rowsPerPageChoices: [
+          10,
+          25,
+          50,
+          100
+        ],
+        showRowsPerPageCtrls: true,
+        maxPageLinks: 8,
         sortClasses: [
           'glyphicon glyphicon-sort',
           'glyphicon glyphicon-chevron-up',
@@ -489,18 +507,19 @@ angular.module('apMesa.controllers.ApMesaController', [
         };
       }
       function resetState(scope) {
-        // State of expanded rows
-        scope.expandedRows = {};
-        scope.expandedRowHeights = {};
-        // Object that holds search terms
-        scope.searchTerms = {};
-        // Array and Object for sort order+direction
-        scope.sortOrder = [];
-        scope.sortDirection = {};
+        scope.persistentState = {
+          rowLimit: 1,
+          searchTerms: {},
+          sortOrder: []
+        };
         // Holds filtered rows count
-        scope.filterState = { filterCount: scope.rows ? scope.rows.length : 0 };
-        // Offset and limit
-        scope.rowOffset = 0;
+        scope.transientState = {
+          filterCount: scope.rows ? scope.rows.length : 0,
+          rowOffset: 0,
+          pageOffset: 0,
+          expandedRows: {},
+          expandedRowHeights: {}
+        };
         scope.$broadcast('apMesa:stateReset');
       }
       function initOptions(scope) {
@@ -533,6 +552,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       }
       function link(scope, element) {
         var deregStorageWatchers = [];
+        scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
         resetColumns(scope);
         scope.$watch('_columns', function (columns, oldColumns) {
           if (columns !== scope.columns) {
@@ -559,13 +579,11 @@ angular.module('apMesa.controllers.ApMesaController', [
             // Watch various things to save state
             //  Save state on the following action:
             //  - sort change
-            //  occurs in $scope.toggleSort
+            //  occurs in scope.toggleSort
             //  - column order change
             deregStorageWatchers.push(scope.$watchCollection('columns', scope.saveToStorage));
             //  - search terms change
-            deregStorageWatchers.push(scope.$watchCollection('searchTerms', scope.saveToStorage));
-            //  - paging scheme
-            deregStorageWatchers.push(scope.$watch('options.pagingScheme', scope.saveToStorage));
+            deregStorageWatchers.push(scope.$watchCollection('persistentState.searchTerms', scope.saveToStorage));
           } else if (deregStorageWatchers.length) {
             deregStorageWatchers.forEach(function (d) {
               d();
@@ -575,6 +593,9 @@ angular.module('apMesa.controllers.ApMesaController', [
         });
         var fillHeightWatcher;
         scope.$watch('options.fillHeight', function (fillHeight) {
+          if (scope.options.pagingStrategy !== 'SCROLL') {
+            return;
+          }
           if (fillHeight) {
             // calculate available space
             fillHeightWatcher = scope.$on('apMesa:resize', function () {
@@ -587,13 +608,18 @@ angular.module('apMesa.controllers.ApMesaController', [
         });
         //  - row limit
         scope.$watch('options.bodyHeight', function () {
+          if (scope.options.pagingStrategy !== 'SCROLL') {
+            return;
+          }
           scope.calculateRowLimit();
           scope.tbodyNgStyle = {};
           scope.tbodyNgStyle[scope.options.fixedHeight ? 'height' : 'max-height'] = scope.options.bodyHeight + 'px';
           scope.saveToStorage();
         });
-        scope.$watch('filterState.filterCount', function () {
-          scope.onScroll();
+        scope.$watch('transientState.filterCount', function () {
+          if (scope.options && scope.options.pagingStrategy === 'SCROLL') {
+            scope.onScroll();
+          }
         });
         scope.$watch('rowHeight', function (size) {
           element.find('tr.ap-mesa-dummy-row').css('background-size', 'auto ' + size * scope.options.bgSizeMultiplier + 'px');
@@ -611,6 +637,26 @@ angular.module('apMesa.controllers.ApMesaController', [
             });
           }
         });
+        scope.$watch('options.rowsPerPage', function (count, oldCount) {
+          if (count !== oldCount) {
+            scope.calculateRowLimit();
+          }
+        });
+        scope.$watch('options.pagingStrategy', function (strategy) {
+          if (strategy === 'SCROLL') {
+            scope.scrollDiv.off('scroll');
+            scope.scrollDiv.on('scroll', scope.onScroll);
+          } else if (strategy === 'PAGINATE') {
+          }
+        });
+        scope.$watch('persistentState.sortOrder', function (sortOrder) {
+          if (sortOrder) {
+            scope.sortDirection = {};
+            sortOrder.forEach(function (sortItem) {
+              scope.sortDirection[sortItem.id] = sortItem.dir;
+            });
+          }
+        }, true);
         var scrollDeferred;
         var debouncedScrollHandler = debounce(function () {
             scope.calculateRowLimit();
@@ -621,12 +667,12 @@ angular.module('apMesa.controllers.ApMesaController', [
             }
             var rowOffset = 0;
             var runningTotalScroll = 0;
-            var expandedOffsets = Object.keys(scope.expandedRows).map(function (i) {
+            var expandedOffsets = Object.keys(scope.transientState.expandedRows).map(function (i) {
                 return parseInt(i);
               }).sort();
             // push the max offset so this works in constant time
             // when no expanded rows are present
-            expandedOffsets.push(scope.filterState.filterCount);
+            expandedOffsets.push(scope.transientState.filterCount);
             // a counter that holds the last offset of an expanded row
             for (var i = 0; i <= expandedOffsets.length; i++) {
               // the offset of the expanded row
@@ -651,7 +697,7 @@ angular.module('apMesa.controllers.ApMesaController', [
                 break;
               }
             }
-            scope.rowOffset = Math.max(0, rowOffset);
+            scope.transientState.rowOffset = Math.max(0, rowOffset);
             scrollDeferred.resolve();
             scrollDeferred = null;
             scope.options.scrollingPromise = null;
@@ -664,8 +710,15 @@ angular.module('apMesa.controllers.ApMesaController', [
           }
           debouncedScrollHandler();
         };
-        scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
-        scope.scrollDiv.on('scroll', scope.onScroll);
+        scope.calculateRowLimit = function () {
+          var rowHeight = scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
+          scope.rowHeight = rowHeight || scope.options.defaultRowHeight || 20;
+          if (scope.options.pagingStrategy === 'SCROLL') {
+            scope.persistentState.rowLimit = Math.ceil((scope.options.bodyHeight + scope.options.rowPadding * 2) / scope.rowHeight);
+          } else if (scope.options.pagingStrategy === 'PAGINATE') {
+            scope.persistentState.rowLimit = scope.options.rowsPerPage;
+          }
+        };
         // Wait for a render
         $timeout(function () {
           // Calculates rowHeight and rowLimit
@@ -789,7 +842,7 @@ angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRo
     link: function (scope, element, attrs) {
       scope.$watch(attrs.apMesaDummyRows, function (offsetRange) {
         var rowsHeight = (offsetRange[1] - offsetRange[0]) * scope.rowHeight;
-        for (var k in scope.expandedRows) {
+        for (var k in scope.transientState.expandedRows) {
           var kInt = parseInt(k);
           if (kInt >= offsetRange[0] && kInt < offsetRange[1]) {
             rowsHeight += scope.expandedRowHeights[k];
@@ -824,6 +877,124 @@ angular.module('apMesa.directives.apMesaExpandable', []).directive('apMesaExpand
     };
   }
 ]);
+// Source: dist/directives/apMesaPaginationCtrls.js
+angular.module('apMesa.directives.apMesaPaginationCtrls', []).directive('apMesaPaginationCtrls', [
+  '$timeout',
+  function ($timeout) {
+    return {
+      templateUrl: 'src/templates/apMesaPaginationCtrls.tpl.html',
+      scope: true,
+      link: function (scope, element) {
+        function updatePageLinks() {
+          var pageLinks = [];
+          var numPages = Math.ceil(scope.transientState.filterCount / scope.options.rowsPerPage);
+          var currentPage = scope.transientState.pageOffset;
+          var maxPageLinks = Math.max(5, scope.options.maxPageLinks);
+          // must be a minimum of 5 max page links
+          if (numPages <= maxPageLinks) {
+            for (var i = 0; i < numPages; i++) {
+              pageLinks.push({
+                gap: false,
+                page: i,
+                current: currentPage === i
+              });
+            }
+          } else if (currentPage < maxPageLinks - 2) {
+            for (var i = 0; i < maxPageLinks - 2; i++) {
+              pageLinks.push({
+                gap: false,
+                page: i,
+                current: currentPage === i
+              });
+            }
+            pageLinks.push({
+              gap: true,
+              page: -1,
+              current: false
+            }, {
+              gap: false,
+              page: numPages - 1,
+              current: false
+            });
+          } else if (numPages - currentPage <= maxPageLinks - 2) {
+            pageLinks.push({
+              gap: false,
+              page: 0,
+              current: false
+            }, {
+              gap: true,
+              page: -1,
+              current: false
+            });
+            var startingPage = numPages - (maxPageLinks - 2);
+            for (var i = startingPage; i < numPages; i++) {
+              pageLinks.push({
+                gap: false,
+                page: i,
+                current: currentPage === i
+              });
+            }
+          } else {
+            pageLinks.push({
+              gap: false,
+              page: 0,
+              current: false
+            }, {
+              gap: true,
+              page: -1,
+              current: false
+            });
+            var remainingLinkCount = maxPageLinks - 4;
+            for (var i = 0; remainingLinkCount > 0; i++) {
+              var distance = i % 2 ? (i + 1) / 2 : -(i / 2);
+              var page = currentPage + distance;
+              if (distance >= 0) {
+                pageLinks.push({
+                  gap: false,
+                  page: page,
+                  current: distance === 0
+                });
+              } else {
+                pageLinks.splice(2, 0, {
+                  gap: false,
+                  page: page,
+                  current: false
+                });
+              }
+              --remainingLinkCount;
+            }
+            pageLinks.push({
+              gap: true,
+              page: -1,
+              current: false
+            }, {
+              gap: false,
+              page: numPages - 1,
+              current: false
+            });
+          }
+          scope.pageLinks = pageLinks;
+          scope.lastPage = numPages - 1;
+        }
+        scope.$watch('transientState.filterCount', updatePageLinks);
+        scope.$watch('options.rowsPerPage', updatePageLinks);
+        scope.$watch('transientState.pageOffset', updatePageLinks);
+        scope.goBack = function () {
+          if (scope.transientState.pageOffset === 0) {
+            return;
+          }
+          scope.transientState.pageOffset--;
+        };
+        scope.goForward = function () {
+          if (scope.transientState.pageOffset === scope.lastPage) {
+            return;
+          }
+          scope.transientState.pageOffset++;
+        };
+      }
+    };
+  }
+]);
 // Source: dist/directives/apMesaRow.js
 angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).directive('apMesaRow', [
   '$timeout',
@@ -832,13 +1003,13 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
       template: '<td ng-repeat="column in columns track by column.id" class="ap-mesa-cell col-{{column.id}}" ap-mesa-cell></td>',
       scope: false,
       link: function (scope, element) {
-        var index = scope.$index + scope.rowOffset;
-        scope.rowIsExpanded = !!scope.expandedRows[index];
+        var index = scope.$index + scope.transientState.rowOffset;
+        scope.rowIsExpanded = !!scope.transientState.expandedRows[index];
         scope.toggleRowExpand = function () {
-          scope.expandedRows[index] = scope.rowIsExpanded = !scope.expandedRows[index];
+          scope.transientState.expandedRows[index] = scope.rowIsExpanded = !scope.transientState.expandedRows[index];
           $timeout(function () {
-            if (!scope.expandedRows[index]) {
-              delete scope.expandedRows[index];
+            if (!scope.transientState.expandedRows[index]) {
+              delete scope.transientState.expandedRows[index];
               delete scope.expandedRowHeights[index];
             } else {
               scope.refreshExpandedHeight();
@@ -849,7 +1020,7 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
           var newHeight = element.next('tr.ap-mesa-expand-panel').height();
           scope.expandedRowHeights[index] = newHeight;
         };
-        scope.$watch('expandedRows', function (nv, ov) {
+        scope.$watch('transientState.expandedRows', function (nv, ov) {
           if (nv !== ov) {
             scope.rowIsExpanded = false;
           }
@@ -891,16 +1062,22 @@ angular.module('apMesa.directives.apMesaRows', [
         return [];
       }
       // scope.rows
-      var visible_rows;
-      // | tableRowFilter:columns:searchTerms:filterState
-      visible_rows = tableRowFilter(scope.rows, scope.columns, scope.searchTerms, scope.filterState, scope.options);
-      // | tableRowSorter:columns:sortOrder:sortDirection
-      visible_rows = tableRowSorter(visible_rows, scope.columns, scope.sortOrder, scope.sortDirection, scope.options);
-      // | limitTo:rowOffset - filterState.filterCount
-      visible_rows = limitTo(visible_rows, Math.floor(scope.rowOffset) - scope.filterState.filterCount);
-      // | limitTo:rowLimit
-      visible_rows = limitTo(visible_rows, scope.rowLimit + Math.ceil(scope.rowOffset % 1));
-      var idx = scope.rowOffset;
+      var visible_rows, idx;
+      // filter rows
+      visible_rows = tableRowFilter(scope.rows, scope.columns, scope.persistentState, scope.transientState, scope.options);
+      // sort rows
+      visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options);
+      // limit rows
+      if (scope.options.pagingStrategy === 'SCROLL') {
+        visible_rows = limitTo(visible_rows, Math.floor(scope.transientState.rowOffset) - scope.transientState.filterCount);
+        visible_rows = limitTo(visible_rows, scope.persistentState.rowLimit + Math.ceil(scope.transientState.rowOffset % 1));
+        idx = scope.transientState.rowOffset;
+      } else if (scope.options.pagingStrategy === 'PAGINATE') {
+        var pagedRowOffset = scope.transientState.pageOffset * scope.persistentState.rowLimit;
+        visible_rows = visible_rows.slice(pagedRowOffset, pagedRowOffset + scope.persistentState.rowLimit);
+        idx = pagedRowOffset;
+      }
+      // add index to each row
       visible_rows.forEach(function (row) {
         row.$$$index = idx++;
       });
@@ -912,7 +1089,7 @@ angular.module('apMesa.directives.apMesaRows', [
           return;
         }
         scope.visible_rows = calculateVisibleRows(scope);
-        scope.expandedRows = {};
+        scope.transientState.expandedRows = {};
       };
       var updateHandlerWithoutClearingCollapsed = function (newValue, oldValue) {
         if (newValue === oldValue) {
@@ -920,11 +1097,10 @@ angular.module('apMesa.directives.apMesaRows', [
         }
         scope.visible_rows = calculateVisibleRows(scope);
       };
-      scope.$watch('searchTerms', updateHandler, true);
-      scope.$watch('[rowOffset,rowLimit]', updateHandlerWithoutClearingCollapsed);
-      scope.$watch('filterState.filterCount', updateHandler);
-      scope.$watch('sortOrder', updateHandler, true);
-      scope.$watch('sortDirection', updateHandler, true);
+      scope.$watch('persistentState.searchTerms', updateHandler, true);
+      scope.$watch('[transientState.rowOffset, persistentState.rowLimit, transientState.pageOffset]', updateHandlerWithoutClearingCollapsed);
+      scope.$watch('transientState.filterCount', updateHandler);
+      scope.$watch('persistentState.sortOrder', updateHandler, true);
       scope.$watch('rows', function (newRows) {
         if (angular.isArray(newRows)) {
           updateHandler(true, false);
@@ -1004,13 +1180,13 @@ angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterF
   'apMesaFilterFunctions',
   '$log',
   function (tableFilterFunctions, $log) {
-    return function tableRowFilter(rows, columns, searchTerms, filterState, options) {
+    return function tableRowFilter(rows, columns, persistentState, transientState, options) {
       var enabledFilterColumns, result = rows;
       // gather enabled filter functions
       enabledFilterColumns = columns.filter(function (column) {
         // check search term
-        var term = searchTerms[column.id];
-        if (searchTerms.hasOwnProperty(column.id) && typeof term === 'string') {
+        var term = persistentState.searchTerms[column.id];
+        if (persistentState.searchTerms.hasOwnProperty(column.id) && typeof term === 'string') {
           // filter empty strings and whitespace
           if (!term.trim()) {
             return false;
@@ -1035,7 +1211,7 @@ angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterF
           for (var i = enabledFilterColumns.length - 1; i >= 0; i--) {
             var col = enabledFilterColumns[i];
             var filter = col.filter;
-            var term = searchTerms[col.id];
+            var term = persistentState.searchTerms[col.id];
             var value = options !== undefined && {}.hasOwnProperty.call(options, 'getter') ? options.getter(col.key, row) : row[col.key];
             var computedValue = typeof col.format === 'function' ? col.format(value, row, col, options) : value;
             if (!filter(term, value, computedValue, row, col, options)) {
@@ -1045,7 +1221,7 @@ angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterF
           return true;
         });
       }
-      filterState.filterCount = result.length;
+      transientState.filterCount = result.length;
       return result;
     };
   }
@@ -1079,7 +1255,7 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
       }
     }
   }
-  return function tableRowSorter(rows, columns, sortOrder, sortDirection, options) {
+  return function tableRowSorter(rows, columns, sortOrder, options) {
     if (!sortOrder.length) {
       return rows;
     }
@@ -1089,9 +1265,9 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
     }
     return arrayCopy.sort(function (a, b) {
       for (var i = 0; i < sortOrder.length; i++) {
-        var id = sortOrder[i];
-        var column = getColumn(columns, id);
-        var dir = sortDirection[id];
+        var sortItem = sortOrder[i];
+        var column = getColumn(columns, sortItem.id);
+        var dir = sortItem.dir;
         if (column && column.sort) {
           var fn = column.sort;
           var result = dir === '+' ? fn(a, b, options, column) : fn(b, a, options, column);
@@ -1361,12 +1537,13 @@ angular.module('apMesa.services.apMesaSortFunctions', []).service('apMesaSortFun
 angular.module('apMesa.templates', [
   'src/templates/apMesa.tpl.html',
   'src/templates/apMesaDummyRows.tpl.html',
+  'src/templates/apMesaPaginationCtrls.tpl.html',
   'src/templates/apMesaRows.tpl.html'
 ]);
 angular.module('src/templates/apMesa.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th\n' + '          scope="col"\n' + '          ng-repeat="column in columns"\n' + '          ng-click="toggleSort($event,column)"\n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector, \'is-sorting\': sortDirection[column.id] }"\n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            <span\n' + '              ng-if="column.sort"\n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '          </span>\n' + '          <span\n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input\n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': searchTerms[column.id] }"\n' + '          >\n' + '          <button\n' + '            ng-if="(column.filter)"\n' + '            ng-show="searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th\n' + '            scope="col"\n' + '            ng-repeat="column in columns"\n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0 || options.loading">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[0,rowOffset]" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-dummy-rows="[rowOffset + visible_rows.length, filterState.filterCount]" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '</div>\n' + '');
+    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th\n' + '          scope="col"\n' + '          ng-repeat="column in columns"\n' + '          ng-click="toggleSort($event,column)"\n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector, \'is-sorting\': sortDirection[column.id] }"\n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            <span\n' + '              ng-if="column.sort"\n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '            {{column.hasOwnProperty(\'label\') ? column.label : column.id }}\n' + '          </span>\n' + '          <span\n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input\n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="persistentState.searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': persistentState.searchTerms[column.id] }"\n' + '          >\n' + '          <button\n' + '            ng-if="(column.filter)"\n' + '            ng-show="persistentState.searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th\n' + '            scope="col"\n' + '            ng-repeat="column in columns"\n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0 || options.loading">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === \'PAGINATE\'" ap-mesa-pagination-ctrls></div>\n' + '</div>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
@@ -1375,9 +1552,15 @@ angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
     $templateCache.put('src/templates/apMesaDummyRows.tpl.html', '');
   }
 ]);
+angular.module('src/templates/apMesaPaginationCtrls.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('src/templates/apMesaPaginationCtrls.tpl.html', '<ul class="pagination" ng-if="lastPage > 0">\n' + '  <li ng-class="{ \'disabled\': transientState.pageOffset === 0 }">\n' + '    <a ng-click="goBack()" >&laquo;</a>\n' + '  </li>\n' + '  <li ng-repeat="link in pageLinks" ng-class="{ \'active\': link.current, \'disabled\': link.gap }">\n' + '    <a ng-if="!link.gap" ng-click="transientState.pageOffset = link.page">{{ link.page + 1 }}</a>\n' + '    <a ng-if="link.gap" href="">&hellip;</a>\n' + '  </li>\n' + '  <li ng-class="{ \'disabled\': transientState.pageOffset === lastPage }">\n' + '    <a ng-click="goForward()" >&raquo;</a>\n' + '  </li>\n' + '</ul>\n' + '\n' + '<ul class="pagination rows-per-page-ctrl" ng-if="options.showRowsPerPageCtrls">\n' + '  <li ng-repeat="limit in options.rowsPerPageChoices" ng-class="{\'active\': options.rowsPerPage === limit}">\n' + '    <a ng-click="options.rowsPerPage = limit">{{ limit }}</a>\n' + '  </li>\n' + '</ul>');
+  }
+]);
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
   }
 ]);

@@ -2,7 +2,7 @@
 
 describe('Filter: tableRowSorter', function() {
 
-  var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder, sortDirection;
+  var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder;
 
   beforeEach(module('apMesa'));
 
@@ -48,10 +48,9 @@ describe('Filter: tableRowSorter', function() {
 
   it('should sort ascending by a column whose "sorting" field is "+"', function() {
     
-    sortOrder = ['key1'];
-    sortDirection = {key1:'+'};
+    sortOrder = [{id: 'key1', dir: '+'}];
 
-    var result = sorter(rows,columns,sortOrder,sortDirection);
+    var result = sorter(rows,columns,sortOrder);
     var idxs = result.map(function(r){ return r.index; });
     expect(idxs).to.eql([2,1,3,0]);
 
@@ -59,20 +58,18 @@ describe('Filter: tableRowSorter', function() {
 
   it('should sort descending by a column whose "sorting" field is "-"', function() {
     
-    sortOrder = ['key1'];
-    sortDirection = {key1:'-'};
+    sortOrder = [{id:'key1', dir: '-'}];
 
-    var result = sorter(rows,columns,sortOrder,sortDirection);
+    var result = sorter(rows,columns,sortOrder);
     var idxs = result.map(function(r){ return r.index; });
     expect(idxs).to.eql([0,1,3,2]);
 
   });
 
   it('should ignore sort columns in sortOrder that do not exist', function() {
-    sortOrder = ['not_a_column','key1'];
-    sortDirection = {key1:'-'};
+    sortOrder = [{id:'not_a_column', dir: '+'},{id:'key1', dir: '-'}];
 
-    var result = sorter(rows,columns,sortOrder,sortDirection);
+    var result = sorter(rows,columns,sortOrder);
     var idxs = result.map(function(r){ return r.index; });
     expect(idxs).to.eql([0,1,3,2]);
   });

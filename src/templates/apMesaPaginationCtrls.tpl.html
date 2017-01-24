@@ -1,0 +1,18 @@
+<ul class="pagination" ng-if="lastPage > 0">
+  <li ng-class="{ 'disabled': transientState.pageOffset === 0 }">
+    <a ng-click="goBack()" >&laquo;</a>
+  </li>
+  <li ng-repeat="link in pageLinks" ng-class="{ 'active': link.current, 'disabled': link.gap }">
+    <a ng-if="!link.gap" ng-click="transientState.pageOffset = link.page">{{ link.page + 1 }}</a>
+    <a ng-if="link.gap" href="">&hellip;</a>
+  </li>
+  <li ng-class="{ 'disabled': transientState.pageOffset === lastPage }">
+    <a ng-click="goForward()" >&raquo;</a>
+  </li>
+</ul>
+
+<ul class="pagination rows-per-page-ctrl" ng-if="options.showRowsPerPageCtrls">
+  <li ng-repeat="limit in options.rowsPerPageChoices" ng-class="{'active': options.rowsPerPage === limit}">
+    <a ng-click="options.rowsPerPage = limit">{{ limit }}</a>
+  </li>
+</ul>

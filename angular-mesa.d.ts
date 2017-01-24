@@ -1,5 +1,7 @@
 declare namespace angular.apMesa {
 
+  type PAGING_STRATEGY = 'PAGINATE' | 'SCROLL' | 'NONE';
+
   interface ITableProvider {
     setDefaultOptions: (defaults: ITableOptions) => null;
   }
@@ -107,6 +109,12 @@ declare namespace angular.apMesa {
     getter?:  (key: string, row: any) => string;
     //  undefined  A template reference to be used for the expandable row feature. See Expandable Rows below.
     expandableTemplateUrl?:  string;
+    // SCROLL 
+    pagingStrategy?: PAGING_STRATEGY;
+    rowsPerPage?: number;
+    rowsPerPageChoices?: number[];
+    showRowsPerPageCtrls?: boolean;
+    maxPageLinks?: number;
   }
   interface IRowScope extends ng.IScope {
     toggleRowExpand: Function;
