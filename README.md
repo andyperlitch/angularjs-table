@@ -95,6 +95,7 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | pagingStrategy | 'PAGINATE' | 'SCROLL' | 'NONE' | 'SCROLL' | Sets the paging strategy. See paging strategies below. |
 | rowsPerPage | `number` | 10 | The number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE` |
 | rowsPerPageChoices | `number[]` | [10, 25, 50, 100] | The choices for number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE` |
+| rowsPerPageMessage | `string` | 'rows per page' | The label for the selection for number of rows to show per page. |
 | showRowsPerPageCtrls | `boolean` | true | Whether or not to show the control for rows-per-page. Only applicable when `pagingStrategy` is `PAGINATE` |
 | maxPageLinks | `number` | 8 | Number of page links to display when paginating. |
 

@@ -38,6 +38,7 @@
       pagingStrategy: 'SCROLL',
       rowsPerPage: 10, // for when pagingStrategy === 'PAGINATE'
       rowsPerPageChoices: [10, 25, 50, 100],
+      rowsPerPageMessage: 'rows per page',
       showRowsPerPageCtrls: true,
       maxPageLinks: 8,
       sortClasses: [
@@ -56,6 +57,9 @@
       return {
         getDefaultOptions: function() {
           return defaultOptions;
+        },
+        setDefaultOptions: function(overrides) {
+          defaultOptions = defaults(overrides, defaultOptions);
         }
       }
     }];

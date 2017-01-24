@@ -6,6 +6,11 @@ declare namespace angular.apMesa {
     setDefaultOptions: (defaults: ITableOptions) => null;
   }
 
+  interface ITableService {
+    setDefaultOptions: (defaults: ITableOptions) => null;
+    getDefaultOptions: () => ITableOptions;
+  }
+
   interface ITableColumn {
     // Identifies the column.
     id:  string;
@@ -113,6 +118,7 @@ declare namespace angular.apMesa {
     pagingStrategy?: PAGING_STRATEGY;
     rowsPerPage?: number;
     rowsPerPageChoices?: number[];
+    rowsPerPageMessage?: string;
     showRowsPerPageCtrls?: boolean;
     maxPageLinks?: number;
   }

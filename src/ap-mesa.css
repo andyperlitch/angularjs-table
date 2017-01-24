@@ -152,3 +152,9 @@ table tbody .ap-mesa-dummy-row td {
 .ap-mesa-pagination .rows-per-page-ctrl {
   float: right;
 }
+.ap-mesa-pagination .rows-per-page-ctrl .pagination {
+  vertical-align: middle;
+}
+.ap-mesa-pagination .rows-per-page-msg {
+  vertical-align: middle;
+}

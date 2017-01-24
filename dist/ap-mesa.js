@@ -449,6 +449,7 @@ angular.module('apMesa.controllers.ApMesaController', [
           50,
           100
         ],
+        rowsPerPageMessage: 'rows per page',
         showRowsPerPageCtrls: true,
         maxPageLinks: 8,
         sortClasses: [
@@ -466,6 +467,9 @@ angular.module('apMesa.controllers.ApMesaController', [
         return {
           getDefaultOptions: function () {
             return defaultOptions;
+          },
+          setDefaultOptions: function (overrides) {
+            defaultOptions = defaults(overrides, defaultOptions);
           }
         };
       }];
@@ -1555,7 +1559,7 @@ angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
 angular.module('src/templates/apMesaPaginationCtrls.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaPaginationCtrls.tpl.html', '<ul class="pagination" ng-if="lastPage > 0">\n' + '  <li ng-class="{ \'disabled\': transientState.pageOffset === 0 }">\n' + '    <a ng-click="goBack()" >&laquo;</a>\n' + '  </li>\n' + '  <li ng-repeat="link in pageLinks" ng-class="{ \'active\': link.current, \'disabled\': link.gap }">\n' + '    <a ng-if="!link.gap" ng-click="transientState.pageOffset = link.page">{{ link.page + 1 }}</a>\n' + '    <a ng-if="link.gap" href="">&hellip;</a>\n' + '  </li>\n' + '  <li ng-class="{ \'disabled\': transientState.pageOffset === lastPage }">\n' + '    <a ng-click="goForward()" >&raquo;</a>\n' + '  </li>\n' + '</ul>\n' + '\n' + '<ul class="pagination rows-per-page-ctrl" ng-if="options.showRowsPerPageCtrls">\n' + '  <li ng-repeat="limit in options.rowsPerPageChoices" ng-class="{\'active\': options.rowsPerPage === limit}">\n' + '    <a ng-click="options.rowsPerPage = limit">{{ limit }}</a>\n' + '  </li>\n' + '</ul>');
+    $templateCache.put('src/templates/apMesaPaginationCtrls.tpl.html', '<ul class="pagination" ng-if="lastPage > 0">\n' + '  <li ng-class="{ \'disabled\': transientState.pageOffset === 0 }">\n' + '    <a ng-click="goBack()" >&laquo;</a>\n' + '  </li>\n' + '  <li ng-repeat="link in pageLinks" ng-class="{ \'active\': link.current, \'disabled\': link.gap }">\n' + '    <a ng-if="!link.gap" ng-click="transientState.pageOffset = link.page">{{ link.page + 1 }}</a>\n' + '    <a ng-if="link.gap" href="">&hellip;</a>\n' + '  </li>\n' + '  <li ng-class="{ \'disabled\': transientState.pageOffset === lastPage }">\n' + '    <a ng-click="goForward()" >&raquo;</a>\n' + '  </li>\n' + '</ul>\n' + '<span class="rows-per-page-ctrl">\n' + '  <span class="rows-per-page-msg">{{ options.rowsPerPageMessage }}</span>\n' + '  <ul class="pagination" ng-if="options.showRowsPerPageCtrls">\n' + '    <li ng-repeat="limit in options.rowsPerPageChoices" ng-class="{\'active\': options.rowsPerPage === limit}">\n' + '      <a ng-click="options.rowsPerPage = limit">{{ limit }}</a>\n' + '    </li>\n' + '  </ul>\n' + '</span>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
