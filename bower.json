@@ -30,6 +30,6 @@
     "**/.*"
   ],
   "resolutions": {
-    "angular": "1.5.8"
+    "angular": "1.6.1"
   }
 }
