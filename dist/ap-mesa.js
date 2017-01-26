@@ -554,18 +554,20 @@ angular.module('apMesa.controllers.ApMesaController', [
           resetState(scope);
         }
       }
-      function link(scope, element) {
+      function preLink(scope) {
+        resetColumns(scope);
+        resetState(scope);
+        initOptions(scope);
+      }
+      function postLink(scope, element) {
         var deregStorageWatchers = [];
         scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
-        resetColumns(scope);
         scope.$watch('_columns', function (columns, oldColumns) {
           if (columns !== scope.columns) {
             resetColumns(scope);
             initSorts(scope);
           }
         });
-        resetState(scope);
-        initOptions(scope);
         scope.$watch('options', function (newOptions, oldOptions) {
           resetState(scope);
           initOptions(scope);
@@ -692,7 +694,7 @@ angular.module('apMesa.controllers.ApMesaController', [
               // otherwise add it to the running total
               runningTotalScroll += rowsHeight;
               // the pixels that this row's expanded panel displaces
-              var expandedPixels = scope.expandedRowHeights[expandedOffset];
+              var expandedPixels = scope.transientState.expandedRowHeights[expandedOffset];
               runningTotalScroll += expandedPixels;
               rowOffset = expandedOffset;
               // Check if the expanded panel put us over the edge
@@ -761,7 +763,10 @@ angular.module('apMesa.controllers.ApMesaController', [
           if (trackBy) {
             tElement.find('.ap-mesa-rendered-rows').attr('track-by', trackBy);
           }
-          return link;
+          return {
+            pre: preLink,
+            post: postLink
+          };
         }
       };
     }
@@ -849,7 +854,7 @@ angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRo
         for (var k in scope.transientState.expandedRows) {
           var kInt = parseInt(k);
           if (kInt >= offsetRange[0] && kInt < offsetRange[1]) {
-            rowsHeight += scope.expandedRowHeights[k];
+            rowsHeight += scope.transientState.expandedRowHeights[k];
           }
         }
         scope.dummyRowHeight = rowsHeight;
@@ -1014,7 +1019,7 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
           $timeout(function () {
             if (!scope.transientState.expandedRows[index]) {
               delete scope.transientState.expandedRows[index];
-              delete scope.expandedRowHeights[index];
+              delete scope.transientState.expandedRowHeights[index];
             } else {
               scope.refreshExpandedHeight();
             }
@@ -1022,7 +1027,7 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
         };
         scope.refreshExpandedHeight = function () {
           var newHeight = element.next('tr.ap-mesa-expand-panel').height();
-          scope.expandedRowHeights[index] = newHeight;
+          scope.transientState.expandedRowHeights[index] = newHeight;
         };
         scope.$watch('transientState.expandedRows', function (nv, ov) {
           if (nv !== ov) {

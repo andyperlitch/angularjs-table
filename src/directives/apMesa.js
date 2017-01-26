@@ -155,11 +155,16 @@
       }
     }
 
-    function link(scope, element) {
+    function preLink(scope) {
+      resetColumns(scope);
+      resetState(scope);
+      initOptions(scope);
+    }
+
+    function postLink(scope, element) {
 
       var deregStorageWatchers = [];
       scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
-      resetColumns(scope);
       scope.$watch('_columns', function(columns, oldColumns) {
         if (columns !== scope.columns) {
           resetColumns(scope);
@@ -167,8 +172,6 @@
         }
       });
 
-      resetState(scope);
-      initOptions(scope);
       scope.$watch('options', function(newOptions, oldOptions) {
         resetState(scope);
         initOptions(scope);
@@ -310,7 +313,7 @@
           runningTotalScroll += rowsHeight;
 
           // the pixels that this row's expanded panel displaces
-          var expandedPixels = scope.expandedRowHeights[expandedOffset];
+          var expandedPixels = scope.transientState.expandedRowHeights[expandedOffset];
           runningTotalScroll += expandedPixels;
           rowOffset = expandedOffset;
 
@@ -396,7 +399,10 @@
         if (trackBy) {
           tElement.find('.ap-mesa-rendered-rows').attr('track-by', trackBy);
         }
-        return link;
+        return {
+          pre: preLink,
+          post: postLink
+        };
       }
     };
   }]);
