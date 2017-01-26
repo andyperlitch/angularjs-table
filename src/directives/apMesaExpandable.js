@@ -8,7 +8,7 @@ angular.module('apMesa.directives.apMesaExpandable', [])
       scope.$watch('row', function() {
         var innerEl;
         if (scope.options.expandableTemplateUrl) {
-          innerEl = angular.element('<div ng-include="options.expandableTemplateUrl"></div>');
+          innerEl = angular.element('<div ng-include="options.expandableTemplateUrl" onload="refreshExpandedHeight(true)"></div>');
         } else if (scope.options.expandableTemplate) {
           innerEl = angular.element(scope.options.expandableTemplate);
         } else {

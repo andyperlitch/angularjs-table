@@ -872,7 +872,7 @@ angular.module('apMesa.directives.apMesaExpandable', []).directive('apMesaExpand
         scope.$watch('row', function () {
           var innerEl;
           if (scope.options.expandableTemplateUrl) {
-            innerEl = angular.element('<div ng-include="options.expandableTemplateUrl"></div>');
+            innerEl = angular.element('<div ng-include="options.expandableTemplateUrl" onload="refreshExpandedHeight(true)"></div>');
           } else if (scope.options.expandableTemplate) {
             innerEl = angular.element(scope.options.expandableTemplate);
           } else {
@@ -1016,18 +1016,18 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
         scope.rowIsExpanded = !!scope.transientState.expandedRows[index];
         scope.toggleRowExpand = function () {
           scope.transientState.expandedRows[index] = scope.rowIsExpanded = !scope.transientState.expandedRows[index];
-          $timeout(function () {
-            if (!scope.transientState.expandedRows[index]) {
-              delete scope.transientState.expandedRows[index];
-              delete scope.transientState.expandedRowHeights[index];
-            } else {
-              scope.refreshExpandedHeight();
-            }
-          });
+          if (!scope.transientState.expandedRows[index]) {
+            delete scope.transientState.expandedRows[index];
+            delete scope.transientState.expandedRowHeights[index];
+          } else {
+            scope.refreshExpandedHeight(false);
+          }
         };
-        scope.refreshExpandedHeight = function () {
-          var newHeight = element.next('tr.ap-mesa-expand-panel').height();
-          scope.transientState.expandedRowHeights[index] = newHeight;
+        scope.refreshExpandedHeight = function (fromTemplate) {
+          $timeout(function () {
+            var newHeight = element.next('tr.ap-mesa-expand-panel').height();
+            scope.transientState.expandedRowHeights[index] = newHeight;
+          });
         };
         scope.$watch('transientState.expandedRows', function (nv, ov) {
           if (nv !== ov) {
