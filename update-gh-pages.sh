@@ -13,7 +13,7 @@ grunt html2js:dist
 mv dist/templates.js app/scripts/templates.js
 
 # Install bower stuff
-bower install
+bower install -f
 ln -sf app/bower_components
 
 # Stage and commit
