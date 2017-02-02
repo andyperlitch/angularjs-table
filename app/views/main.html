@@ -33,13 +33,13 @@
 <div ng-init="pagingScheme = 'scroll'">
   <div class="btn-group" role="group">
     <button
-      ng-disabled="pagingScheme == 'scroll'"
+      ng-class="{ active: pagingScheme == 'scroll' }"
       ng-click="pagingScheme = 'scroll'"
       type="button"
       class="btn btn-primary"
     >scroll</button>
     <button
-      ng-disabled="pagingScheme == 'paginate'"
+      ng-class="{ active: pagingScheme == 'paginate' }"
       ng-click="pagingScheme = 'paginate'"
       type="button"
       class="btn btn-primary"
