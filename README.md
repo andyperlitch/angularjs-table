@@ -1,7 +1,7 @@
 angular-mesa
 ====================
 
-A table component built in angular. Handles large datasets by virtualizing rows.
+A table component built in angular. Handles large datasets by virtualizing rows. [Live demo](http://andyperlitch.github.io/angular-mesa/)
 
 Feature List
 ------------

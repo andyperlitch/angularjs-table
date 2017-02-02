@@ -102,6 +102,10 @@ angular.module('apMesa.ghPage')
       loading: true,
       loadingPromise: dataDfd.promise
     };
+    $scope.my_table_options_paginate = angular.extend({}, $scope.my_table_options, {
+      pagingStrategy: 'PAGINATE',
+      rowsPerPage: 8
+    });
 
     // kick off interval that updates the dataset
     setInterval(function() {

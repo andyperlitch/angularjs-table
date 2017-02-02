@@ -16,6 +16,7 @@
         <li>stacked ordering</li>
         <li>localStorage/custom state persistance</li>
         <li>rows are virtualized (can handle a lot of rows)</li>
+        <li>pagination</li>
       </ul>
     </div>
   </div>
@@ -29,17 +30,48 @@
 <br>
 <br>
 
+<div ng-init="pagingScheme = 'scroll'">
+  <div class="btn-group" role="group">
+    <button
+      ng-disabled="pagingScheme == 'scroll'"
+      ng-click="pagingScheme = 'scroll'"
+      type="button"
+      class="btn btn-primary"
+    >scroll</button>
+    <button
+      ng-disabled="pagingScheme == 'paginate'"
+      ng-click="pagingScheme = 'paginate'"
+      type="button"
+      class="btn btn-primary"
+    >paginate</button>
+  </div>
+  <div ng-if="pagingScheme == 'scroll'">
+    <ap-mesa 
+      columns="my_table_columns" 
+      rows="my_table_data"
+      selected="my_selected_rows"
+      class="col-sm-9"
+      options="my_table_options"
+      table-class="table">
+    </ap-mesa>
+    <div class="col-sm-3">
+      <h4>Selected rows: </h4>
+      <pre>{{my_selected_rows | json}}</pre>
+    </div>
+  </div>
 
-Selected rows: 
-
-<ap-mesa 
-  columns="my_table_columns" 
-  rows="my_table_data"
-  selected="my_selected_rows"
-  class="col-sm-9"
-  options="my_table_options"
-  table-class="table">
-</ap-mesa>
-
-
-<pre class="col-sm-3">{{my_selected_rows | json}}</pre>
+  <div ng-if="pagingScheme == 'paginate'">
+    <ap-mesa 
+      columns="my_table_columns" 
+      rows="my_table_data"
+      selected="my_selected_rows"
+      class="col-sm-9"
+      options="my_table_options_paginate"
+      table-class="table">
+    </ap-mesa>
+    <div class="col-sm-3">
+      <h4>Selected rows: </h4>
+      <pre>{{my_selected_rows | json}}</pre>
+    </div>
+  </div>
+</div>
