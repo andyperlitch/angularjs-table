@@ -24,5 +24,8 @@ git commit -m "gh-pages update for commit: ${COMMIT_ID}"
 
 # Push to remote
 git push --set-upstream origin gh-pages -f
+cp -r app/bower_components app/tmp_bower_components
 git checkout master
+rm -rf app/bower_components
+mv app/tmp_bower_components app/bower_components
 git clean -f
