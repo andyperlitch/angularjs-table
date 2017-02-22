@@ -17,7 +17,7 @@
               title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."
               class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"
             ></span>
-            {{column.hasOwnProperty('label') ? column.label : column.id }}
+            <span ap-mesa-th-title></span>
           </span>
           <span
             ng-if="!column.lockWidth"

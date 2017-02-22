@@ -21,7 +21,8 @@
     'apMesa.directives.apMesaRows',
     'apMesa.directives.apMesaDummyRows',
     'apMesa.directives.apMesaExpandable',
-    'apMesa.directives.apMesaPaginationCtrls'
+    'apMesa.directives.apMesaPaginationCtrls',
+    'apMesa.directives.apMesaThTitle'
   ])
   .provider('apMesa', function ApMesaService() {
     var defaultOptions = {

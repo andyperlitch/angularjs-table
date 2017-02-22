@@ -156,7 +156,9 @@ The columns should be an array of Column Definition Objects. The order in which 
 | ------------ | ---------------------- | -------- | ------------- | -------------------------------------------------------------------------------------- |
 | id           | `string`               | yes      | undefined     | Identifies the column.                                                                 |
 | key          | `string`               | yes      | undefined     | The field on each row that this column displays or uses in its format function.        |
-| label        | `string`               | no       | `id`          | The column heading text. If not present, `id` is used.                                 |
+| label        | `string`               | no       | `id`          | The column heading text. If not present, the column `id` is used. See *Column Header* below. |
+| labelTemplate | `string`              | no       | undefined     | If specified, used as html template in column header. See *Column Header* below.       |
+| labelTemplateUrl | `string`           | no       | undefined     | If specified, used as url to html template in column header. See *Column Header* below. |
 | sort         | `function` or `string` | no       | undefined     | If specified, defines row sort function this column uses. See *Row Sorting* below.     |
 | filter       | `function` or `string` | no       | undefined     | If specified, defines row filter function this column uses. See *Row Filtering* below. |
 | format       | `function` or `string` | no       | ''            | If specified, defines cell format function. See the *Cell Formatting* section below.   |
@@ -166,6 +168,14 @@ The columns should be an array of Column Definition Objects. The order in which 
 | template     | `string`               | no       | undefined     | A string template for the cell contents. Scope variables available: row, column, options, toggleRowExpand, refreshExpandedHeight, rowIsExpanded |
 | templateUrl  | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                  |
 | title        | `string`               | no       | undefined     | A tooltip for a column header.                                                         |
+
+
+Column Header
+-------------
+There are several ways to control what appears in the `<th>`. By default, each column `<th>` will have the value of the `id` field. If the `label` option is specified, apMesa will use that instead.
+
+If `labelTemplate` or `labelTemplateUrl` is specified, it will replace the default text with the provided template.
+The scope of this template will include the column definition object as `column` and the options object as `options`.
 
 
 Row Sorting

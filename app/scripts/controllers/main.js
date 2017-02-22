@@ -68,18 +68,19 @@ angular.module('apMesa.ghPage')
 
     // Simulate location of template file
     $templateCache.put('path/to/example/template.html', '<em>{{row[column.key]}}</em>');
+    $templateCache.put('path/to/example/labelTemplate.html', 'Weight <span class="glyphicon glyphicon-scale"></span>');
         
     // Table column definition objects
     $scope.my_table_columns = [
       { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true },
       //{ id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true, selectObject: true },
-      { id: 'ID', key: 'id', label: 'ID', sort: 'number', filter: 'number' },
+      { id: 'ID', key: 'id', label: 'id', sort: 'number', filter: 'number' },
       { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like', template: '<strong>{{row[column.key]}}</strong>' },
       { id: 'last_name', key: 'last_name', label: 'Last Name', sort: 'string', filter: 'like', templateUrl: 'path/to/example/template.html' },
       { id: 'age', key: 'age', label: 'Age', sort: 'number', filter: 'number' },
-      { id: 'likes', key: 'likes', label: 'likes', ngFilter: 'commaGroups' },
+      { id: 'likes', key: 'likes', labelTemplate: '<span class="glyphicon glyphicon-thumbs-up"></span>', ngFilter: 'commaGroups' },
       { id: 'height', key: 'height', label: 'Height', format: inches2feet, filter: feet_filter, sort: 'number' },
-      { id: 'weight', key: 'weight', label: 'Weight', filter: 'number', sort: 'number' }
+      { id: 'weight', key: 'weight', labelTemplateUrl: 'path/to/example/labelTemplate.html', filter: 'number', sort: 'number' }
     ];
 
     // Table data
