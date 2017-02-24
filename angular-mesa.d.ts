@@ -16,8 +16,10 @@ declare namespace angular.apMesa {
     id:  string;
     // The field on each row that this column displays or uses in its format function.
     key:  string;
-    // The column heading text. If not present, id is used.
+    // The column heading text (or template or templateUrl). If not present, id is used.
     label?:  string;
+    labelTemplate?: string;
+    labelTemplateUrl?: string;
     // If specified, defines row sort function this column uses. See Row Sorting below.
     sort?:  ITableSorter | string;
     // or string  no  undefined  If specified, defines row filter function this column uses. See Row Filtering below.
