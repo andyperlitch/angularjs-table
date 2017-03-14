@@ -1,6 +1,6 @@
 {
   "name": "angular-mesa",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "license": "Apache License, v2.0",
   "dependencies": {},
   "types": "./angular-mesa.d.ts",
