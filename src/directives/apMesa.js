@@ -106,7 +106,6 @@
     function resetState(scope) {
 
       scope.persistentState = {
-        rowLimit: 1,
         searchTerms: {},
         sortOrder: []
       };
