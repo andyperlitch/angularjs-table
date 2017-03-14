@@ -1,6 +1,33 @@
 (function() {
   'use strict';
 
+  var defaultOptions = {
+    bgSizeMultiplier: 1,
+    rowPadding: 300,
+    bodyHeight: 300,
+    fixedHeight: false,
+    defaultRowHeight: 40,
+    scrollDebounce: 100,
+    scrollDivisor: 1,
+    loadingText: 'loading',
+    loadingError: false,
+    noRowsText: 'no rows',
+    pagingStrategy: 'SCROLL',
+    rowsPerPage: 10, // for when pagingStrategy === 'PAGINATE'
+    rowsPerPageChoices: [10, 25, 50, 100],
+    rowsPerPageMessage: 'rows per page',
+    showRowsPerPageCtrls: true,
+    maxPageLinks: 8,
+    sortClasses: [
+      'glyphicon glyphicon-sort',
+      'glyphicon glyphicon-chevron-up',
+      'glyphicon glyphicon-chevron-down'
+    ],
+    onRegisterApi: function(api) {
+      // noop - user overrides to get a hold of api object
+    }
+  };
+
   function defaults(obj) {
     if (typeof obj !== 'object') {
       return obj;
@@ -25,32 +52,6 @@
     'apMesa.directives.apMesaThTitle'
   ])
   .provider('apMesa', function ApMesaService() {
-    var defaultOptions = {
-      bgSizeMultiplier: 1,
-      rowPadding: 300,
-      bodyHeight: 300,
-      fixedHeight: false,
-      defaultRowHeight: 40,
-      scrollDebounce: 100,
-      scrollDivisor: 1,
-      loadingText: 'loading',
-      loadingError: false,
-      noRowsText: 'no rows',
-      pagingStrategy: 'SCROLL',
-      rowsPerPage: 10, // for when pagingStrategy === 'PAGINATE'
-      rowsPerPageChoices: [10, 25, 50, 100],
-      rowsPerPageMessage: 'rows per page',
-      showRowsPerPageCtrls: true,
-      maxPageLinks: 8,
-      sortClasses: [
-        'glyphicon glyphicon-sort',
-        'glyphicon glyphicon-chevron-up',
-        'glyphicon glyphicon-chevron-down'
-      ],
-      onRegisterApi: function(api) {
-        // noop - user overrides to get a hold of api object
-      }
-    };
     this.setDefaultOptions = function(overrides) {
       defaultOptions = defaults(overrides, defaultOptions);
     }
@@ -105,7 +106,14 @@
 
     function resetState(scope) {
 
+      var rowLimit = defaultOptions.rowsPerPage;
+
+      if (scope.options && scope.options.rowsPerPage) {
+        rowLimit = scope.options.rowsPerPage;
+      }
+
       scope.persistentState = {
+        rowLimit: rowLimit,
         searchTerms: {},
         sortOrder: []
       };
@@ -251,8 +259,10 @@
         }
       });
       scope.$watch('options.rowsPerPage', function(count, oldCount) {
+        scope.calculateRowLimit();
         if (count !== oldCount) {
-          scope.calculateRowLimit();
+          var lastPageOffset = Math.floor(scope.transientState.filterCount / scope.options.rowsPerPage);
+          scope.transientState.pageOffset = Math.min(lastPageOffset, scope.transientState.pageOffset);
         }
       });
       scope.$watch('options.pagingStrategy', function(strategy) {

@@ -409,6 +409,36 @@ angular.module('apMesa.controllers.ApMesaController', [
 ]);
 // Source: dist/directives/apMesa.js
 (function () {
+  var defaultOptions = {
+      bgSizeMultiplier: 1,
+      rowPadding: 300,
+      bodyHeight: 300,
+      fixedHeight: false,
+      defaultRowHeight: 40,
+      scrollDebounce: 100,
+      scrollDivisor: 1,
+      loadingText: 'loading',
+      loadingError: false,
+      noRowsText: 'no rows',
+      pagingStrategy: 'SCROLL',
+      rowsPerPage: 10,
+      rowsPerPageChoices: [
+        10,
+        25,
+        50,
+        100
+      ],
+      rowsPerPageMessage: 'rows per page',
+      showRowsPerPageCtrls: true,
+      maxPageLinks: 8,
+      sortClasses: [
+        'glyphicon glyphicon-sort',
+        'glyphicon glyphicon-chevron-up',
+        'glyphicon glyphicon-chevron-down'
+      ],
+      onRegisterApi: function (api) {
+      }
+    };
   function defaults(obj) {
     if (typeof obj !== 'object') {
       return obj;
@@ -431,36 +461,6 @@ angular.module('apMesa.controllers.ApMesaController', [
     'apMesa.directives.apMesaPaginationCtrls',
     'apMesa.directives.apMesaThTitle'
   ]).provider('apMesa', function ApMesaService() {
-    var defaultOptions = {
-        bgSizeMultiplier: 1,
-        rowPadding: 300,
-        bodyHeight: 300,
-        fixedHeight: false,
-        defaultRowHeight: 40,
-        scrollDebounce: 100,
-        scrollDivisor: 1,
-        loadingText: 'loading',
-        loadingError: false,
-        noRowsText: 'no rows',
-        pagingStrategy: 'SCROLL',
-        rowsPerPage: 10,
-        rowsPerPageChoices: [
-          10,
-          25,
-          50,
-          100
-        ],
-        rowsPerPageMessage: 'rows per page',
-        showRowsPerPageCtrls: true,
-        maxPageLinks: 8,
-        sortClasses: [
-          'glyphicon glyphicon-sort',
-          'glyphicon glyphicon-chevron-up',
-          'glyphicon glyphicon-chevron-down'
-        ],
-        onRegisterApi: function (api) {
-        }
-      };
     this.setDefaultOptions = function (overrides) {
       defaultOptions = defaults(overrides, defaultOptions);
     };
@@ -512,7 +512,12 @@ angular.module('apMesa.controllers.ApMesaController', [
         };
       }
       function resetState(scope) {
+        var rowLimit = defaultOptions.rowsPerPage;
+        if (scope.options && scope.options.rowsPerPage) {
+          rowLimit = scope.options.rowsPerPage;
+        }
         scope.persistentState = {
+          rowLimit: rowLimit,
           searchTerms: {},
           sortOrder: []
         };
@@ -644,8 +649,10 @@ angular.module('apMesa.controllers.ApMesaController', [
           }
         });
         scope.$watch('options.rowsPerPage', function (count, oldCount) {
+          scope.calculateRowLimit();
           if (count !== oldCount) {
-            scope.calculateRowLimit();
+            var lastPageOffset = Math.floor(scope.transientState.filterCount / scope.options.rowsPerPage);
+            scope.transientState.pageOffset = Math.min(lastPageOffset, scope.transientState.pageOffset);
           }
         });
         scope.$watch('options.pagingStrategy', function (strategy) {
