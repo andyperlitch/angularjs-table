@@ -143,6 +143,12 @@
       scope.options = scope.options || {};
       var trackByOverride = scope.trackBy ? { trackBy: scope.trackBy } : {};
       defaults(scope.options, trackByOverride, apMesa.getDefaultOptions());
+
+      // Check for async
+      if (scope.options.getData) {
+
+      }
+
       initSorts(scope);
     }
 

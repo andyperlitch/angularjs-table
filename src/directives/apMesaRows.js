@@ -18,10 +18,11 @@
 angular.module('apMesa.directives.apMesaRows',[
   'apMesa.directives.apMesaRow',
   'apMesa.filters.apMesaRowFilter',
-  'apMesa.filters.apMesaRowSorter'
+  'apMesa.filters.apMesaRowSorter',
+  'apMesa.services.apMesaDebounce'
 ])
 
-.directive('apMesaRows', function($filter, $timeout) {
+.directive('apMesaRows', function($filter, $timeout, apMesaDebounce) {
 
   var tableRowFilter = $filter('apMesaRowFilter');
   var tableRowSorter = $filter('apMesaRowSorter');
@@ -63,21 +64,40 @@ angular.module('apMesa.directives.apMesaRows',[
   }
 
   function link(scope) {
+    
 
-    var updateHandler = function(newValue, oldValue) {
-      if (newValue === oldValue) {
-        return;
-      }
-      scope.visible_rows = calculateVisibleRows(scope);
-      scope.transientState.expandedRows = {};
-    };
-
-    var updateHandlerWithoutClearingCollapsed = function(newValue, oldValue) {
-      if (newValue === oldValue) {
-        return;
-      }
-      scope.visible_rows = calculateVisibleRows(scope);
+    var onGetDataSuccess = function(res) {
+      var total = res.total;
+      var rows = res.rows;
     }
+    var onGetDataError = function(err) {
+      console.log('an error occurred getting data.');
+    }
+
+    var updateHandler = /*apMesaDebounce(*/function(newValue, oldValue) {
+      if (newValue === oldValue) {
+        return;
+      }
+      if (!scope.options.getData) {
+        scope.visible_rows = calculateVisibleRows(scope);  
+      } else {
+        scope.options.getData().then(onGetDataSuccess, onGetDataError);
+      }
+      
+      scope.transientState.expandedRows = {};
+    }/*, 100)*/;
+
+    var updateHandlerWithoutClearingCollapsed = /*apMesaDebounce(*/function(newValue, oldValue) {
+      if (newValue === oldValue) {
+        return;
+      }
+      if (!scope.options.getData) {
+        scope.visible_rows = calculateVisibleRows(scope);  
+      } else {
+        scope.options.getData().then(onGetDataSuccess, onGetDataError);
+      }
+      
+    }/*, 100)*/;
 
     scope.$watch('persistentState.searchTerms', updateHandler, true);
     scope.$watch('[transientState.rowOffset, persistentState.rowLimit, transientState.pageOffset]', updateHandlerWithoutClearingCollapsed);
