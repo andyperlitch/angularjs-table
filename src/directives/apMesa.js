@@ -49,7 +49,8 @@
     'apMesa.directives.apMesaDummyRows',
     'apMesa.directives.apMesaExpandable',
     'apMesa.directives.apMesaPaginationCtrls',
-    'apMesa.directives.apMesaThTitle'
+    'apMesa.directives.apMesaThTitle',
+    'apMesa.services.apMesaDebounce'
   ])
   .provider('apMesa', function ApMesaService() {
     this.setDefaultOptions = function(overrides) {
@@ -66,43 +67,7 @@
       }
     }];
   })
-  .directive('apMesa', ['$log', '$timeout', '$q', 'apMesa', function ($log, $timeout, $q, apMesa) {
-
-    function debounce(func, wait, immediate) {
-      var timeout, args, context, timestamp, result;
-
-      var later = function() {
-        var last = Date.now() - timestamp;
-
-        if (last < wait && last > 0) {
-          timeout = $timeout(later, wait - last);
-        } else {
-          timeout = null;
-          if (!immediate) {
-            result = func.apply(context, args);
-            if (!timeout) {
-              context = args = null;
-            }
-          }
-        }
-      };
-
-      return function() {
-        context = this;
-        args = arguments;
-        timestamp = Date.now();
-        var callNow = immediate && !timeout;
-        if (!timeout) {
-          timeout = $timeout(later, wait);
-        }
-        if (callNow) {
-          result = func.apply(context, args);
-          context = args = null;
-        }
-
-        return result;
-      };
-    }
+  .directive('apMesa', ['$log', '$timeout', '$q', 'apMesa', 'apMesaDebounce', function ($log, $timeout, $q, apMesa, debounce) {
 
     function resetState(scope) {
 
@@ -124,8 +89,16 @@
         rowOffset: 0,
         pageOffset: 0,
         expandedRows: {},
-        expandedRowHeights: {}
+        expandedRowHeights: {},
+        columnLookup: {}
       };
+
+      if (scope.columns.length) {
+        var lookup = scope.transientState.columnLookup;
+        scope.columns.forEach(function(column) {
+          lookup[column.id] = column;
+        });
+      }
 
       scope.$broadcast('apMesa:stateReset');
     }

@@ -28,7 +28,7 @@ angular.module('apMesa.filters.apMesaRowFilter',[
     enabledFilterColumns = columns.filter(function(column) {
       // check search term
       var term = persistentState.searchTerms[column.id];
-      if (persistentState.searchTerms.hasOwnProperty(column.id) && typeof term === 'string') {
+      if (typeof term === 'string') {
 
         // filter empty strings and whitespace
         if (!term.trim()) {

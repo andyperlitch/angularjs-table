@@ -42,7 +42,7 @@ angular.module('apMesa.directives.apMesaRows',[
     visible_rows = tableRowFilter(scope.rows, scope.columns, scope.persistentState, scope.transientState, scope.options);
 
     // sort rows
-    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options);
+    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options, scope.transientState);
 
     // limit rows
     if (scope.options.pagingStrategy === 'SCROLL') {
@@ -105,6 +105,11 @@ angular.module('apMesa.directives.apMesaRows',[
     scope.$watch('persistentState.sortOrder', updateHandler, true);
     scope.$watch('rows', function(newRows) {
       if (angular.isArray(newRows)) {
+        updateHandler(true, false);
+      }
+    });
+    scope.$watch('options.getData', function(getData) {
+      if (angular.isFunction(getData)) {
         updateHandler(true, false);
       }
     });

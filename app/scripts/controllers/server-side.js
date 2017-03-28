@@ -48,6 +48,10 @@ angular.module('apMesa.ghPage')
           });
         }
 
+        dfd.resolve({
+          total: results.length,
+          rows: results.slice(offset, offset + limit)
+        });
 
       }, 400);
 

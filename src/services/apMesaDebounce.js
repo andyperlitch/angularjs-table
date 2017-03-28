@@ -3,7 +3,7 @@
 /** _.debounce, modified to use $timeout instead of setTimeout */
 angular.module('apMesa.services.apMesaDebounce', [])
 
-.factory('apMesaDebounce', ['$timeout', function() {
+.factory('apMesaDebounce', ['$timeout', function($timeout) {
   /**
    * lodash (Custom Build) <https://lodash.com/>
    * Build: `lodash modularize exports="npm" -o ./`
@@ -379,5 +379,7 @@ angular.module('apMesa.services.apMesaDebounce', [])
       ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
       : (reIsBadHex.test(value) ? NAN : +value);
   }
+
   return debounce;
+
 }]);
