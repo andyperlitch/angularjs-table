@@ -154,6 +154,7 @@ angular.module('apMesa.directives.apMesaRows',[
       
     };
 
+    // Watchers that trigger updates to visible rows
     scope.$watch('persistentState.searchTerms', function(nv, ov) {
       if (!angular.equals(nv, ov)) {
         scope.resetOffset();
@@ -167,7 +168,9 @@ angular.module('apMesa.directives.apMesaRows',[
       updateHandler(nv, ov);
     }, true);
     scope.$watch('transientState.rowOffset', function(nv, ov) {
-      updateHandlerWithoutClearingCollapsed(nv, ov);
+      if (scope.options.pagingStrategy === 'SCROLL') {
+        updateHandlerWithoutClearingCollapsed(nv, ov);
+      }
     });
     scope.$watch('persistentState.rowLimit', function(nv, ov) {
       if (scope.options.getData && scope.transientState.rowHeightIsCalculated) {

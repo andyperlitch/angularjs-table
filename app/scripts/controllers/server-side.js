@@ -6,6 +6,7 @@ angular.module('apMesa.ghPage')
 
     // Mock serverside call
     function getData(offset, limit, activeFilters, activeSorts) {
+      console.log('getData called');
       var dfd = $q.defer();
 
       $timeout(function() {
@@ -65,6 +66,10 @@ angular.module('apMesa.ghPage')
     $scope.my_table_options = {
       getData: getData
     };
+
+    $scope.my_table_options_paginate = angular.extend({}, $scope.my_table_options, {
+      pagingStrategy: 'PAGINATE'
+    });
 
     $scope.my_table_columns = [
       {

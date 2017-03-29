@@ -158,6 +158,9 @@ table tbody .ap-mesa-dummy-row td {
 .ap-mesa-pagination .rows-per-page-msg {
   vertical-align: middle;
 }
+.ap-mesa-pagination ul.pagination li a {
+  cursor: pointer;
+}
 
 /* async loader styles */
 
@@ -171,7 +174,8 @@ table tbody .ap-mesa-dummy-row td {
   width: 20%;
   max-width: 130px;
   min-width: 100px;
-  height: 4.5rem;
+  height: auto;
+  padding: 1rem;
 }
 
 /* credit to: https://projects.lukehaas.me/css-loaders/ */
@@ -192,9 +196,9 @@ table tbody .ap-mesa-dummy-row td {
   margin: 0 auto;
   position: relative;
   text-indent: -9999em;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
+  -webkit-transform: translateZ(0) translateY(-100%);
+  -ms-transform: translateZ(0) translateY(-100%);
+  transform: translateZ(0) translateY(-100%);
   -webkit-animation-delay: -0.16s;
   animation-delay: -0.16s;
 }
