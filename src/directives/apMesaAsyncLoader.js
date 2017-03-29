@@ -14,7 +14,7 @@ angular.module('apMesa.directives.apMesaAsyncLoader', [])
     };
     var fadeOut = function() {
       $timeout.cancel(fadeInPromise);
-      element.fadeOut();
+      element.hide();
     }
     scope.$watch('transientState.getDataPromise', function(dataPromise) {
       if (dataPromise) {

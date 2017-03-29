@@ -18,11 +18,15 @@ angular.module('apMesa.ghPage')
             for (var i = 0; i < activeFilters.length; i++) {
               var filterMeta = activeFilters[i];
               var columnDef = filterMeta.column;
-              var filterString = filterMeta.value;
+              var filterString = filterMeta.value.toLowerCase();
 
               if (columnDef.filter === 'string') {
-                if (!row[columnDef.key].indexOf(filterString)) {
+                var searchableValue = row[columnDef.key].toLowerCase();
+                // console.log(searchableValue, filterString);
+                if (searchableValue.indexOf(filterString) === -1) {
                   return false;
+                } else {
+                  return true;
                 }
               }
             }

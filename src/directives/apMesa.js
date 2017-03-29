@@ -119,11 +119,6 @@
       var trackByOverride = scope.trackBy ? { trackBy: scope.trackBy } : {};
       defaults(scope.options, trackByOverride, apMesa.getDefaultOptions());
 
-      // Check for async
-      if (scope.options.getData) {
-
-      }
-
       initSorts(scope);
     }
 
@@ -347,6 +342,16 @@
           scope.persistentState.rowLimit = scope.options.rowsPerPage;
         }
       };
+
+      scope.resetOffset = function() {
+        if (scope.options.pagingStrategy === 'SCROLL') {
+          scope.scrollDiv[0].scrollTop = 0;
+          scope.transientState.rowOffset = 0;
+        } else if (scope.options.pagingStrategy === 'PAGINATE') {
+          scope.transientState.pageOffset = 0;
+          scope.transientState.rowOffset = 0;
+        }
+      }
 
       // Wait for a render
       $timeout(function() {

@@ -155,6 +155,15 @@ angular.module('apMesa.directives.apMesaRows',[
     };
 
     scope.$watch('persistentState.searchTerms', function(nv, ov) {
+      if (!angular.equals(nv, ov)) {
+        scope.resetOffset();
+      }
+      updateHandler(nv, ov);
+    }, true);
+    scope.$watch('persistentState.sortOrder', function(nv, ov) {
+      if (!angular.equals(nv, ov)) {
+        scope.resetOffset();
+      }
       updateHandler(nv, ov);
     }, true);
     scope.$watch('transientState.rowOffset', function(nv, ov) {
@@ -174,9 +183,6 @@ angular.module('apMesa.directives.apMesaRows',[
         updateHandler(nv, ov);
       }
     });
-    scope.$watch('persistentState.sortOrder', function(nv, ov) {
-      updateHandler(nv, ov);
-    }, true);
     scope.$watch('rows', function(newRows) {
       if (angular.isArray(newRows)) {
         updateHandler(true, false);
