@@ -53,7 +53,7 @@ angular.module('apMesa.ghPage')
           rows: results.slice(offset, offset + limit)
         });
 
-      }, 400);
+      }, Math.random() * 1000);
 
       return dfd.promise;
     }

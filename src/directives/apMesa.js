@@ -49,6 +49,7 @@
     'apMesa.directives.apMesaDummyRows',
     'apMesa.directives.apMesaExpandable',
     'apMesa.directives.apMesaPaginationCtrls',
+    'apMesa.directives.apMesaAsyncLoader',
     'apMesa.directives.apMesaThTitle',
     'apMesa.services.apMesaDebounce'
   ])
@@ -85,6 +86,7 @@
 
       // Holds filtered rows count
       scope.transientState = {
+        rowHeightIsCalculated: false,
         filterCount: scope.rows ? scope.rows.length : 0,
         rowOffset: 0,
         pageOffset: 0,
@@ -336,6 +338,9 @@
       scope.calculateRowLimit = function() {
         var rowHeight = scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
         scope.rowHeight = rowHeight || scope.options.defaultRowHeight || 20;
+        if (!scope.transientState.rowHeightIsCalculated && rowHeight) {
+          scope.transientState.rowHeightIsCalculated = true;
+        }
         if (scope.options.pagingStrategy === 'SCROLL') {
           scope.persistentState.rowLimit = Math.ceil((scope.options.bodyHeight + scope.options.rowPadding*2) / scope.rowHeight);
         } else if (scope.options.pagingStrategy === 'PAGINATE') {

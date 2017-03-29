@@ -85,5 +85,6 @@
       <tbody ng-if="options.pagingStrategy === 'SCROLL'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
+  <div ap-mesa-async-loader></div>
   <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === 'PAGINATE'" ap-mesa-pagination-ctrls></div>
 </div>
