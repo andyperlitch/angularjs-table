@@ -5,6 +5,11 @@ Note that patch versions might not show up here, but always use the latest patch
 As per semver specs, major versions are not backwards-compatible, minor versions are backwards compatible but with new features,
 and patch versions are just bug fixes.
 
+## `v2.10.0`
+
+- Added server-side interaction support with `options.getData`
+- Improved loading/error/no-data message display with the apMesaStatusDisplay directive
+- added the `filterPlaceholder` option to column definition objects
 
 ## `v2.9.0`
 
