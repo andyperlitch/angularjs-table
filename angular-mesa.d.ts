@@ -24,6 +24,8 @@ declare namespace angular.apMesa {
     sort?:  ITableSorter | string;
     // or string  no  undefined  If specified, defines row filter function this column uses. See Row Filtering below.
     filter?:  ITableFilterer | string;
+    // Defines the placeholder text for the filter input, when filter is enabled
+    filterPlaceholder?: string;
     // or string  no  ''  If specified, defines cell format function. See the Cell Formatting section below.
     format?:  ITableFormatter | string;
     // width of column, can include units, e.g. '30px'

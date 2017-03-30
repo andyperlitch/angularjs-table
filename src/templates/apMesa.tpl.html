@@ -38,7 +38,7 @@
             type="text"
             ng-if="(column.filter)"
             ng-model="persistentState.searchTerms[column.id]"
-            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"
+            ng-attr-placeholder="{{ column.filterPlaceholder ? column.filterPlaceholder : (column.filter.placeholder || 'filter') }}"
             ng-attr-title="{{ column.filter && column.filter.title }}"
             ng-class="{'active': persistentState.searchTerms[column.id] }"
           >
@@ -68,9 +68,9 @@
           ></th>
         </tr>
       </thead>
-      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ng-show="!options.loading" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>
-      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
-      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>
+      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>
+      <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
+      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
   <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === 'PAGINATE'" ap-mesa-pagination-ctrls></div>

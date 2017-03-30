@@ -163,6 +163,7 @@ The columns should be an array of Column Definition Objects. The order in which 
 | labelTemplateUrl | `string`           | no       | undefined     | If specified, used as url to html template in column header. See *Column Header* below. |
 | sort         | `function` or `string` | no       | undefined     | If specified, defines row sort function this column uses. See *Row Sorting* below.     |
 | filter       | `function` or `string` | no       | undefined     | If specified, defines row filter function this column uses. See *Row Filtering* below. |
+| filterPlaceholder | `string`          | no       | 'filter'      | If specified, defines the placeholder text for the filter input. See *Row Filtering* below. |
 | format       | `function` or `string` | no       | ''            | If specified, defines cell format function. See the *Cell Formatting* section below.   |
 | width        | `string` or `number`   | no       | 'auto'        | width of column, can include units, e.g. '30px'                                        |
 | lockWidth   | `boolean`              | no       | false         | If true, column will not be resizable.                                                 |

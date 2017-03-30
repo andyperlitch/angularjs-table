@@ -6,7 +6,7 @@ angular.module('apMesa.ghPage')
 
     // Mock serverside call
     function getData(offset, limit, activeFilters, activeSorts) {
-      console.log('getData called');
+
       var dfd = $q.defer();
 
 
@@ -88,6 +88,7 @@ angular.module('apMesa.ghPage')
         key: 'DeviceName',
         // The filter and sort values are only checked for truthiness by angular-mesa when getData is used
         filter: 'string',
+        filterPlaceholder: 'filter name',
         sort: 'string'
       },
       {
@@ -95,6 +96,7 @@ angular.module('apMesa.ghPage')
         label: 'Brand',
         key: 'Brand',
         filter: 'string',
+        filterPlaceholder: 'filter brand',
         sort: 'string'
       },
       {
