@@ -203,27 +203,66 @@ table tbody .ap-mesa-dummy-row td {
 
 /* async loader styles */
 
-.ap-mesa-async-loader {
-  position: absolute;
+.ap-mesa-status-display-wrapper {
+  position: relative;
+  text-align: center;
+}
+
+.ap-mesa-status-display {
   background: rgba(0,0,0,0.3);
   border-radius: 1rem;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
   width: 20%;
   max-width: 130px;
   min-width: 100px;
   height: auto;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
+  position: relative;
+  display: inline-block;
+  margin-top: 0.7rem;
+}
+
+.ap-mesa-loading-display.ng-enter {
+  -webkit-transition: opacity cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  transition: opacity cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.paging-strategy-scroll .ap-mesa-loading-display.ng-enter {
+  -webkit-transition-delay: 0.4s;
+  transition-delay: 0.4s;
+}
+
+.paging-strategy-paginate .ap-mesa-loading-display.ng-enter {
+  -webkit-transition-delay: 0s;
+  transition-delay: 0s;
+}
+
+.ap-mesa-loading-display.ng-enter,
+.ap-mesa-loading-display.ng-enter.ng-leave.ng-leave-active {
+  opacity: 0;
+}
+
+.ap-mesa-loading-display.ng-enter.ng-leave,
+.ap-mesa-loading-display.ng-enter.ng-enter-active {
+  opacity: 1;
+}
+
+.ap-mesa-status-display-wrapper.has-rows .ap-mesa-status-display {
+  position: absolute;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+.ap-mesa-error-display-inner {
+  color: red;
+  display: inline-block;
 }
 
 /* credit to: https://projects.lukehaas.me/css-loaders/ */
 
-.ap-mesa-async-loader-inner,
-.ap-mesa-async-loader-inner:before,
-.ap-mesa-async-loader-inner:after {
+.ap-mesa-status-display-inner,
+.ap-mesa-status-display-inner:before,
+.ap-mesa-status-display-inner:after {
   border-radius: 50%;
   width: 1.5em;
   height: 1.5em;
@@ -233,7 +272,7 @@ table tbody .ap-mesa-dummy-row td {
   animation: load7 1.8s infinite ease-in-out;
 }
 
-.ap-mesa-async-loader-inner {
+.ap-mesa-status-display-inner {
   color: #ffffff;
   font-size: 10px;
   margin: 0 auto;
@@ -246,20 +285,20 @@ table tbody .ap-mesa-dummy-row td {
   animation-delay: -0.16s;
 }
 
-.ap-mesa-async-loader-inner:before,
-.ap-mesa-async-loader-inner:after {
+.ap-mesa-status-display-inner:before,
+.ap-mesa-status-display-inner:after {
   content: '';
   position: absolute;
   top: 0;
 }
 
-.ap-mesa-async-loader-inner:before {
+.ap-mesa-status-display-inner:before {
   left: -3.5em;
   -webkit-animation-delay: -0.32s;
   animation-delay: -0.32s;
 }
 
-.ap-mesa-async-loader-inner:after {
+.ap-mesa-status-display-inner:after {
   left: 3.5em;
 }
 

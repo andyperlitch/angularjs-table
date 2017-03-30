@@ -1,4 +1,7 @@
-<div class="ap-mesa-wrapper">
+<div class="ap-mesa-wrapper" ng-class="{
+'paging-strategy-paginate': options.pagingStrategy === 'PAGINATE',
+'paging-strategy-scroll': options.pagingStrategy === 'SCROLL'
+}">
   <table ng-class="classes" class="ap-mesa mesa-header-table">
     <thead>
       <tr ui-sortable="sortableOptions" ng-model="columns">
@@ -54,7 +57,8 @@
       </tr>
     </thead>
   </table>
-  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle">
+  <div ap-mesa-status-display></div>
+  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle" ng-hide="transientState.loadingError">
     <table ng-class="classes" class="ap-mesa mesa-rows-table">
       <thead>
         <th
@@ -64,27 +68,10 @@
           ></th>
         </tr>
       </thead>
-      <tbody>
-        <tr ng-if="visible_rows.length === 0 || options.loading">
-          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">
-            <div ng-if="options.loadingError">
-              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>
-              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>
-            </div>
-            <div ng-if="!options.loadingError">
-              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>
-              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>
-              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>
-              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
       <tbody ng-if="options.pagingStrategy === 'SCROLL'" ng-show="!options.loading" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>
       <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
       <tbody ng-if="options.pagingStrategy === 'SCROLL'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>
     </table>
   </div>
-  <div ap-mesa-async-loader></div>
   <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === 'PAGINATE'" ap-mesa-pagination-ctrls></div>
 </div>

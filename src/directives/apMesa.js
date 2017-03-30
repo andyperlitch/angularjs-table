@@ -9,9 +9,8 @@
     defaultRowHeight: 40,
     scrollDebounce: 100,
     scrollDivisor: 1,
-    loadingText: 'loading',
-    loadingError: false,
-    noRowsText: 'no rows',
+    loadingText: undefined,
+    noRowsText: 'No data.',
     pagingStrategy: 'SCROLL',
     rowsPerPage: 10, // for when pagingStrategy === 'PAGINATE'
     rowsPerPageChoices: [10, 25, 50, 100],
@@ -49,7 +48,7 @@
     'apMesa.directives.apMesaDummyRows',
     'apMesa.directives.apMesaExpandable',
     'apMesa.directives.apMesaPaginationCtrls',
-    'apMesa.directives.apMesaAsyncLoader',
+    'apMesa.directives.apMesaStatusDisplay',
     'apMesa.directives.apMesaThTitle',
     'apMesa.services.apMesaDebounce'
   ])
@@ -84,7 +83,6 @@
         sortOrder: []
       };
 
-      // Holds filtered rows count
       scope.transientState = {
         rowHeightIsCalculated: false,
         filterCount: scope.rows ? scope.rows.length : 0,
@@ -92,7 +90,9 @@
         pageOffset: 0,
         expandedRows: {},
         expandedRowHeights: {},
-        columnLookup: {}
+        columnLookup: {},
+        loadingError: null,
+        loading: false
       };
 
       if (scope.columns.length) {
@@ -224,11 +224,14 @@
       scope.$watch('options.loadingPromise', function(promise) {
         if (angular.isObject(promise) && typeof promise.then === 'function') {
           scope.api.setLoading(true);
-          promise.then(function () {
-            scope.options.loadingError = false;
+          promise.then(function (data) {
+            scope.transientState.loadingError = false;
             scope.api.setLoading(false);
+            if (angular.isArray(data)) {
+              scope.rows = data;
+            }
           }, function (reason) {
-            scope.options.loadingError = true;
+            scope.transientState.loadingError = true;
             scope.api.setLoading(false);
             $log.warn('Failed loading table data: ' + reason);
           });
@@ -367,7 +370,7 @@
         deselectAll: scope.deselectAll,
         toggleSelectAll: scope.toggleSelectAll,
         setLoading: function(isLoading, triggerDigest) {
-          scope.options.loading = isLoading;
+          scope.transientState.loading = isLoading;
           if (triggerDigest) {
             scope.$digest();
           }

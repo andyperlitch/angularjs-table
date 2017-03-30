@@ -423,9 +423,8 @@ angular.module('apMesa.controllers.ApMesaController', [
       defaultRowHeight: 40,
       scrollDebounce: 100,
       scrollDivisor: 1,
-      loadingText: 'loading',
-      loadingError: false,
-      noRowsText: 'no rows',
+      loadingText: undefined,
+      noRowsText: 'No data.',
       pagingStrategy: 'SCROLL',
       rowsPerPage: 10,
       rowsPerPageChoices: [
@@ -465,7 +464,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     'apMesa.directives.apMesaDummyRows',
     'apMesa.directives.apMesaExpandable',
     'apMesa.directives.apMesaPaginationCtrls',
-    'apMesa.directives.apMesaAsyncLoader',
+    'apMesa.directives.apMesaStatusDisplay',
     'apMesa.directives.apMesaThTitle',
     'apMesa.services.apMesaDebounce'
   ]).provider('apMesa', function ApMesaService() {
@@ -499,7 +498,6 @@ angular.module('apMesa.controllers.ApMesaController', [
           searchTerms: {},
           sortOrder: []
         };
-        // Holds filtered rows count
         scope.transientState = {
           rowHeightIsCalculated: false,
           filterCount: scope.rows ? scope.rows.length : 0,
@@ -507,7 +505,9 @@ angular.module('apMesa.controllers.ApMesaController', [
           pageOffset: 0,
           expandedRows: {},
           expandedRowHeights: {},
-          columnLookup: {}
+          columnLookup: {},
+          loadingError: null,
+          loading: false
         };
         if (scope.columns.length) {
           var lookup = scope.transientState.columnLookup;
@@ -624,11 +624,14 @@ angular.module('apMesa.controllers.ApMesaController', [
         scope.$watch('options.loadingPromise', function (promise) {
           if (angular.isObject(promise) && typeof promise.then === 'function') {
             scope.api.setLoading(true);
-            promise.then(function () {
-              scope.options.loadingError = false;
+            promise.then(function (data) {
+              scope.transientState.loadingError = false;
               scope.api.setLoading(false);
+              if (angular.isArray(data)) {
+                scope.rows = data;
+              }
             }, function (reason) {
-              scope.options.loadingError = true;
+              scope.transientState.loadingError = true;
               scope.api.setLoading(false);
               $log.warn('Failed loading table data: ' + reason);
             });
@@ -741,7 +744,7 @@ angular.module('apMesa.controllers.ApMesaController', [
           deselectAll: scope.deselectAll,
           toggleSelectAll: scope.toggleSelectAll,
           setLoading: function (isLoading, triggerDigest) {
-            scope.options.loading = isLoading;
+            scope.transientState.loading = isLoading;
             if (triggerDigest) {
               scope.$digest();
             }
@@ -777,40 +780,6 @@ angular.module('apMesa.controllers.ApMesaController', [
     }
   ]);
 }());
-// Source: dist/directives/apMesaAsyncLoader.js
-angular.module('apMesa.directives.apMesaAsyncLoader', []).directive('apMesaAsyncLoader', [
-  '$timeout',
-  function ($timeout) {
-    var TIME_TO_WAIT = 400;
-    function link(scope, element) {
-      var fadeInPromise;
-      var fadeIn = function () {
-        element.fadeIn();
-        fadeInPromise = null;
-      };
-      var fadeOut = function () {
-        $timeout.cancel(fadeInPromise);
-        element.hide();
-      };
-      scope.$watch('transientState.getDataPromise', function (dataPromise) {
-        if (dataPromise) {
-          fadeInPromise = $timeout(fadeIn, scope.options.getData ? 0 : TIME_TO_WAIT);
-          dataPromise.finally(fadeOut);
-        } else {
-          if (fadeInPromise) {
-            $timeout.cancel(fadeInPromise);
-          }
-        }
-      });
-    }
-    return {
-      scope: false,
-      link: link,
-      replace: true,
-      templateUrl: 'src/templates/apMesaAsyncLoader.tpl.html'
-    };
-  }
-]);
 // Source: dist/directives/apMesaCell.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
@@ -1171,6 +1140,8 @@ angular.module('apMesa.directives.apMesaRows', [
               direction: sortItem.dir === '+' ? 'ASC' : 'DESC'
             };
           });
+        scope.transientState.loadingError = false;
+        scope.api.setLoading(true);
         var getDataPromise = scope.transientState.getDataPromise = scope.options.getData(offset, scope.persistentState.rowLimit, activeFilters, activeSorts).then(function (res) {
             if (getDataPromise !== scope.transientState.getDataPromise) {
               // new request made, cancelling this one
@@ -1186,9 +1157,12 @@ angular.module('apMesa.directives.apMesaRows', [
               row.$$$index = i++;
             });
             scope.transientState.getDataPromise = null;
+            scope.api.setLoading(false);
             $rootScope.$broadcast('angular-mesa:update-dummy-rows');
-          }, function () {
+          }, function (e) {
             scope.transientState.getDataPromise = null;
+            scope.transientState.loadingError = true;
+            scope.api.setLoading(false);
           });
       }, 200, {
         leading: false,
@@ -1309,6 +1283,13 @@ angular.module('apMesa.directives.apMesaSelector', []).directive('apMesaSelector
         scope.$apply();
       });
     }
+  };
+});
+// Source: dist/directives/apMesaStatusDisplay.js
+angular.module('apMesa.directives.apMesaStatusDisplay', []).directive('apMesaStatusDisplay', function () {
+  return {
+    replace: true,
+    templateUrl: 'src/templates/apMesaStatusDisplay.tpl.html'
   };
 });
 // Source: dist/directives/apMesaThTitle.js
@@ -2020,411 +2001,18 @@ angular.module('apMesa.services.apMesaSortFunctions', []).service('apMesaSortFun
     }
   };
 });
-// Source: dist/services/apMesaThrottle.js
-/** _.debounce, modified to use $timeout instead of setTimeout */
-angular.module('apMesa.services.apMesaThrottle', []).factory('apMesaThrottle', [
-  '$timeout',
-  function ($timeout) {
-    /**
-   * lodash (Custom Build) <https://lodash.com/>
-   * Build: `lodash modularize exports="npm" -o ./`
-   * Copyright jQuery Foundation and other contributors <https://jquery.org/>
-   * Released under MIT license <https://lodash.com/license>
-   * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-   * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-   */
-    /** Used as the `TypeError` message for "Functions" methods. */
-    var FUNC_ERROR_TEXT = 'Expected a function';
-    /** Used as references for various `Number` constants. */
-    var NAN = 0 / 0;
-    /** `Object#toString` result references. */
-    var symbolTag = '[object Symbol]';
-    /** Used to match leading and trailing whitespace. */
-    var reTrim = /^\s+|\s+$/g;
-    /** Used to detect bad signed hexadecimal string values. */
-    var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
-    /** Used to detect binary string values. */
-    var reIsBinary = /^0b[01]+$/i;
-    /** Used to detect octal string values. */
-    var reIsOctal = /^0o[0-7]+$/i;
-    /** Built-in method references without a dependency on `root`. */
-    var freeParseInt = parseInt;
-    /** Detect free variable `global` from Node.js. */
-    var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-    /** Detect free variable `self`. */
-    var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-    /** Used as a reference to the global object. */
-    var root = freeGlobal || freeSelf || Function('return this')();
-    /** Used for built-in method references. */
-    var objectProto = Object.prototype;
-    /**
-   * Used to resolve the
-   * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-   * of values.
-   */
-    var objectToString = objectProto.toString;
-    /* Built-in method references for those with the same name as other `lodash` methods. */
-    var nativeMax = Math.max, nativeMin = Math.min;
-    /**
-   * Gets the timestamp of the number of milliseconds that have elapsed since
-   * the Unix epoch (1 January 1970 00:00:00 UTC).
-   *
-   * @static
-   * @memberOf _
-   * @since 2.4.0
-   * @category Date
-   * @returns {number} Returns the timestamp.
-   * @example
-   *
-   * _.defer(function(stamp) {
-   *   console.log(_.now() - stamp);
-   * }, _.now());
-   * // => Logs the number of milliseconds it took for the deferred invocation.
-   */
-    var now = function () {
-      return root.Date.now();
-    };
-    /**
-   * Creates a debounced function that delays invoking `func` until after `wait`
-   * milliseconds have elapsed since the last time the debounced function was
-   * invoked. The debounced function comes with a `cancel` method to cancel
-   * delayed `func` invocations and a `flush` method to immediately invoke them.
-   * Provide `options` to indicate whether `func` should be invoked on the
-   * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
-   * with the last arguments provided to the debounced function. Subsequent
-   * calls to the debounced function return the result of the last `func`
-   * invocation.
-   *
-   * **Note:** If `leading` and `trailing` options are `true`, `func` is
-   * invoked on the trailing edge of the timeout only if the debounced function
-   * is invoked more than once during the `wait` timeout.
-   *
-   * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-   * until to the next tick, similar to `$timeout` with a timeout of `0`.
-   *
-   * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-   * for details over the differences between `_.debounce` and `_.throttle`.
-   *
-   * @static
-   * @memberOf _
-   * @since 0.1.0
-   * @category Function
-   * @param {Function} func The function to debounce.
-   * @param {number} [wait=0] The number of milliseconds to delay.
-   * @param {Object} [options={}] The options object.
-   * @param {boolean} [options.leading=false]
-   *  Specify invoking on the leading edge of the timeout.
-   * @param {number} [options.maxWait]
-   *  The maximum time `func` is allowed to be delayed before it's invoked.
-   * @param {boolean} [options.trailing=true]
-   *  Specify invoking on the trailing edge of the timeout.
-   * @returns {Function} Returns the new debounced function.
-   * @example
-   *
-   * // Avoid costly calculations while the window size is in flux.
-   * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
-   *
-   * // Invoke `sendMail` when clicked, debouncing subsequent calls.
-   * jQuery(element).on('click', _.debounce(sendMail, 300, {
-   *   'leading': true,
-   *   'trailing': false
-   * }));
-   *
-   * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
-   * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
-   * var source = new EventSource('/stream');
-   * jQuery(source).on('message', debounced);
-   *
-   * // Cancel the trailing debounced invocation.
-   * jQuery(window).on('popstate', debounced.cancel);
-   */
-    function debounce(func, wait, options) {
-      var lastArgs, lastThis, maxWait, result, timerId, lastCallTime, lastInvokeTime = 0, leading = false, maxing = false, trailing = true;
-      if (typeof func != 'function') {
-        throw new TypeError(FUNC_ERROR_TEXT);
-      }
-      wait = toNumber(wait) || 0;
-      if (isObject(options)) {
-        leading = !!options.leading;
-        maxing = 'maxWait' in options;
-        maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
-        trailing = 'trailing' in options ? !!options.trailing : trailing;
-      }
-      function invokeFunc(time) {
-        var args = lastArgs, thisArg = lastThis;
-        lastArgs = lastThis = undefined;
-        lastInvokeTime = time;
-        result = func.apply(thisArg, args);
-        return result;
-      }
-      function leadingEdge(time) {
-        // Reset any `maxWait` timer.
-        lastInvokeTime = time;
-        // Start the timer for the trailing edge.
-        timerId = $timeout(timerExpired, wait);
-        // Invoke the leading edge.
-        return leading ? invokeFunc(time) : result;
-      }
-      function remainingWait(time) {
-        var timeSinceLastCall = time - lastCallTime, timeSinceLastInvoke = time - lastInvokeTime, result = wait - timeSinceLastCall;
-        return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
-      }
-      function shouldInvoke(time) {
-        var timeSinceLastCall = time - lastCallTime, timeSinceLastInvoke = time - lastInvokeTime;
-        // Either this is the first call, activity has stopped and we're at the
-        // trailing edge, the system time has gone backwards and we're treating
-        // it as the trailing edge, or we've hit the `maxWait` limit.
-        return lastCallTime === undefined || timeSinceLastCall >= wait || timeSinceLastCall < 0 || maxing && timeSinceLastInvoke >= maxWait;
-      }
-      function timerExpired() {
-        var time = now();
-        if (shouldInvoke(time)) {
-          return trailingEdge(time);
-        }
-        // Restart the timer.
-        timerId = $timeout(timerExpired, remainingWait(time));
-      }
-      function trailingEdge(time) {
-        timerId = undefined;
-        // Only invoke if we have `lastArgs` which means `func` has been
-        // debounced at least once.
-        if (trailing && lastArgs) {
-          return invokeFunc(time);
-        }
-        lastArgs = lastThis = undefined;
-        return result;
-      }
-      function cancel() {
-        if (timerId !== undefined) {
-          clearTimeout(timerId);
-        }
-        lastInvokeTime = 0;
-        lastArgs = lastCallTime = lastThis = timerId = undefined;
-      }
-      function flush() {
-        return timerId === undefined ? result : trailingEdge(now());
-      }
-      function debounced() {
-        var time = now(), isInvoking = shouldInvoke(time);
-        lastArgs = arguments;
-        lastThis = this;
-        lastCallTime = time;
-        if (isInvoking) {
-          if (timerId === undefined) {
-            return leadingEdge(lastCallTime);
-          }
-          if (maxing) {
-            // Handle invocations in a tight loop.
-            timerId = $timeout(timerExpired, wait);
-            return invokeFunc(lastCallTime);
-          }
-        }
-        if (timerId === undefined) {
-          timerId = $timeout(timerExpired, wait);
-        }
-        return result;
-      }
-      debounced.cancel = cancel;
-      debounced.flush = flush;
-      return debounced;
-    }
-    /**
-   * Creates a throttled function that only invokes `func` at most once per
-   * every `wait` milliseconds. The throttled function comes with a `cancel`
-   * method to cancel delayed `func` invocations and a `flush` method to
-   * immediately invoke them. Provide `options` to indicate whether `func`
-   * should be invoked on the leading and/or trailing edge of the `wait`
-   * timeout. The `func` is invoked with the last arguments provided to the
-   * throttled function. Subsequent calls to the throttled function return the
-   * result of the last `func` invocation.
-   *
-   * **Note:** If `leading` and `trailing` options are `true`, `func` is
-   * invoked on the trailing edge of the timeout only if the throttled function
-   * is invoked more than once during the `wait` timeout.
-   *
-   * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-   * until to the next tick, similar to `$timeout` with a timeout of `0`.
-   *
-   * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-   * for details over the differences between `_.throttle` and `_.debounce`.
-   *
-   * @static
-   * @memberOf _
-   * @since 0.1.0
-   * @category Function
-   * @param {Function} func The function to throttle.
-   * @param {number} [wait=0] The number of milliseconds to throttle invocations to.
-   * @param {Object} [options={}] The options object.
-   * @param {boolean} [options.leading=true]
-   *  Specify invoking on the leading edge of the timeout.
-   * @param {boolean} [options.trailing=true]
-   *  Specify invoking on the trailing edge of the timeout.
-   * @returns {Function} Returns the new throttled function.
-   * @example
-   *
-   * // Avoid excessively updating the position while scrolling.
-   * jQuery(window).on('scroll', _.throttle(updatePosition, 100));
-   *
-   * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
-   * var throttled = _.throttle(renewToken, 300000, { 'trailing': false });
-   * jQuery(element).on('click', throttled);
-   *
-   * // Cancel the trailing throttled invocation.
-   * jQuery(window).on('popstate', throttled.cancel);
-   */
-    function throttle(func, wait, options) {
-      var leading = true, trailing = true;
-      if (typeof func != 'function') {
-        throw new TypeError(FUNC_ERROR_TEXT);
-      }
-      if (isObject(options)) {
-        leading = 'leading' in options ? !!options.leading : leading;
-        trailing = 'trailing' in options ? !!options.trailing : trailing;
-      }
-      return debounce(func, wait, {
-        'leading': leading,
-        'maxWait': wait,
-        'trailing': trailing
-      });
-    }
-    /**
-   * Checks if `value` is the
-   * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-   * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-   *
-   * @static
-   * @memberOf _
-   * @since 0.1.0
-   * @category Lang
-   * @param {*} value The value to check.
-   * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-   * @example
-   *
-   * _.isObject({});
-   * // => true
-   *
-   * _.isObject([1, 2, 3]);
-   * // => true
-   *
-   * _.isObject(_.noop);
-   * // => true
-   *
-   * _.isObject(null);
-   * // => false
-   */
-    function isObject(value) {
-      var type = typeof value;
-      return !!value && (type == 'object' || type == 'function');
-    }
-    /**
-   * Checks if `value` is object-like. A value is object-like if it's not `null`
-   * and has a `typeof` result of "object".
-   *
-   * @static
-   * @memberOf _
-   * @since 4.0.0
-   * @category Lang
-   * @param {*} value The value to check.
-   * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-   * @example
-   *
-   * _.isObjectLike({});
-   * // => true
-   *
-   * _.isObjectLike([1, 2, 3]);
-   * // => true
-   *
-   * _.isObjectLike(_.noop);
-   * // => false
-   *
-   * _.isObjectLike(null);
-   * // => false
-   */
-    function isObjectLike(value) {
-      return !!value && typeof value == 'object';
-    }
-    /**
-   * Checks if `value` is classified as a `Symbol` primitive or object.
-   *
-   * @static
-   * @memberOf _
-   * @since 4.0.0
-   * @category Lang
-   * @param {*} value The value to check.
-   * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
-   * @example
-   *
-   * _.isSymbol(Symbol.iterator);
-   * // => true
-   *
-   * _.isSymbol('abc');
-   * // => false
-   */
-    function isSymbol(value) {
-      return typeof value == 'symbol' || isObjectLike(value) && objectToString.call(value) == symbolTag;
-    }
-    /**
-   * Converts `value` to a number.
-   *
-   * @static
-   * @memberOf _
-   * @since 4.0.0
-   * @category Lang
-   * @param {*} value The value to process.
-   * @returns {number} Returns the number.
-   * @example
-   *
-   * _.toNumber(3.2);
-   * // => 3.2
-   *
-   * _.toNumber(Number.MIN_VALUE);
-   * // => 5e-324
-   *
-   * _.toNumber(Infinity);
-   * // => Infinity
-   *
-   * _.toNumber('3.2');
-   * // => 3.2
-   */
-    function toNumber(value) {
-      if (typeof value == 'number') {
-        return value;
-      }
-      if (isSymbol(value)) {
-        return NAN;
-      }
-      if (isObject(value)) {
-        var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-        value = isObject(other) ? other + '' : other;
-      }
-      if (typeof value != 'string') {
-        return value === 0 ? value : +value;
-      }
-      value = value.replace(reTrim, '');
-      var isBinary = reIsBinary.test(value);
-      return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
-    }
-    return throttle;
-  }
-]);
 // Source: dist/templates.js
 angular.module('apMesa.templates', [
   'src/templates/apMesa.tpl.html',
-  'src/templates/apMesaAsyncLoader.tpl.html',
   'src/templates/apMesaDummyRows.tpl.html',
   'src/templates/apMesaPaginationCtrls.tpl.html',
-  'src/templates/apMesaRows.tpl.html'
+  'src/templates/apMesaRows.tpl.html',
+  'src/templates/apMesaStatusDisplay.tpl.html'
 ]);
 angular.module('src/templates/apMesa.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th\n' + '          scope="col"\n' + '          ng-repeat="column in columns"\n' + '          ng-click="toggleSort($event,column)"\n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector, \'is-sorting\': sortDirection[column.id] }"\n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            <span\n' + '              ng-if="column.sort"\n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '            <span ap-mesa-th-title></span>\n' + '          </span>\n' + '          <span\n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input\n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="persistentState.searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': persistentState.searchTerms[column.id] }"\n' + '          >\n' + '          <button\n' + '            ng-if="(column.filter)"\n' + '            ng-show="persistentState.searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th\n' + '            scope="col"\n' + '            ng-repeat="column in columns"\n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0 || options.loading">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '  <div ap-mesa-async-loader></div>\n' + '  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === \'PAGINATE\'" ap-mesa-pagination-ctrls></div>\n' + '</div>\n' + '');
-  }
-]);
-angular.module('src/templates/apMesaAsyncLoader.tpl.html', []).run([
-  '$templateCache',
-  function ($templateCache) {
-    $templateCache.put('src/templates/apMesaAsyncLoader.tpl.html', '<div class="ap-mesa-async-loader-wrapper" style="display: none;">\n' + '  <div ng-if="options.asyncLoadingTemplateUrl"></div>\n' + '  <div ng-if="options.asyncLoadingTemplate"></div>\n' + '  <div ng-if="!options.asyncLoadingTemplateUrl && !options.asyncLoadingTemplate" class="ap-mesa-async-loader">\n' + '    <div class="ap-mesa-async-loader-inner"></div>\n' + '  </div>\n' + '</div>');
+    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper" ng-class="{\n' + '\'paging-strategy-paginate\': options.pagingStrategy === \'PAGINATE\',\n' + '\'paging-strategy-scroll\': options.pagingStrategy === \'SCROLL\'\n' + '}">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th\n' + '          scope="col"\n' + '          ng-repeat="column in columns"\n' + '          ng-click="toggleSort($event,column)"\n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector, \'is-sorting\': sortDirection[column.id] }"\n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            <span\n' + '              ng-if="column.sort"\n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '            <span ap-mesa-th-title></span>\n' + '          </span>\n' + '          <span\n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input\n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="persistentState.searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': persistentState.searchTerms[column.id] }"\n' + '          >\n' + '          <button\n' + '            ng-if="(column.filter)"\n' + '            ng-show="persistentState.searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div ap-mesa-status-display></div>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle" ng-hide="transientState.loadingError">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th\n' + '            scope="col"\n' + '            ng-repeat="column in columns"\n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === \'PAGINATE\'" ap-mesa-pagination-ctrls></div>\n' + '</div>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
@@ -2443,5 +2031,11 @@ angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
     $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
+  }
+]);
+angular.module('src/templates/apMesaStatusDisplay.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('src/templates/apMesaStatusDisplay.tpl.html', '<div class="ap-mesa-status-display-wrapper" ng-class="{\n' + '  loading: transientState.loading,\n' + '  error: transientState.loadingError,\n' + '  \'has-rows\': visible_rows.length && !transientState.loadingError\n' + '}">\n' + '\n' + '  <!-- LOADING -->\n' + '  <div ng-if="transientState.loading" class="ap-mesa-loading-display">\n' + '    \n' + '    <!-- user-provided -->\n' + '    <div ng-if="options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '    <div ng-if="options.loadingText">{{ options.loadingText }}</div>\n' + '    \n' + '    <!-- default -->\n' + '    <div ng-if="!options.asyncLoadingTemplateUrl && !options.asyncLoadingTemplate" class="ap-mesa-status-display">\n' + '      <div class="ap-mesa-status-display-inner"></div>\n' + '    </div>\n' + '\n' + '  </div>\n' + '  \n' + '  <!-- ERROR -->\n' + '  <div ng-if="transientState.loadingError" class="ap-mesa-error-display">\n' + '    <div ng-if="options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '    <div ng-if="options.loadingErrorText">{{ options.loadingErrorText }}</div>\n' + '    <div ng-if="!options.loadingErrorTemplateUrl && !options.loadingErrorText" class="ap-mesa-error-display-inner">An error occurred.</div>\n' + '  </div>\n' + '\n' + '  <!-- NO DATA -->\n' + '  <div ng-if="!transientState.loading && !transientState.loadingError && visible_rows.length === 0" class="ap-mesa-no-data-display">\n' + '    <div ng-if="options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '    <div ng-if="!options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '  </div>\n' + '</div>');
   }
 ]);

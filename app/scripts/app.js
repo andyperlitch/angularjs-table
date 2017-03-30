@@ -2,6 +2,7 @@
 
 angular.module('apMesa.ghPage', [
   'ngSanitize',
+  'ngAnimate',
   'ngRoute',
   'apMesa'
 ])

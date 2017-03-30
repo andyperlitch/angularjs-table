@@ -101,6 +101,8 @@ angular.module('apMesa.directives.apMesaRows',[
       };
     });
 
+    scope.transientState.loadingError = false;
+    scope.api.setLoading(true);
     var getDataPromise = scope.transientState.getDataPromise = scope.options.getData(
       offset,
       scope.persistentState.rowLimit,
@@ -121,9 +123,12 @@ angular.module('apMesa.directives.apMesaRows',[
         row.$$$index = i++;
       });
       scope.transientState.getDataPromise = null;
+      scope.api.setLoading(false);
       $rootScope.$broadcast('angular-mesa:update-dummy-rows');
-    }, function() {
+    }, function(e) {
       scope.transientState.getDataPromise = null;
+      scope.transientState.loadingError = true;
+      scope.api.setLoading(false);
     });
   }, 200, { leading: false, trailing: true });
 

@@ -9,6 +9,16 @@ angular.module('apMesa.ghPage')
       console.log('getData called');
       var dfd = $q.defer();
 
+
+      // Simulate back-end errors:
+
+      // if (Math.random() < 0.2) {
+      //   $timeout(function() {
+      //     dfd.reject({ message: 'an error occurred' });
+      //   }, 200);
+      //   return dfd.promise;
+      // }
+
       $timeout(function() {
 
         var results = phoneData;
