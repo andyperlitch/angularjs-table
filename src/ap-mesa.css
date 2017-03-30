@@ -163,14 +163,14 @@ table tbody .ap-mesa-dummy-row td {
 }
 
 /* async loader styles */
-
-.ap-mesa-async-loader {
+.ap-mesa-async-loader-wrapper {
   position: absolute;
+  left: 50%;
+  transform: translate(-50%, 10px);
+}
+.ap-mesa-async-loader {
   background: rgba(0,0,0,0.3);
   border-radius: 1rem;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: 20%;
   max-width: 130px;
   min-width: 100px;

@@ -140,9 +140,9 @@
     }
 
     function preLink(scope) {
+      initOptions(scope);
       resetColumns(scope);
       resetState(scope);
-      initOptions(scope);
     }
 
     function postLink(scope, element) {

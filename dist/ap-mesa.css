@@ -197,6 +197,10 @@ table tbody .ap-mesa-dummy-row td {
   vertical-align: middle;
 }
 
+.ap-mesa-pagination ul.pagination li a {
+  cursor: pointer;
+}
+
 /* async loader styles */
 
 .ap-mesa-async-loader {

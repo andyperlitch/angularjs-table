@@ -93,9 +93,14 @@ describe('Directive: apMesa', function () {
       element = angular.element('<ap-mesa columns="my_table_columns" rows="my_table_data" class="table" track-by="id"></ap-mesa>');
       element = compile(element)(scope);
       timeout.flush();
-      isoScope = element.isolateScope();
       scope.$digest();
-      console.log(isoScope.options);
+      isoScope = element.isolateScope();
+      // for (var k in isoScope) {
+      //   if (isoScope.hasOwnProperty(k)) {
+      //     // console.log('k: ', k, 'scope[k]', isoScope[k]);
+      //     console.log(k);
+      //   }
+      // }
     };
 
     createElement();

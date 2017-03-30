@@ -12,6 +12,7 @@ Feature List
 - column re-ordering
 - localStorage state persistance
 - pagination
+- server-side interaction support
 
 Installation
 ------------
@@ -98,6 +99,7 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | rowsPerPageMessage | `string` | 'rows per page' | The label for the selection for number of rows to show per page. |
 | showRowsPerPageCtrls | `boolean` | true | Whether or not to show the control for rows-per-page. Only applicable when `pagingStrategy` is `PAGINATE` |
 | maxPageLinks | `number` | 8 | Number of page links to display when paginating. |
+| getData      | `function` | undefined | Specify a function which returns a promise of row data. See *Server-side Interaction* below. |
 
 The options object is also the correct place to pass arbitrary data to table cell templates because it will be available as `options` in the table cell template scope. For example, if you want a click in a cell to call a function that is
 otherwise out of the scope of the table, you can do this:
@@ -317,6 +319,47 @@ The default paging strategy is a scrollable table body with height defined by th
 ### PAGINATE
 
 This strategy will render the table as pages instead of an endlessly scrolling `tbody`. The `tableHeight`, `fillHeight`, and `fixedHeight` options will NOT be honored
+
+
+
+Server-side Interaction
+-----------------------
+
+You have the option to specify a `getData` function on your table options object which will enable server-side interaction. It must implement the following function signature (see inline explanation):
+
+```javascript
+function getData (offset, limit, activeFilters, activeSorts) {
+    
+    // offset and limit are numbers, indicating the subset of the total
+    // result set, given the filter and sort states
+
+    // activeFilters is an array of objects, each containing the string that the user has entered into the
+    // filter text input, as well as the corresponding column definition object, e.g.:
+
+    // [
+    //     { value: 'im typing', column: [COLUMN DEF OBJECT] },
+    //     { value: 'me too thanks', column: [COLUMN DEF OBJECT] },
+    // ]
+
+    // Note that columns whose filter inputs are empty will not show up here.
+
+    // activeSorts is an array of objects similar to activeFilters, except that instead of `value` field 
+    // there is a `direction` field that will either be 'ASC' or 'DESC'. Note that the order of this
+    // array reflects the order that the user chose to sort columns on (stacked sorting).
+
+
+
+    // This function should return a promise that resolves with an object that looks like this:
+    // {
+    //   total: [NUMBER OF TOTAL ROWS BEFORE LIMIT],
+    //   rows: [ARRAY OF ROWS FOR GIVEN OFFSET, LIMIT, SORT, FILTERS]
+    // }
+}
+```
+
+Note that when `getData` is specified, angular-mesa only checks the `filter` and `sort` fields in the column definition objects for "truthiness".It does not perform any sort of sorting and filtering itself; that is left up to the server to do.
+
+Also note that the `angular-mesa.d.ts` typescript definition file has a more formal signature for this function that may help if you are familiar with TS.
 
 
 Browser Support

@@ -7,6 +7,13 @@ angular.module('apMesa.directives.apMesaAsyncLoader', [])
   var TIME_TO_WAIT = 400;
 
   function link(scope, element) {
+
+    // A bit hacky, but figures out the height of the header table in order to
+    // correctly position below the <th> rows
+    $timeout(function() {
+      element.css('top', element.parents('.ap-mesa-wrapper').find('.mesa-header-table').outerHeight(true));
+    });
+
     var fadeInPromise;
     var fadeIn = function() {
       element.fadeIn();
@@ -25,7 +32,7 @@ angular.module('apMesa.directives.apMesaAsyncLoader', [])
           $timeout.cancel(fadeInPromise);
         }
       }
-    })
+    });
   }
 
   return {

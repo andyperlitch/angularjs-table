@@ -185,6 +185,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     return classes[0];
   };
   $scope.setColumns = function(columns) {
+    try {
     $scope.columns = columns;
     $scope.columns.forEach(function(column) {
       // formats
@@ -253,6 +254,9 @@ angular.module('apMesa.controllers.ApMesaController', [
       }
 
     });
+    } catch (e) {
+      console.log(e.message);
+    }
   };
 
   $scope.startColumnResize = function($event, column) {

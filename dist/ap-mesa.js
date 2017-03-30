@@ -200,57 +200,61 @@ angular.module('apMesa.controllers.ApMesaController', [
       return classes[0];
     };
     $scope.setColumns = function (columns) {
-      $scope.columns = columns;
-      $scope.columns.forEach(function (column) {
-        // formats
-        var format = column.format;
-        if (typeof format !== 'function') {
-          if (typeof format === 'string') {
-            if (typeof formats[format] === 'function') {
-              column.format = formats[format];
-            } else {
-              try {
-                column.format = $filter(format);
-              } catch (e) {
-                delete column.format;
-                $log.warn('format function reference in column(id=' + column.id + ') ' + 'was not found in built-in format functions or $filters. ' + 'format function given: "' + format + '". ' + 'Available built-ins: ' + Object.keys(formats).join(',') + '. ' + 'If you supplied a $filter, ensure it is available on this module');
+      try {
+        $scope.columns = columns;
+        $scope.columns.forEach(function (column) {
+          // formats
+          var format = column.format;
+          if (typeof format !== 'function') {
+            if (typeof format === 'string') {
+              if (typeof formats[format] === 'function') {
+                column.format = formats[format];
+              } else {
+                try {
+                  column.format = $filter(format);
+                } catch (e) {
+                  delete column.format;
+                  $log.warn('format function reference in column(id=' + column.id + ') ' + 'was not found in built-in format functions or $filters. ' + 'format function given: "' + format + '". ' + 'Available built-ins: ' + Object.keys(formats).join(',') + '. ' + 'If you supplied a $filter, ensure it is available on this module');
+                }
               }
+            } else {
+              delete column.format;
             }
-          } else {
-            delete column.format;
           }
-        }
-        if (!$scope.options.getData) {
-          // sort
-          var sort = column.sort;
-          if (typeof sort !== 'function') {
-            if (typeof sort === 'string') {
-              if (typeof sorts[sort] === 'function') {
-                column.sort = sorts[sort](column.key);
+          if (!$scope.options.getData) {
+            // sort
+            var sort = column.sort;
+            if (typeof sort !== 'function') {
+              if (typeof sort === 'string') {
+                if (typeof sorts[sort] === 'function') {
+                  column.sort = sorts[sort](column.key);
+                } else {
+                  delete column.sort;
+                  $log.warn('sort function reference in column(id=' + column.id + ') ' + 'was not found in built-in sort functions. ' + 'sort function given: "' + sort + '". ' + 'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
+                }
               } else {
                 delete column.sort;
-                $log.warn('sort function reference in column(id=' + column.id + ') ' + 'was not found in built-in sort functions. ' + 'sort function given: "' + sort + '". ' + 'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
               }
-            } else {
-              delete column.sort;
             }
-          }
-          // filter
-          var filter = column.filter;
-          if (typeof filter !== 'function') {
-            if (typeof filter === 'string') {
-              if (typeof filters[filter] === 'function') {
-                column.filter = filters[filter];
+            // filter
+            var filter = column.filter;
+            if (typeof filter !== 'function') {
+              if (typeof filter === 'string') {
+                if (typeof filters[filter] === 'function') {
+                  column.filter = filters[filter];
+                } else {
+                  delete column.filter;
+                  $log.warn('filter function reference in column(id=' + column.id + ') ' + 'was not found in built-in filter functions. ' + 'filter function given: "' + filter + '". ' + 'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
+                }
               } else {
                 delete column.filter;
-                $log.warn('filter function reference in column(id=' + column.id + ') ' + 'was not found in built-in filter functions. ' + 'filter function given: "' + filter + '". ' + 'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
               }
-            } else {
-              delete column.filter;
             }
           }
-        }
-      });
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
     };
     $scope.startColumnResize = function ($event, column) {
       // Stop default so text does not get selected
@@ -542,9 +546,9 @@ angular.module('apMesa.controllers.ApMesaController', [
         }
       }
       function preLink(scope) {
+        initOptions(scope);
         resetColumns(scope);
         resetState(scope);
-        initOptions(scope);
       }
       function postLink(scope, element) {
         var deregStorageWatchers = [];
