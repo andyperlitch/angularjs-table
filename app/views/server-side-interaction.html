@@ -1,0 +1,33 @@
+<h5>Server-side Interaction</h5>
+
+<p>This example shows the usage of the server-side interaction feature, where rows can be fetched from a back-end.</p>
+<br>
+
+<div class="btn-group" role="group" ng-init="pagingScheme = 'scroll'">
+  <button
+    ng-class="{ active: pagingScheme == 'scroll' }"
+    ng-click="pagingScheme = 'scroll'"
+    type="button"
+    class="btn btn-primary"
+  >scroll</button>
+  <button
+    ng-class="{ active: pagingScheme == 'paginate' }"
+    ng-click="pagingScheme = 'paginate'"
+    type="button"
+    class="btn btn-primary"
+  >paginate</button>
+</div>
+
+<ap-mesa 
+  ng-if="pagingScheme === 'scroll'"
+  columns="my_table_columns" 
+  options="my_table_options"
+  table-class="table">
+</ap-mesa>
+
+<ap-mesa 
+  ng-if="pagingScheme === 'paginate'"
+  columns="my_table_columns" 
+  options="my_table_options_paginate"
+  table-class="table">
+</ap-mesa>

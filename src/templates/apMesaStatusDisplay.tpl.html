@@ -1,0 +1,33 @@
+<div class="ap-mesa-status-display-wrapper" ng-class="{
+  loading: transientState.loading,
+  error: transientState.loadingError,
+  'has-rows': visible_rows.length && !transientState.loadingError
+}">
+
+  <!-- LOADING -->
+  <div ng-if="transientState.loading" class="ap-mesa-loading-display">
+    
+    <!-- user-provided -->
+    <div ng-if="options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>
+    <div ng-if="options.loadingText">{{ options.loadingText }}</div>
+    
+    <!-- default -->
+    <div ng-if="!options.asyncLoadingTemplateUrl && !options.asyncLoadingTemplate" class="ap-mesa-status-display">
+      <div class="ap-mesa-status-display-inner"></div>
+    </div>
+
+  </div>
+  
+  <!-- ERROR -->
+  <div ng-if="transientState.loadingError" class="ap-mesa-error-display">
+    <div ng-if="options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>
+    <div ng-if="options.loadingErrorText">{{ options.loadingErrorText }}</div>
+    <div ng-if="!options.loadingErrorTemplateUrl && !options.loadingErrorText" class="ap-mesa-error-display-inner">An error occurred.</div>
+  </div>
+
+  <!-- NO DATA -->
+  <div ng-if="!transientState.loading && !transientState.loadingError && visible_rows.length === 0" class="ap-mesa-no-data-display">
+    <div ng-if="options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>
+    <div ng-if="!options.noRowsTemplateUrl">{{ options.noRowsText }}</div>
+  </div>
+</div>

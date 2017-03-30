@@ -9,9 +9,8 @@
     defaultRowHeight: 40,
     scrollDebounce: 100,
     scrollDivisor: 1,
-    loadingText: 'loading',
-    loadingError: false,
-    noRowsText: 'no rows',
+    loadingText: undefined,
+    noRowsText: 'No data.',
     pagingStrategy: 'SCROLL',
     rowsPerPage: 10, // for when pagingStrategy === 'PAGINATE'
     rowsPerPageChoices: [10, 25, 50, 100],
@@ -49,7 +48,9 @@
     'apMesa.directives.apMesaDummyRows',
     'apMesa.directives.apMesaExpandable',
     'apMesa.directives.apMesaPaginationCtrls',
-    'apMesa.directives.apMesaThTitle'
+    'apMesa.directives.apMesaStatusDisplay',
+    'apMesa.directives.apMesaThTitle',
+    'apMesa.services.apMesaDebounce'
   ])
   .provider('apMesa', function ApMesaService() {
     this.setDefaultOptions = function(overrides) {
@@ -66,43 +67,7 @@
       }
     }];
   })
-  .directive('apMesa', ['$log', '$timeout', '$q', 'apMesa', function ($log, $timeout, $q, apMesa) {
-
-    function debounce(func, wait, immediate) {
-      var timeout, args, context, timestamp, result;
-
-      var later = function() {
-        var last = Date.now() - timestamp;
-
-        if (last < wait && last > 0) {
-          timeout = $timeout(later, wait - last);
-        } else {
-          timeout = null;
-          if (!immediate) {
-            result = func.apply(context, args);
-            if (!timeout) {
-              context = args = null;
-            }
-          }
-        }
-      };
-
-      return function() {
-        context = this;
-        args = arguments;
-        timestamp = Date.now();
-        var callNow = immediate && !timeout;
-        if (!timeout) {
-          timeout = $timeout(later, wait);
-        }
-        if (callNow) {
-          result = func.apply(context, args);
-          context = args = null;
-        }
-
-        return result;
-      };
-    }
+  .directive('apMesa', ['$log', '$timeout', '$q', 'apMesa', 'apMesaDebounce', function ($log, $timeout, $q, apMesa, debounce) {
 
     function resetState(scope) {
 
@@ -118,14 +83,24 @@
         sortOrder: []
       };
 
-      // Holds filtered rows count
       scope.transientState = {
+        rowHeightIsCalculated: false,
         filterCount: scope.rows ? scope.rows.length : 0,
         rowOffset: 0,
         pageOffset: 0,
         expandedRows: {},
-        expandedRowHeights: {}
+        expandedRowHeights: {},
+        columnLookup: {},
+        loadingError: null,
+        loading: false
       };
+
+      if (scope.columns.length) {
+        var lookup = scope.transientState.columnLookup;
+        scope.columns.forEach(function(column) {
+          lookup[column.id] = column;
+        });
+      }
 
       scope.$broadcast('apMesa:stateReset');
     }
@@ -143,6 +118,7 @@
       scope.options = scope.options || {};
       var trackByOverride = scope.trackBy ? { trackBy: scope.trackBy } : {};
       defaults(scope.options, trackByOverride, apMesa.getDefaultOptions());
+
       initSorts(scope);
     }
 
@@ -164,9 +140,9 @@
     }
 
     function preLink(scope) {
+      initOptions(scope);
       resetColumns(scope);
       resetState(scope);
-      initOptions(scope);
     }
 
     function postLink(scope, element) {
@@ -248,11 +224,14 @@
       scope.$watch('options.loadingPromise', function(promise) {
         if (angular.isObject(promise) && typeof promise.then === 'function') {
           scope.api.setLoading(true);
-          promise.then(function () {
-            scope.options.loadingError = false;
+          promise.then(function (data) {
+            scope.transientState.loadingError = false;
             scope.api.setLoading(false);
+            if (angular.isArray(data)) {
+              scope.rows = data;
+            }
           }, function (reason) {
-            scope.options.loadingError = true;
+            scope.transientState.loadingError = true;
             scope.api.setLoading(false);
             $log.warn('Failed loading table data: ' + reason);
           });
@@ -357,12 +336,25 @@
       scope.calculateRowLimit = function() {
         var rowHeight = scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
         scope.rowHeight = rowHeight || scope.options.defaultRowHeight || 20;
+        if (!scope.transientState.rowHeightIsCalculated && rowHeight) {
+          scope.transientState.rowHeightIsCalculated = true;
+        }
         if (scope.options.pagingStrategy === 'SCROLL') {
           scope.persistentState.rowLimit = Math.ceil((scope.options.bodyHeight + scope.options.rowPadding*2) / scope.rowHeight);
         } else if (scope.options.pagingStrategy === 'PAGINATE') {
           scope.persistentState.rowLimit = scope.options.rowsPerPage;
         }
       };
+
+      scope.resetOffset = function() {
+        if (scope.options.pagingStrategy === 'SCROLL') {
+          scope.scrollDiv[0].scrollTop = 0;
+          scope.transientState.rowOffset = 0;
+        } else if (scope.options.pagingStrategy === 'PAGINATE') {
+          scope.transientState.pageOffset = 0;
+          scope.transientState.rowOffset = 0;
+        }
+      }
 
       // Wait for a render
       $timeout(function() {
@@ -378,7 +370,7 @@
         deselectAll: scope.deselectAll,
         toggleSelectAll: scope.toggleSelectAll,
         setLoading: function(isLoading, triggerDigest) {
-          scope.options.loading = isLoading;
+          scope.transientState.loading = isLoading;
           if (triggerDigest) {
             scope.$digest();
           }

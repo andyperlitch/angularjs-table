@@ -2,7 +2,7 @@
 
 describe('Filter: tableRowSorter', function() {
 
-  var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder;
+  var sandbox, sorter, columns, rows, numSort, numSort2, stringSort, sortOrder, transientState;
 
   beforeEach(module('apMesa'));
 
@@ -32,6 +32,12 @@ describe('Filter: tableRowSorter', function() {
       { index: 2, key1:'a', key2:3, key3: 2 },
       { index: 3, key1:'b', key2:3, key3: 3 }
     ];
+    transientState = {
+      columnLookup: {}
+    };
+    columns.forEach(function(column) {
+      transientState.columnLookup[column.id] = column;
+    });
   }));
 
   afterEach(function() {
@@ -43,14 +49,14 @@ describe('Filter: tableRowSorter', function() {
   });
 
   it('should return all rows if no sorting is active', function() {
-    expect(sorter(rows,columns,[],{})).to.equal(rows);
+    expect(sorter(rows,columns,[],{}, transientState)).to.equal(rows);
   });
 
   it('should sort ascending by a column whose "sorting" field is "+"', function() {
     
     sortOrder = [{id: 'key1', dir: '+'}];
 
-    var result = sorter(rows,columns,sortOrder);
+    var result = sorter(rows, columns, sortOrder, {}, transientState);
     var idxs = result.map(function(r){ return r.index; });
     expect(idxs).to.eql([2,1,3,0]);
 
@@ -60,7 +66,7 @@ describe('Filter: tableRowSorter', function() {
     
     sortOrder = [{id:'key1', dir: '-'}];
 
-    var result = sorter(rows,columns,sortOrder);
+    var result = sorter(rows,columns,sortOrder, {}, transientState);
     var idxs = result.map(function(r){ return r.index; });
     expect(idxs).to.eql([0,1,3,2]);
 
@@ -69,7 +75,7 @@ describe('Filter: tableRowSorter', function() {
   it('should ignore sort columns in sortOrder that do not exist', function() {
     sortOrder = [{id:'not_a_column', dir: '+'},{id:'key1', dir: '-'}];
 
-    var result = sorter(rows,columns,sortOrder);
+    var result = sorter(rows,columns,sortOrder, {}, transientState);
     var idxs = result.map(function(r){ return r.index; });
     expect(idxs).to.eql([0,1,3,2]);
   });

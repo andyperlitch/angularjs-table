@@ -185,6 +185,7 @@ angular.module('apMesa.controllers.ApMesaController', [
     return classes[0];
   };
   $scope.setColumns = function(columns) {
+    try {
     $scope.columns = columns;
     $scope.columns.forEach(function(column) {
       // formats
@@ -213,44 +214,49 @@ angular.module('apMesa.controllers.ApMesaController', [
         }
       }
 
-      // sort
-      var sort = column.sort;
-      if (typeof sort !== 'function') {
-        if (typeof sort === 'string') {
-          if (typeof sorts[sort] === 'function') {
-            column.sort = sorts[sort](column.key);
-          }
-          else {
+      if (!$scope.options.getData) {
+        // sort
+        var sort = column.sort;
+        if (typeof sort !== 'function') {
+          if (typeof sort === 'string') {
+            if (typeof sorts[sort] === 'function') {
+              column.sort = sorts[sort](column.key);
+            }
+            else {
+              delete column.sort;
+              $log.warn('sort function reference in column(id=' + column.id + ') ' +
+                    'was not found in built-in sort functions. ' +
+                    'sort function given: "' + sort + '". ' +
+                    'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
+            }
+          } else {
             delete column.sort;
-            $log.warn('sort function reference in column(id=' + column.id + ') ' +
-                  'was not found in built-in sort functions. ' +
-                  'sort function given: "' + sort + '". ' +
-                  'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
           }
-        } else {
-          delete column.sort;
+        }
+        // filter
+        var filter = column.filter;
+        if (typeof filter !== 'function') {
+          if (typeof filter === 'string') {
+            if (typeof filters[filter] === 'function') {
+              column.filter = filters[filter];
+            }
+            else {
+              delete column.filter;
+              $log.warn('filter function reference in column(id=' + column.id + ') ' +
+                    'was not found in built-in filter functions. ' +
+                    'filter function given: "' + filter + '". ' +
+                    'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
+            }
+          } else {
+            delete column.filter;
+          }
         }
       }
 
-      // filter
-      var filter = column.filter;
-      if (typeof filter !== 'function') {
-        if (typeof filter === 'string') {
-          if (typeof filters[filter] === 'function') {
-            column.filter = filters[filter];
-          }
-          else {
-            delete column.filter;
-            $log.warn('filter function reference in column(id=' + column.id + ') ' +
-                  'was not found in built-in filter functions. ' +
-                  'filter function given: "' + filter + '". ' +
-                  'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
-          }
-        } else {
-          delete column.filter;
-        }
-      }
     });
+    } catch (e) {
+      console.log(e.message);
+    }
   };
 
   $scope.startColumnResize = function($event, column) {

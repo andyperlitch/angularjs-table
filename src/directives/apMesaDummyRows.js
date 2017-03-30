@@ -31,7 +31,8 @@ angular.module('apMesa.directives.apMesaDummyRows', [])
     scope: true,
     link: function(scope, element, attrs) {
 
-      scope.$watch(attrs.apMesaDummyRows, function(offsetRange) {
+      scope.$on('angular-mesa:update-dummy-rows', function() {
+        var offsetRange = scope.$eval(attrs.apMesaDummyRows);
         var rowsHeight = (offsetRange[1] - offsetRange[0]) * scope.rowHeight;
         for (var k in scope.transientState.expandedRows) {
           var kInt = parseInt(k);

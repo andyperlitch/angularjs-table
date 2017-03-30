@@ -18,19 +18,7 @@
 angular.module('apMesa.filters.apMesaRowSorter', [])
 
 .filter('apMesaRowSorter', function() {
-  var column_cache = {};
-  function getColumn(columns,id) {
-    if (column_cache.hasOwnProperty(id)) {
-      return column_cache[id];
-    }
-    for (var i = columns.length - 1; i >= 0; i--) {
-      if (columns[i].id === id) {
-        column_cache[id] = columns[i];
-        return columns[i];
-      }
-    }
-  }
-  return function tableRowSorter(rows, columns, sortOrder, options) {
+  return function tableRowSorter(rows, columns, sortOrder, options, transientState) {
     if (!sortOrder.length) {
       return rows;
     }
@@ -39,7 +27,7 @@ angular.module('apMesa.filters.apMesaRowSorter', [])
     return arrayCopy.sort(function(a,b) {
       for (var i = 0; i < sortOrder.length; i++) {
         var sortItem = sortOrder[i];
-        var column = getColumn(columns,sortItem.id);
+        var column = transientState.columnLookup[sortItem.id];
         var dir = sortItem.dir;
         if (column && column.sort) {
           var fn = column.sort;

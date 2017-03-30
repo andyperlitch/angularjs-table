@@ -200,55 +200,61 @@ angular.module('apMesa.controllers.ApMesaController', [
       return classes[0];
     };
     $scope.setColumns = function (columns) {
-      $scope.columns = columns;
-      $scope.columns.forEach(function (column) {
-        // formats
-        var format = column.format;
-        if (typeof format !== 'function') {
-          if (typeof format === 'string') {
-            if (typeof formats[format] === 'function') {
-              column.format = formats[format];
+      try {
+        $scope.columns = columns;
+        $scope.columns.forEach(function (column) {
+          // formats
+          var format = column.format;
+          if (typeof format !== 'function') {
+            if (typeof format === 'string') {
+              if (typeof formats[format] === 'function') {
+                column.format = formats[format];
+              } else {
+                try {
+                  column.format = $filter(format);
+                } catch (e) {
+                  delete column.format;
+                  $log.warn('format function reference in column(id=' + column.id + ') ' + 'was not found in built-in format functions or $filters. ' + 'format function given: "' + format + '". ' + 'Available built-ins: ' + Object.keys(formats).join(',') + '. ' + 'If you supplied a $filter, ensure it is available on this module');
+                }
+              }
             } else {
-              try {
-                column.format = $filter(format);
-              } catch (e) {
-                delete column.format;
-                $log.warn('format function reference in column(id=' + column.id + ') ' + 'was not found in built-in format functions or $filters. ' + 'format function given: "' + format + '". ' + 'Available built-ins: ' + Object.keys(formats).join(',') + '. ' + 'If you supplied a $filter, ensure it is available on this module');
+              delete column.format;
+            }
+          }
+          if (!$scope.options.getData) {
+            // sort
+            var sort = column.sort;
+            if (typeof sort !== 'function') {
+              if (typeof sort === 'string') {
+                if (typeof sorts[sort] === 'function') {
+                  column.sort = sorts[sort](column.key);
+                } else {
+                  delete column.sort;
+                  $log.warn('sort function reference in column(id=' + column.id + ') ' + 'was not found in built-in sort functions. ' + 'sort function given: "' + sort + '". ' + 'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
+                }
+              } else {
+                delete column.sort;
               }
             }
-          } else {
-            delete column.format;
-          }
-        }
-        // sort
-        var sort = column.sort;
-        if (typeof sort !== 'function') {
-          if (typeof sort === 'string') {
-            if (typeof sorts[sort] === 'function') {
-              column.sort = sorts[sort](column.key);
-            } else {
-              delete column.sort;
-              $log.warn('sort function reference in column(id=' + column.id + ') ' + 'was not found in built-in sort functions. ' + 'sort function given: "' + sort + '". ' + 'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
+            // filter
+            var filter = column.filter;
+            if (typeof filter !== 'function') {
+              if (typeof filter === 'string') {
+                if (typeof filters[filter] === 'function') {
+                  column.filter = filters[filter];
+                } else {
+                  delete column.filter;
+                  $log.warn('filter function reference in column(id=' + column.id + ') ' + 'was not found in built-in filter functions. ' + 'filter function given: "' + filter + '". ' + 'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
+                }
+              } else {
+                delete column.filter;
+              }
             }
-          } else {
-            delete column.sort;
           }
-        }
-        // filter
-        var filter = column.filter;
-        if (typeof filter !== 'function') {
-          if (typeof filter === 'string') {
-            if (typeof filters[filter] === 'function') {
-              column.filter = filters[filter];
-            } else {
-              delete column.filter;
-              $log.warn('filter function reference in column(id=' + column.id + ') ' + 'was not found in built-in filter functions. ' + 'filter function given: "' + filter + '". ' + 'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
-            }
-          } else {
-            delete column.filter;
-          }
-        }
-      });
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
     };
     $scope.startColumnResize = function ($event, column) {
       // Stop default so text does not get selected
@@ -417,9 +423,8 @@ angular.module('apMesa.controllers.ApMesaController', [
       defaultRowHeight: 40,
       scrollDebounce: 100,
       scrollDivisor: 1,
-      loadingText: 'loading',
-      loadingError: false,
-      noRowsText: 'no rows',
+      loadingText: undefined,
+      noRowsText: 'No data.',
       pagingStrategy: 'SCROLL',
       rowsPerPage: 10,
       rowsPerPageChoices: [
@@ -459,7 +464,9 @@ angular.module('apMesa.controllers.ApMesaController', [
     'apMesa.directives.apMesaDummyRows',
     'apMesa.directives.apMesaExpandable',
     'apMesa.directives.apMesaPaginationCtrls',
-    'apMesa.directives.apMesaThTitle'
+    'apMesa.directives.apMesaStatusDisplay',
+    'apMesa.directives.apMesaThTitle',
+    'apMesa.services.apMesaDebounce'
   ]).provider('apMesa', function ApMesaService() {
     this.setDefaultOptions = function (overrides) {
       defaultOptions = defaults(overrides, defaultOptions);
@@ -479,38 +486,8 @@ angular.module('apMesa.controllers.ApMesaController', [
     '$timeout',
     '$q',
     'apMesa',
-    function ($log, $timeout, $q, apMesa) {
-      function debounce(func, wait, immediate) {
-        var timeout, args, context, timestamp, result;
-        var later = function () {
-          var last = Date.now() - timestamp;
-          if (last < wait && last > 0) {
-            timeout = $timeout(later, wait - last);
-          } else {
-            timeout = null;
-            if (!immediate) {
-              result = func.apply(context, args);
-              if (!timeout) {
-                context = args = null;
-              }
-            }
-          }
-        };
-        return function () {
-          context = this;
-          args = arguments;
-          timestamp = Date.now();
-          var callNow = immediate && !timeout;
-          if (!timeout) {
-            timeout = $timeout(later, wait);
-          }
-          if (callNow) {
-            result = func.apply(context, args);
-            context = args = null;
-          }
-          return result;
-        };
-      }
+    'apMesaDebounce',
+    function ($log, $timeout, $q, apMesa, debounce) {
       function resetState(scope) {
         var rowLimit = defaultOptions.rowsPerPage;
         if (scope.options && scope.options.rowsPerPage) {
@@ -521,14 +498,23 @@ angular.module('apMesa.controllers.ApMesaController', [
           searchTerms: {},
           sortOrder: []
         };
-        // Holds filtered rows count
         scope.transientState = {
+          rowHeightIsCalculated: false,
           filterCount: scope.rows ? scope.rows.length : 0,
           rowOffset: 0,
           pageOffset: 0,
           expandedRows: {},
-          expandedRowHeights: {}
+          expandedRowHeights: {},
+          columnLookup: {},
+          loadingError: null,
+          loading: false
         };
+        if (scope.columns.length) {
+          var lookup = scope.transientState.columnLookup;
+          scope.columns.forEach(function (column) {
+            lookup[column.id] = column;
+          });
+        }
         scope.$broadcast('apMesa:stateReset');
       }
       function initOptions(scope) {
@@ -560,9 +546,9 @@ angular.module('apMesa.controllers.ApMesaController', [
         }
       }
       function preLink(scope) {
+        initOptions(scope);
         resetColumns(scope);
         resetState(scope);
-        initOptions(scope);
       }
       function postLink(scope, element) {
         var deregStorageWatchers = [];
@@ -638,11 +624,14 @@ angular.module('apMesa.controllers.ApMesaController', [
         scope.$watch('options.loadingPromise', function (promise) {
           if (angular.isObject(promise) && typeof promise.then === 'function') {
             scope.api.setLoading(true);
-            promise.then(function () {
-              scope.options.loadingError = false;
+            promise.then(function (data) {
+              scope.transientState.loadingError = false;
               scope.api.setLoading(false);
+              if (angular.isArray(data)) {
+                scope.rows = data;
+              }
             }, function (reason) {
-              scope.options.loadingError = true;
+              scope.transientState.loadingError = true;
               scope.api.setLoading(false);
               $log.warn('Failed loading table data: ' + reason);
             });
@@ -726,10 +715,22 @@ angular.module('apMesa.controllers.ApMesaController', [
         scope.calculateRowLimit = function () {
           var rowHeight = scope.scrollDiv.find('.ap-mesa-rendered-rows tr').height();
           scope.rowHeight = rowHeight || scope.options.defaultRowHeight || 20;
+          if (!scope.transientState.rowHeightIsCalculated && rowHeight) {
+            scope.transientState.rowHeightIsCalculated = true;
+          }
           if (scope.options.pagingStrategy === 'SCROLL') {
             scope.persistentState.rowLimit = Math.ceil((scope.options.bodyHeight + scope.options.rowPadding * 2) / scope.rowHeight);
           } else if (scope.options.pagingStrategy === 'PAGINATE') {
             scope.persistentState.rowLimit = scope.options.rowsPerPage;
+          }
+        };
+        scope.resetOffset = function () {
+          if (scope.options.pagingStrategy === 'SCROLL') {
+            scope.scrollDiv[0].scrollTop = 0;
+            scope.transientState.rowOffset = 0;
+          } else if (scope.options.pagingStrategy === 'PAGINATE') {
+            scope.transientState.pageOffset = 0;
+            scope.transientState.rowOffset = 0;
           }
         };
         // Wait for a render
@@ -743,7 +744,7 @@ angular.module('apMesa.controllers.ApMesaController', [
           deselectAll: scope.deselectAll,
           toggleSelectAll: scope.toggleSelectAll,
           setLoading: function (isLoading, triggerDigest) {
-            scope.options.loading = isLoading;
+            scope.transientState.loading = isLoading;
             if (triggerDigest) {
               scope.$digest();
             }
@@ -856,7 +857,8 @@ angular.module('apMesa.directives.apMesaDummyRows', []).directive('apMesaDummyRo
     template: '<tr class="ap-mesa-dummy-row" ng-style="{ height: dummyRowHeight + \'px\'}"><td ng-show="dummyRowHeight" ng-attr-colspan="{{columns.length}}"></td></tr>',
     scope: true,
     link: function (scope, element, attrs) {
-      scope.$watch(attrs.apMesaDummyRows, function (offsetRange) {
+      scope.$on('angular-mesa:update-dummy-rows', function () {
+        var offsetRange = scope.$eval(attrs.apMesaDummyRows);
         var rowsHeight = (offsetRange[1] - offsetRange[0]) * scope.rowHeight;
         for (var k in scope.transientState.expandedRows) {
           var kInt = parseInt(k);
@@ -1064,15 +1066,23 @@ angular.module('apMesa.directives.apMesaRow', ['apMesa.directives.apMesaCell']).
 angular.module('apMesa.directives.apMesaRows', [
   'apMesa.directives.apMesaRow',
   'apMesa.filters.apMesaRowFilter',
-  'apMesa.filters.apMesaRowSorter'
+  'apMesa.filters.apMesaRowSorter',
+  'apMesa.services.apMesaDebounce'
 ]).directive('apMesaRows', [
   '$filter',
   '$timeout',
-  function ($filter, $timeout) {
+  'apMesaDebounce',
+  '$rootScope',
+  function ($filter, $timeout, debounce, $rootScope) {
     var tableRowFilter = $filter('apMesaRowFilter');
     var tableRowSorter = $filter('apMesaRowSorter');
     var limitTo = $filter('limitTo');
-    function calculateVisibleRows(scope) {
+    /**
+   * Updates the visible_rows array on the scope synchronously.
+   * @param  {ng.IScope} scope The scope of the particular apMesaRows instance.
+   * @return {void}
+   */
+    function updateVisibleRows(scope) {
       // sanity check
       if (!scope.rows || !scope.columns) {
         return [];
@@ -1082,7 +1092,7 @@ angular.module('apMesa.directives.apMesaRows', [
       // filter rows
       visible_rows = tableRowFilter(scope.rows, scope.columns, scope.persistentState, scope.transientState, scope.options);
       // sort rows
-      visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options);
+      visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options, scope.transientState);
       // limit rows
       if (scope.options.pagingStrategy === 'SCROLL') {
         visible_rows = limitTo(visible_rows, Math.floor(scope.transientState.rowOffset) - scope.transientState.filterCount);
@@ -1097,32 +1107,131 @@ angular.module('apMesa.directives.apMesaRows', [
       visible_rows.forEach(function (row) {
         row.$$$index = idx++;
       });
-      return visible_rows;
+      scope.visible_rows = visible_rows;
+      $rootScope.$broadcast('angular-mesa:update-dummy-rows');
     }
+    /**
+   * Updates the visible_rows array on the scope asynchronously, using the options.getData function (when present).
+   * @param  {ng.IScope} scope The scope of the particular apMesaRows instance
+   * @return {ng.IPromise}       Returns the promise of the request
+   */
+    var updateVisibleRowsAsync = debounce(function (scope) {
+        // get offset
+        var offset;
+        if (scope.options.pagingStrategy === 'SCROLL') {
+          offset = scope.transientState.rowOffset;
+        } else if (scope.options.pagingStrategy === 'PAGINATE') {
+          offset = scope.transientState.pageOffset * scope.persistentState.rowLimit;
+        }
+        // get active filter
+        var searchTerms = scope.persistentState.searchTerms;
+        var activeFilters = scope.columns.filter(function (column) {
+            return !!searchTerms[column.id];
+          }).map(function (column) {
+            return {
+              column: column,
+              value: searchTerms[column.id]
+            };
+          });
+        // get active sorts
+        var activeSorts = scope.persistentState.sortOrder.map(function (sortItem) {
+            return {
+              column: scope.transientState.columnLookup[sortItem.id],
+              direction: sortItem.dir === '+' ? 'ASC' : 'DESC'
+            };
+          });
+        scope.transientState.loadingError = false;
+        scope.api.setLoading(true);
+        var getDataPromise = scope.transientState.getDataPromise = scope.options.getData(offset, scope.persistentState.rowLimit, activeFilters, activeSorts).then(function (res) {
+            if (getDataPromise !== scope.transientState.getDataPromise) {
+              // new request made, cancelling this one
+              return;
+            }
+            var total = res.total;
+            var rows = res.rows;
+            var i = offset;
+            scope.transientState.rowOffset = offset;
+            scope.transientState.filterCount = total;
+            scope.visible_rows = rows;
+            rows.forEach(function (row) {
+              row.$$$index = i++;
+            });
+            scope.transientState.getDataPromise = null;
+            scope.api.setLoading(false);
+            $rootScope.$broadcast('angular-mesa:update-dummy-rows');
+          }, function (e) {
+            scope.transientState.getDataPromise = null;
+            scope.transientState.loadingError = true;
+            scope.api.setLoading(false);
+          });
+      }, 200, {
+        leading: false,
+        trailing: true
+      });
     function link(scope) {
       var updateHandler = function (newValue, oldValue) {
         if (newValue === oldValue) {
           return;
         }
-        scope.visible_rows = calculateVisibleRows(scope);
+        if (!scope.options.getData) {
+          updateVisibleRows(scope);
+        } else {
+          updateVisibleRowsAsync(scope);
+        }
         scope.transientState.expandedRows = {};
       };
       var updateHandlerWithoutClearingCollapsed = function (newValue, oldValue) {
         if (newValue === oldValue) {
           return;
         }
-        scope.visible_rows = calculateVisibleRows(scope);
+        if (!scope.options.getData) {
+          updateVisibleRows(scope);
+        } else {
+          updateVisibleRowsAsync(scope);
+        }
       };
-      scope.$watch('persistentState.searchTerms', updateHandler, true);
-      scope.$watch('[transientState.rowOffset, persistentState.rowLimit, transientState.pageOffset]', updateHandlerWithoutClearingCollapsed);
-      scope.$watch('transientState.filterCount', updateHandler);
-      scope.$watch('persistentState.sortOrder', updateHandler, true);
+      // Watchers that trigger updates to visible rows
+      scope.$watch('persistentState.searchTerms', function (nv, ov) {
+        if (!angular.equals(nv, ov)) {
+          scope.resetOffset();
+        }
+        updateHandler(nv, ov);
+      }, true);
+      scope.$watch('persistentState.sortOrder', function (nv, ov) {
+        if (!angular.equals(nv, ov)) {
+          scope.resetOffset();
+        }
+        updateHandler(nv, ov);
+      }, true);
+      scope.$watch('transientState.rowOffset', function (nv, ov) {
+        if (scope.options.pagingStrategy === 'SCROLL') {
+          updateHandlerWithoutClearingCollapsed(nv, ov);
+        }
+      });
+      scope.$watch('persistentState.rowLimit', function (nv, ov) {
+        if (scope.options.getData && scope.transientState.rowHeightIsCalculated) {
+          return;
+        }
+        updateHandlerWithoutClearingCollapsed(nv, ov);
+      });
+      scope.$watch('transientState.pageOffset', function (nv, ov) {
+        updateHandlerWithoutClearingCollapsed(nv, ov);
+      });
+      scope.$watch('transientState.filterCount', function (nv, ov) {
+        if (!scope.options.getData) {
+          updateHandler(nv, ov);
+        }
+      });
       scope.$watch('rows', function (newRows) {
         if (angular.isArray(newRows)) {
           updateHandler(true, false);
         }
       });
-      updateHandler(true, false);
+      scope.$watch('options.getData', function (getData) {
+        if (angular.isFunction(getData)) {
+          updateHandler(true, false);
+        }
+      });
     }
     return {
       restrict: 'A',
@@ -1176,6 +1285,13 @@ angular.module('apMesa.directives.apMesaSelector', []).directive('apMesaSelector
     }
   };
 });
+// Source: dist/directives/apMesaStatusDisplay.js
+angular.module('apMesa.directives.apMesaStatusDisplay', []).directive('apMesaStatusDisplay', function () {
+  return {
+    replace: true,
+    templateUrl: 'src/templates/apMesaStatusDisplay.tpl.html'
+  };
+});
 // Source: dist/directives/apMesaThTitle.js
 angular.module('apMesa.directives.apMesaThTitle', []).directive('apMesaThTitle', [
   '$compile',
@@ -1222,7 +1338,7 @@ angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterF
       enabledFilterColumns = columns.filter(function (column) {
         // check search term
         var term = persistentState.searchTerms[column.id];
-        if (persistentState.searchTerms.hasOwnProperty(column.id) && typeof term === 'string') {
+        if (typeof term === 'string') {
           // filter empty strings and whitespace
           if (!term.trim()) {
             return false;
@@ -1279,19 +1395,7 @@ angular.module('apMesa.filters.apMesaRowFilter', ['apMesa.services.apMesaFilterF
 * limitations under the License.
 */
 angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', function () {
-  var column_cache = {};
-  function getColumn(columns, id) {
-    if (column_cache.hasOwnProperty(id)) {
-      return column_cache[id];
-    }
-    for (var i = columns.length - 1; i >= 0; i--) {
-      if (columns[i].id === id) {
-        column_cache[id] = columns[i];
-        return columns[i];
-      }
-    }
-  }
-  return function tableRowSorter(rows, columns, sortOrder, options) {
+  return function tableRowSorter(rows, columns, sortOrder, options, transientState) {
     if (!sortOrder.length) {
       return rows;
     }
@@ -1302,7 +1406,7 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
     return arrayCopy.sort(function (a, b) {
       for (var i = 0; i < sortOrder.length; i++) {
         var sortItem = sortOrder[i];
-        var column = getColumn(columns, sortItem.id);
+        var column = transientState.columnLookup[sortItem.id];
         var dir = sortItem.dir;
         if (column && column.sort) {
           var fn = column.sort;
@@ -1316,6 +1420,334 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
     });
   };
 });
+// Source: dist/services/apMesaDebounce.js
+/** _.debounce, modified to use $timeout instead of setTimeout */
+angular.module('apMesa.services.apMesaDebounce', []).factory('apMesaDebounce', [
+  '$timeout',
+  function ($timeout) {
+    /**
+   * lodash (Custom Build) <https://lodash.com/>
+   * Build: `lodash modularize exports="npm" -o ./`
+   * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+   * Released under MIT license <https://lodash.com/license>
+   * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+   * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+   */
+    /** Used as the `TypeError` message for "Functions" methods. */
+    var FUNC_ERROR_TEXT = 'Expected a function';
+    /** Used as references for various `Number` constants. */
+    var NAN = 0 / 0;
+    /** `Object#toString` result references. */
+    var symbolTag = '[object Symbol]';
+    /** Used to match leading and trailing whitespace. */
+    var reTrim = /^\s+|\s+$/g;
+    /** Used to detect bad signed hexadecimal string values. */
+    var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+    /** Used to detect binary string values. */
+    var reIsBinary = /^0b[01]+$/i;
+    /** Used to detect octal string values. */
+    var reIsOctal = /^0o[0-7]+$/i;
+    /** Built-in method references without a dependency on `root`. */
+    var freeParseInt = parseInt;
+    /** Detect free variable `global` from Node.js. */
+    var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+    /** Detect free variable `self`. */
+    var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+    /** Used as a reference to the global object. */
+    var root = freeGlobal || freeSelf || Function('return this')();
+    /** Used for built-in method references. */
+    var objectProto = Object.prototype;
+    /**
+   * Used to resolve the
+   * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+   * of values.
+   */
+    var objectToString = objectProto.toString;
+    /* Built-in method references for those with the same name as other `lodash` methods. */
+    var nativeMax = Math.max, nativeMin = Math.min;
+    /**
+   * Gets the timestamp of the number of milliseconds that have elapsed since
+   * the Unix epoch (1 January 1970 00:00:00 UTC).
+   *
+   * @static
+   * @memberOf _
+   * @since 2.4.0
+   * @category Date
+   * @returns {number} Returns the timestamp.
+   * @example
+   *
+   * _.defer(function(stamp) {
+   *   console.log(_.now() - stamp);
+   * }, _.now());
+   * // => Logs the number of milliseconds it took for the deferred invocation.
+   */
+    var now = function () {
+      return root.Date.now();
+    };
+    /**
+   * Creates a debounced function that delays invoking `func` until after `wait`
+   * milliseconds have elapsed since the last time the debounced function was
+   * invoked. The debounced function comes with a `cancel` method to cancel
+   * delayed `func` invocations and a `flush` method to immediately invoke them.
+   * Provide `options` to indicate whether `func` should be invoked on the
+   * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+   * with the last arguments provided to the debounced function. Subsequent
+   * calls to the debounced function return the result of the last `func`
+   * invocation.
+   *
+   * **Note:** If `leading` and `trailing` options are `true`, `func` is
+   * invoked on the trailing edge of the timeout only if the debounced function
+   * is invoked more than once during the `wait` timeout.
+   *
+   * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+   * until to the next tick, similar to `$timeout` with a timeout of `0`.
+   *
+   * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+   * for details over the differences between `_.debounce` and `_.throttle`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Function
+   * @param {Function} func The function to debounce.
+   * @param {number} [wait=0] The number of milliseconds to delay.
+   * @param {Object} [options={}] The options object.
+   * @param {boolean} [options.leading=false]
+   *  Specify invoking on the leading edge of the timeout.
+   * @param {number} [options.maxWait]
+   *  The maximum time `func` is allowed to be delayed before it's invoked.
+   * @param {boolean} [options.trailing=true]
+   *  Specify invoking on the trailing edge of the timeout.
+   * @returns {Function} Returns the new debounced function.
+   * @example
+   *
+   * // Avoid costly calculations while the window size is in flux.
+   * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+   *
+   * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+   * jQuery(element).on('click', _.debounce(sendMail, 300, {
+   *   'leading': true,
+   *   'trailing': false
+   * }));
+   *
+   * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+   * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
+   * var source = new EventSource('/stream');
+   * jQuery(source).on('message', debounced);
+   *
+   * // Cancel the trailing debounced invocation.
+   * jQuery(window).on('popstate', debounced.cancel);
+   */
+    function debounce(func, wait, options) {
+      var lastArgs, lastThis, maxWait, result, timerId, lastCallTime, lastInvokeTime = 0, leading = false, maxing = false, trailing = true;
+      if (typeof func != 'function') {
+        throw new TypeError(FUNC_ERROR_TEXT);
+      }
+      wait = toNumber(wait) || 0;
+      if (isObject(options)) {
+        leading = !!options.leading;
+        maxing = 'maxWait' in options;
+        maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+        trailing = 'trailing' in options ? !!options.trailing : trailing;
+      }
+      function invokeFunc(time) {
+        var args = lastArgs, thisArg = lastThis;
+        lastArgs = lastThis = undefined;
+        lastInvokeTime = time;
+        result = func.apply(thisArg, args);
+        return result;
+      }
+      function leadingEdge(time) {
+        // Reset any `maxWait` timer.
+        lastInvokeTime = time;
+        // Start the timer for the trailing edge.
+        timerId = $timeout(timerExpired, wait);
+        // Invoke the leading edge.
+        return leading ? invokeFunc(time) : result;
+      }
+      function remainingWait(time) {
+        var timeSinceLastCall = time - lastCallTime, timeSinceLastInvoke = time - lastInvokeTime, result = wait - timeSinceLastCall;
+        return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
+      }
+      function shouldInvoke(time) {
+        var timeSinceLastCall = time - lastCallTime, timeSinceLastInvoke = time - lastInvokeTime;
+        // Either this is the first call, activity has stopped and we're at the
+        // trailing edge, the system time has gone backwards and we're treating
+        // it as the trailing edge, or we've hit the `maxWait` limit.
+        return lastCallTime === undefined || timeSinceLastCall >= wait || timeSinceLastCall < 0 || maxing && timeSinceLastInvoke >= maxWait;
+      }
+      function timerExpired() {
+        var time = now();
+        if (shouldInvoke(time)) {
+          return trailingEdge(time);
+        }
+        // Restart the timer.
+        timerId = $timeout(timerExpired, remainingWait(time));
+      }
+      function trailingEdge(time) {
+        timerId = undefined;
+        // Only invoke if we have `lastArgs` which means `func` has been
+        // debounced at least once.
+        if (trailing && lastArgs) {
+          return invokeFunc(time);
+        }
+        lastArgs = lastThis = undefined;
+        return result;
+      }
+      function cancel() {
+        if (timerId !== undefined) {
+          $timeout.cancel(timerId);
+        }
+        lastInvokeTime = 0;
+        lastArgs = lastCallTime = lastThis = timerId = undefined;
+      }
+      function flush() {
+        return timerId === undefined ? result : trailingEdge(now());
+      }
+      function debounced() {
+        var time = now(), isInvoking = shouldInvoke(time);
+        lastArgs = arguments;
+        lastThis = this;
+        lastCallTime = time;
+        if (isInvoking) {
+          if (timerId === undefined) {
+            return leadingEdge(lastCallTime);
+          }
+          if (maxing) {
+            // Handle invocations in a tight loop.
+            timerId = $timeout(timerExpired, wait);
+            return invokeFunc(lastCallTime);
+          }
+        }
+        if (timerId === undefined) {
+          timerId = $timeout(timerExpired, wait);
+        }
+        return result;
+      }
+      debounced.cancel = cancel;
+      debounced.flush = flush;
+      return debounced;
+    }
+    /**
+   * Checks if `value` is the
+   * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+   * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+   * @example
+   *
+   * _.isObject({});
+   * // => true
+   *
+   * _.isObject([1, 2, 3]);
+   * // => true
+   *
+   * _.isObject(_.noop);
+   * // => true
+   *
+   * _.isObject(null);
+   * // => false
+   */
+    function isObject(value) {
+      var type = typeof value;
+      return !!value && (type == 'object' || type == 'function');
+    }
+    /**
+   * Checks if `value` is object-like. A value is object-like if it's not `null`
+   * and has a `typeof` result of "object".
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+   * @example
+   *
+   * _.isObjectLike({});
+   * // => true
+   *
+   * _.isObjectLike([1, 2, 3]);
+   * // => true
+   *
+   * _.isObjectLike(_.noop);
+   * // => false
+   *
+   * _.isObjectLike(null);
+   * // => false
+   */
+    function isObjectLike(value) {
+      return !!value && typeof value == 'object';
+    }
+    /**
+   * Checks if `value` is classified as a `Symbol` primitive or object.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+   * @example
+   *
+   * _.isSymbol(Symbol.iterator);
+   * // => true
+   *
+   * _.isSymbol('abc');
+   * // => false
+   */
+    function isSymbol(value) {
+      return typeof value == 'symbol' || isObjectLike(value) && objectToString.call(value) == symbolTag;
+    }
+    /**
+   * Converts `value` to a number.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to process.
+   * @returns {number} Returns the number.
+   * @example
+   *
+   * _.toNumber(3.2);
+   * // => 3.2
+   *
+   * _.toNumber(Number.MIN_VALUE);
+   * // => 5e-324
+   *
+   * _.toNumber(Infinity);
+   * // => Infinity
+   *
+   * _.toNumber('3.2');
+   * // => 3.2
+   */
+    function toNumber(value) {
+      if (typeof value == 'number') {
+        return value;
+      }
+      if (isSymbol(value)) {
+        return NAN;
+      }
+      if (isObject(value)) {
+        var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+        value = isObject(other) ? other + '' : other;
+      }
+      if (typeof value != 'string') {
+        return value === 0 ? value : +value;
+      }
+      value = value.replace(reTrim, '');
+      var isBinary = reIsBinary.test(value);
+      return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
+    }
+    return debounce;
+  }
+]);
 // Source: dist/services/apMesaFilterFunctions.js
 /*
 * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
@@ -1574,12 +2006,13 @@ angular.module('apMesa.templates', [
   'src/templates/apMesa.tpl.html',
   'src/templates/apMesaDummyRows.tpl.html',
   'src/templates/apMesaPaginationCtrls.tpl.html',
-  'src/templates/apMesaRows.tpl.html'
+  'src/templates/apMesaRows.tpl.html',
+  'src/templates/apMesaStatusDisplay.tpl.html'
 ]);
 angular.module('src/templates/apMesa.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th\n' + '          scope="col"\n' + '          ng-repeat="column in columns"\n' + '          ng-click="toggleSort($event,column)"\n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector, \'is-sorting\': sortDirection[column.id] }"\n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            <span\n' + '              ng-if="column.sort"\n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '            <span ap-mesa-th-title></span>\n' + '          </span>\n' + '          <span\n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input\n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="persistentState.searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filter && column.filter.placeholder }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': persistentState.searchTerms[column.id] }"\n' + '          >\n' + '          <button\n' + '            ng-if="(column.filter)"\n' + '            ng-show="persistentState.searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th\n' + '            scope="col"\n' + '            ng-repeat="column in columns"\n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody>\n' + '        <tr ng-if="visible_rows.length === 0 || options.loading">\n' + '          <td ng-attr-colspan="{{columns.length}}" class="space-holder-row-cell">\n' + '            <div ng-if="options.loadingError">\n' + '              <div ng-if="!options.loading && options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.loadingErrorTemplateUrl">{{ options.loadingErrorText }}</div>\n' + '            </div>\n' + '            <div ng-if="!options.loadingError">\n' + '              <div ng-if="options.loading && options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '              <div ng-if="options.loading && !options.loadingTemplateUrl">{{ options.loadingText }}</div>\n' + '              <div ng-if="!options.loading && options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '              <div ng-if="!options.loading && !options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '            </div>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ng-show="!options.loading" ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ng-show="!options.loading" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === \'PAGINATE\'" ap-mesa-pagination-ctrls></div>\n' + '</div>\n' + '');
+    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper" ng-class="{\n' + '\'paging-strategy-paginate\': options.pagingStrategy === \'PAGINATE\',\n' + '\'paging-strategy-scroll\': options.pagingStrategy === \'SCROLL\'\n' + '}">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <tr ui-sortable="sortableOptions" ng-model="columns">\n' + '        <th\n' + '          scope="col"\n' + '          ng-repeat="column in columns"\n' + '          ng-click="toggleSort($event,column)"\n' + '          ng-class="{\'sortable-column\' : column.sort, \'select-column\': column.selector, \'is-sorting\': sortDirection[column.id] }"\n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '        >\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            <span\n' + '              ng-if="column.sort"\n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."\n' + '              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"\n' + '            ></span>\n' + '            <span ap-mesa-th-title></span>\n' + '          </span>\n' + '          <span\n' + '            ng-if="!column.lockWidth"\n' + '            ng-class="{\'discreet-width\': !!column.width, \'column-resizer\': true}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)"\n' + '          >\n' + '            &nbsp;\n' + '          </span>\n' + '        </th>\n' + '      </tr>\n' + '      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">\n' + '        <td ng-repeat="column in columns" ng-class="\'column-\' + column.id">\n' + '          <input\n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="persistentState.searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filterPlaceholder ? column.filterPlaceholder : (column.filter.placeholder || \'filter\') }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': persistentState.searchTerms[column.id] }"\n' + '          >\n' + '          <button\n' + '            ng-if="(column.filter)"\n' + '            ng-show="persistentState.searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)"\n' + '          >\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div ap-mesa-status-display></div>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle" ng-hide="transientState.loadingError">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th\n' + '            scope="col"\n' + '            ng-repeat="column in columns"\n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>\n' + '      <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === \'PAGINATE\'" ap-mesa-pagination-ctrls></div>\n' + '</div>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([
@@ -1598,5 +2031,11 @@ angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
     $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
+  }
+]);
+angular.module('src/templates/apMesaStatusDisplay.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('src/templates/apMesaStatusDisplay.tpl.html', '<div class="ap-mesa-status-display-wrapper" ng-class="{\n' + '  loading: transientState.loading,\n' + '  error: transientState.loadingError,\n' + '  \'has-rows\': visible_rows.length && !transientState.loadingError\n' + '}">\n' + '\n' + '  <!-- LOADING -->\n' + '  <div ng-if="transientState.loading" class="ap-mesa-loading-display">\n' + '    \n' + '    <!-- user-provided -->\n' + '    <div ng-if="options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '    <div ng-if="options.loadingText">{{ options.loadingText }}</div>\n' + '    \n' + '    <!-- default -->\n' + '    <div ng-if="!options.asyncLoadingTemplateUrl && !options.asyncLoadingTemplate" class="ap-mesa-status-display">\n' + '      <div class="ap-mesa-status-display-inner"></div>\n' + '    </div>\n' + '\n' + '  </div>\n' + '  \n' + '  <!-- ERROR -->\n' + '  <div ng-if="transientState.loadingError" class="ap-mesa-error-display">\n' + '    <div ng-if="options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '    <div ng-if="options.loadingErrorText">{{ options.loadingErrorText }}</div>\n' + '    <div ng-if="!options.loadingErrorTemplateUrl && !options.loadingErrorText" class="ap-mesa-error-display-inner">An error occurred.</div>\n' + '  </div>\n' + '\n' + '  <!-- NO DATA -->\n' + '  <div ng-if="!transientState.loading && !transientState.loadingError && visible_rows.length === 0" class="ap-mesa-no-data-display">\n' + '    <div ng-if="options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '    <div ng-if="!options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '  </div>\n' + '</div>');
   }
 ]);

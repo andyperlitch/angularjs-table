@@ -44,6 +44,7 @@
             <li><a href="#">kitchen sink</a></li>
             <li><a href="#/max-height">max height</a></li>
             <li><a href="#/expandable">expandable rows</a></li>
+            <li><a href="#/server-side-interaction">server interaction</a></li>
             <li><a href="http://github.com/andyperlitch/angular-mesa">github</a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
@@ -57,6 +58,7 @@
     <script src="bower_components/jquery/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.js"></script>
     <script src="bower_components/angular-ui-sortable/sortable.js"></script>
     <!-- endbower -->
@@ -76,12 +78,14 @@
     <script src="src/directives/apMesaSelector.js"></script>
     <script src="src/directives/apMesaExpandable.js"></script>
     <script src="src/directives/apMesaPaginationCtrls.js"></script>
+    <script src="src/directives/apMesaStatusDisplay.js"></script>
     <script src="src/filters/apMesaRowFilter.js"></script>
     <script src="src/filters/apMesaRowSorter.js"></script>
     <script src="src/ap-mesa.js"></script>
     <script src="src/services/apMesaFilterFunctions.js"></script>
     <script src="src/services/apMesaFormatFunctions.js"></script>
     <script src="src/services/apMesaSortFunctions.js"></script>
+    <script src="src/services/apMesaDebounce.js"></script>
     <!-- endinjector -->
     <script src="scripts/templates.js"></script>
     <script src="scripts/app.js"></script>
@@ -89,6 +93,7 @@
     <script src="scripts/controllers/perf.js"></script>
     <script src="scripts/controllers/max-height.js"></script>
     <script src="scripts/controllers/expandable.js"></script>
+    <script src="scripts/controllers/server-side.js"></script>
     <!-- endbuild -->
 </body>
 </html>

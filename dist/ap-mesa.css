@@ -196,3 +196,132 @@ table tbody .ap-mesa-dummy-row td {
 .ap-mesa-pagination .rows-per-page-msg {
   vertical-align: middle;
 }
+
+.ap-mesa-pagination ul.pagination li a {
+  cursor: pointer;
+}
+
+/* async loader styles */
+
+.ap-mesa-status-display-wrapper {
+  position: relative;
+  text-align: center;
+}
+
+.ap-mesa-status-display {
+  background: rgba(0,0,0,0.3);
+  border-radius: 1rem;
+  width: 20%;
+  max-width: 130px;
+  min-width: 100px;
+  height: auto;
+  padding: 0.5rem 1rem;
+  position: relative;
+  display: inline-block;
+  margin-top: 0.7rem;
+}
+
+.ap-mesa-loading-display.ng-enter {
+  -webkit-transition: opacity cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  transition: opacity cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.paging-strategy-scroll .ap-mesa-loading-display.ng-enter {
+  -webkit-transition-delay: 0.4s;
+  transition-delay: 0.4s;
+}
+
+.paging-strategy-paginate .ap-mesa-loading-display.ng-enter {
+  -webkit-transition-delay: 0s;
+  transition-delay: 0s;
+}
+
+.ap-mesa-loading-display.ng-enter,
+.ap-mesa-loading-display.ng-enter.ng-leave.ng-leave-active {
+  opacity: 0;
+}
+
+.ap-mesa-loading-display.ng-enter.ng-leave,
+.ap-mesa-loading-display.ng-enter.ng-enter-active {
+  opacity: 1;
+}
+
+.ap-mesa-status-display-wrapper.has-rows .ap-mesa-status-display {
+  position: absolute;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+.ap-mesa-error-display-inner {
+  color: red;
+  display: inline-block;
+}
+
+/* credit to: https://projects.lukehaas.me/css-loaders/ */
+
+.ap-mesa-status-display-inner,
+.ap-mesa-status-display-inner:before,
+.ap-mesa-status-display-inner:after {
+  border-radius: 50%;
+  width: 1.5em;
+  height: 1.5em;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation: load7 1.8s infinite ease-in-out;
+  animation: load7 1.8s infinite ease-in-out;
+}
+
+.ap-mesa-status-display-inner {
+  color: #ffffff;
+  font-size: 10px;
+  margin: 0 auto;
+  position: relative;
+  text-indent: -9999em;
+  -webkit-transform: translateZ(0) translateY(-100%);
+  -ms-transform: translateZ(0) translateY(-100%);
+  transform: translateZ(0) translateY(-100%);
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+.ap-mesa-status-display-inner:before,
+.ap-mesa-status-display-inner:after {
+  content: '';
+  position: absolute;
+  top: 0;
+}
+
+.ap-mesa-status-display-inner:before {
+  left: -3.5em;
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.ap-mesa-status-display-inner:after {
+  left: 3.5em;
+}
+
+@-webkit-keyframes load7 {
+  0%, 80%, 100% {
+    -webkit-box-shadow: 0 1.5em 0 -1.3em;
+    box-shadow: 0 1.5em 0 -1.3em;
+  }
+
+  40% {
+    -webkit-box-shadow: 0 1.5em 0 0;
+    box-shadow: 0 1.5em 0 0;
+  }
+}
+
+@keyframes load7 {
+  0%, 80%, 100% {
+    -webkit-box-shadow: 0 1.5em 0 -1.3em;
+    box-shadow: 0 1.5em 0 -1.3em;
+  }
+
+  40% {
+    -webkit-box-shadow: 0 1.5em 0 0;
+    box-shadow: 0 1.5em 0 0;
+  }
+}

@@ -18,16 +18,22 @@
 angular.module('apMesa.directives.apMesaRows',[
   'apMesa.directives.apMesaRow',
   'apMesa.filters.apMesaRowFilter',
-  'apMesa.filters.apMesaRowSorter'
+  'apMesa.filters.apMesaRowSorter',
+  'apMesa.services.apMesaDebounce'
 ])
 
-.directive('apMesaRows', function($filter, $timeout) {
+.directive('apMesaRows', ['$filter', '$timeout', 'apMesaDebounce', '$rootScope', function($filter, $timeout, debounce, $rootScope) {
 
   var tableRowFilter = $filter('apMesaRowFilter');
   var tableRowSorter = $filter('apMesaRowSorter');
   var limitTo = $filter('limitTo');
 
-  function calculateVisibleRows(scope) {
+  /**
+   * Updates the visible_rows array on the scope synchronously.
+   * @param  {ng.IScope} scope The scope of the particular apMesaRows instance.
+   * @return {void}
+   */
+  function updateVisibleRows(scope) {
 
     // sanity check
     if (!scope.rows || !scope.columns) {
@@ -41,7 +47,7 @@ angular.module('apMesa.directives.apMesaRows',[
     visible_rows = tableRowFilter(scope.rows, scope.columns, scope.persistentState, scope.transientState, scope.options);
 
     // sort rows
-    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options);
+    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options, scope.transientState);
 
     // limit rows
     if (scope.options.pagingStrategy === 'SCROLL') {
@@ -59,8 +65,72 @@ angular.module('apMesa.directives.apMesaRows',[
       row.$$$index = idx++;
     });
 
-    return visible_rows;
+    scope.visible_rows = visible_rows;
+    $rootScope.$broadcast('angular-mesa:update-dummy-rows');
   }
+
+  /**
+   * Updates the visible_rows array on the scope asynchronously, using the options.getData function (when present).
+   * @param  {ng.IScope} scope The scope of the particular apMesaRows instance
+   * @return {ng.IPromise}       Returns the promise of the request
+   */
+  var updateVisibleRowsAsync = debounce(function(scope) {
+    // get offset
+    var offset;
+    if (scope.options.pagingStrategy === 'SCROLL') {
+      offset = scope.transientState.rowOffset;
+    } else if (scope.options.pagingStrategy === 'PAGINATE') {
+      offset = scope.transientState.pageOffset * scope.persistentState.rowLimit;
+    }
+
+    // get active filter
+    var searchTerms = scope.persistentState.searchTerms;
+    var activeFilters = scope.columns
+      .filter(function(column) {
+        return !! searchTerms[column.id];
+      })
+      .map(function(column) {
+        return { column: column, value: searchTerms[column.id] };
+      });
+
+    // get active sorts
+    var activeSorts = scope.persistentState.sortOrder.map(function(sortItem) {
+      return {
+        column: scope.transientState.columnLookup[sortItem.id],
+        direction: sortItem.dir === '+' ? 'ASC' : 'DESC'
+      };
+    });
+
+    scope.transientState.loadingError = false;
+    scope.api.setLoading(true);
+    var getDataPromise = scope.transientState.getDataPromise = scope.options.getData(
+      offset,
+      scope.persistentState.rowLimit,
+      activeFilters,
+      activeSorts
+    ).then(function(res) {
+      if (getDataPromise !== scope.transientState.getDataPromise) {
+        // new request made, cancelling this one
+        return;
+      }
+      var total = res.total;
+      var rows = res.rows;
+      var i = offset;
+      scope.transientState.rowOffset = offset;
+      scope.transientState.filterCount = total;
+      scope.visible_rows = rows;
+      rows.forEach(function(row) {
+        row.$$$index = i++;
+      });
+      scope.transientState.getDataPromise = null;
+      scope.api.setLoading(false);
+      $rootScope.$broadcast('angular-mesa:update-dummy-rows');
+    }, function(e) {
+      scope.transientState.getDataPromise = null;
+      scope.transientState.loadingError = true;
+      scope.api.setLoading(false);
+    });
+  }, 200, { leading: false, trailing: true });
 
   function link(scope) {
 
@@ -68,7 +138,12 @@ angular.module('apMesa.directives.apMesaRows',[
       if (newValue === oldValue) {
         return;
       }
-      scope.visible_rows = calculateVisibleRows(scope);
+      if (!scope.options.getData) {
+        updateVisibleRows(scope);
+      } else {
+        updateVisibleRowsAsync(scope);
+      }
+      
       scope.transientState.expandedRows = {};
     };
 
@@ -76,19 +151,56 @@ angular.module('apMesa.directives.apMesaRows',[
       if (newValue === oldValue) {
         return;
       }
-      scope.visible_rows = calculateVisibleRows(scope);
-    }
+      if (!scope.options.getData) {
+        updateVisibleRows(scope);
+      } else {
+        updateVisibleRowsAsync(scope);
+      }
+      
+    };
 
-    scope.$watch('persistentState.searchTerms', updateHandler, true);
-    scope.$watch('[transientState.rowOffset, persistentState.rowLimit, transientState.pageOffset]', updateHandlerWithoutClearingCollapsed);
-    scope.$watch('transientState.filterCount', updateHandler);
-    scope.$watch('persistentState.sortOrder', updateHandler, true);
+    // Watchers that trigger updates to visible rows
+    scope.$watch('persistentState.searchTerms', function(nv, ov) {
+      if (!angular.equals(nv, ov)) {
+        scope.resetOffset();
+      }
+      updateHandler(nv, ov);
+    }, true);
+    scope.$watch('persistentState.sortOrder', function(nv, ov) {
+      if (!angular.equals(nv, ov)) {
+        scope.resetOffset();
+      }
+      updateHandler(nv, ov);
+    }, true);
+    scope.$watch('transientState.rowOffset', function(nv, ov) {
+      if (scope.options.pagingStrategy === 'SCROLL') {
+        updateHandlerWithoutClearingCollapsed(nv, ov);
+      }
+    });
+    scope.$watch('persistentState.rowLimit', function(nv, ov) {
+      if (scope.options.getData && scope.transientState.rowHeightIsCalculated) {
+        return;
+      }
+      updateHandlerWithoutClearingCollapsed(nv, ov);
+    });
+    scope.$watch('transientState.pageOffset', function(nv, ov) {
+      updateHandlerWithoutClearingCollapsed(nv, ov);
+    });
+    scope.$watch('transientState.filterCount', function(nv, ov) {
+      if (!scope.options.getData) {
+        updateHandler(nv, ov);
+      }
+    });
     scope.$watch('rows', function(newRows) {
       if (angular.isArray(newRows)) {
         updateHandler(true, false);
       }
     });
-    updateHandler(true, false);
+    scope.$watch('options.getData', function(getData) {
+      if (angular.isFunction(getData)) {
+        updateHandler(true, false);
+      }
+    });
   }
 
   return {
@@ -102,4 +214,4 @@ angular.module('apMesa.directives.apMesaRows',[
       return link;
     }
   };
-});
+}]);

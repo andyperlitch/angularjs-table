@@ -6,6 +6,7 @@ describe('Directive: apMesa', function () {
   scope,
   isoScope,
   compile,
+  timeout,
   genRows,
   columns,
   filter_title,
@@ -27,7 +28,7 @@ describe('Directive: apMesa', function () {
     $provide.value('$log', mockLog);
   }));
 
-  beforeEach(inject(function ($compile, $rootScope) {
+  beforeEach(inject(function ($compile, $rootScope, $timeout) {
     // Format functions
     function inches2feet(inches){
       var feet = Math.floor(inches/12);
@@ -72,6 +73,7 @@ describe('Directive: apMesa', function () {
     
     scope = $rootScope.$new();
     compile = $compile;
+    timeout = $timeout;
 
     // Table columns
     scope.my_table_columns = columns = [
@@ -90,8 +92,15 @@ describe('Directive: apMesa', function () {
     createElement = function() {
       element = angular.element('<ap-mesa columns="my_table_columns" rows="my_table_data" class="table" track-by="id"></ap-mesa>');
       element = compile(element)(scope);
+      timeout.flush();
       scope.$digest();
       isoScope = element.isolateScope();
+      // for (var k in isoScope) {
+      //   if (isoScope.hasOwnProperty(k)) {
+      //     // console.log('k: ', k, 'scope[k]', isoScope[k]);
+      //     console.log(k);
+      //   }
+      // }
     };
 
     createElement();
@@ -124,6 +133,7 @@ describe('Directive: apMesa', function () {
 
   it('should update displayed values when data has been updated', function() {
     scope.my_table_data = genRows(30);
+    timeout.flush();
     scope.$apply();
     var expected = scope.my_table_data[0].first_name;
     var actual = element.find('table:eq(1) tbody.ap-mesa-rendered-rows tr:eq(0) td:eq(2)').text();
