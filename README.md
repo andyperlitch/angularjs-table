@@ -1,26 +1,34 @@
-angular-mesa
-====================
+# angularjs-table
 
-A table component built in angular. Handles large datasets by virtualizing rows. [Live demo](http://andyperlitch.github.io/angular-mesa/)
+A feature-rich and performant table component for [AngularJS](https://angularjs.org/) (v1.x) projects. Great for dashboards and large datasets. [Live demo](http://andyperlitch.github.io/angular-mesa/)
 
-Feature List
+NOTE: This project was renamed from **`angular-mesa`**, so many of the component names reflect that in the code.
+
+I have started a port for [Angular](https://angular.io/) (v2+) here: [https://github.com/andyperlitch/ng2-super-table](https://github.com/andyperlitch/ng2-super-table).
+
+Features
 ------------
 - column-specific filtering
-- column sorting
-- stacked ordering
+- column sorting with stacked sorting (shift-click columns)
 - column resizing
 - column re-ordering
 - localStorage state persistance
-- pagination
+- pagination or infinite-scrolling
 - server-side interaction support
 
 Installation
 ------------
-```bash
-$ git clone git@github.com:DataTorrent/angular-mesa.git
-$ cd angular-mesa
-$ npm install .
-$ bower install
+
+With npm:
+
+```
+npm install angularjs-table
+```
+
+With bower:
+
+```
+bower install angularjs-table
 ```
 
 Getting Started

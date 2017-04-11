@@ -1,5 +1,5 @@
 {
-  "name": "angular-mesa",
+  "name": "angularjs-table",
   "version": "2.10.0",
   "main": [
     "./dist/ap-mesa.js",
