@@ -10,9 +10,9 @@
     <a ng-click="goForward()" >&raquo;</a>
   </li>
 </ul>
-<span class="rows-per-page-ctrl">
+<span class="rows-per-page-ctrl" ng-if="options.showRowsPerPageCtrls">
   <span class="rows-per-page-msg">{{ options.rowsPerPageMessage }}</span>
-  <ul class="pagination" ng-if="options.showRowsPerPageCtrls">
+  <ul class="pagination">
     <li ng-repeat="limit in options.rowsPerPageChoices" ng-class="{'active': options.rowsPerPage === limit}">
       <a ng-click="options.rowsPerPage = limit">{{ limit }}</a>
     </li>

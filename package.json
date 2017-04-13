@@ -2,7 +2,12 @@
   "name": "angularjs-table",
   "version": "2.10.0",
   "license": "Apache License, v2.0",
-  "dependencies": {},
+  "dependencies": {
+    "angular": "^1.6",
+    "jquery": "~2",
+    "angular-sanitize": "~1.3"
+  },
+  "repository": "https://github.com/andyperlitch/angularjs-table",
   "types": "./angular-mesa.d.ts",
   "main": "dist/ap-mesa.js",
   "style": "dist/ap-mesa.css",
