@@ -140,6 +140,13 @@ declare namespace angular.apMesa {
     rowIsExpanded: boolean;
     refreshExpandedHeight: Function;
     row: any;
+    options: ITableOptions;
+  }
+  interface ICellScope extends ng.IScope {
+    toggleRowExpand: Function;
+    rowIsExpanded: boolean;
+    refreshExpandedHeight: Function;
+    row: any;
     column: ITableColumn;
     options: ITableOptions;
   }

@@ -29,6 +29,10 @@ angular.module('apMesa.ghPage', [
       templateUrl: 'views/server-side-interaction.html',
       controller: 'ServerSideCtrl'
     })
+    .when('/clickable-rows', {
+      templateUrl: 'views/clickable-rows.html',
+      controller: 'ClickableRowsCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });

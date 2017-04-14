@@ -1,0 +1,24 @@
+<h5>Clickable Rows</h5>
+
+<p>This example shows the usage of the clickable rows feature, where you can define a custom click handler for each row.</p>
+<br>
+
+<style>
+  .clickable-rows tr:hover {
+    background-color: #EEE;
+    cursor: pointer;
+  }
+  .clickable-rows .ap-mesa-expand-panel:hover {
+    background-color: inherit;
+    cursor: inherit;
+  }
+</style>
+
+<ap-mesa 
+  columns="my_table_columns" 
+  rows="phoneData"
+  selected="my_selected_rows"
+  options="my_table_options"
+  on-row-click="toggleRowExpand()"
+  table-class="table clickable-rows">
+</ap-mesa>
