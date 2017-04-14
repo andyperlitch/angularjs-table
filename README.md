@@ -63,52 +63,52 @@ Attributes
 ----------
 The `ap-mesa` tag can have the following attributes:
 
-|  attribute  |  type  | required |                                                         description                                                         |
-| ----------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| options     | object | no       | An object containing various options for the table. See *Options Object* below for details                                  |
-| columns     | Array  | yes      | An array of column definition objects. See *Column Definitions* below.                                                      |
-| rows        | Array  | yes      | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates |
-| table-class | String | no       | A string of classes to be attached to the actual `<table>` element that gets created                                        |
-| selected    | Array  | no       | This should be provided when using the `selector` built-in format. See the *Row Selection* section below.                   |
-| track-by    | String | yes      | This string should be the unique key on data objects that ng-repeat should use to keep track of rows in the table           |
-| on-row-click| String | no       | If provided, the contents of this attribute will be placed inside of an `ng-click` on each `<tr>`. Note that it will be evaluated in the row scope. See the *Row Scope* section below. |
+| attribute    | type   | required | description                                                                                                                                                                                                                                                |
+|:-------------|:-------|:---------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| options      | object | no       | An object containing various options for the table. See [*Options Object*](https://github.com/andyperlitch/angularjs-table#options-object) below for details                                                                                               |
+| columns      | Array  | yes      | An array of column definition objects. See [*Column Definitions*](https://github.com/andyperlitch/angularjs-table#column-definitions) below.                                                                                                               |
+| rows         | Array  | yes      | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates                                                                                                                                |
+| table-class  | String | no       | A string of classes to be attached to the actual `<table>` element that gets created                                                                                                                                                                       |
+| selected     | Array  | no       | This should be provided when using the `selector` built-in format. See [*Row Selection*](https://github.com/andyperlitch/angularjs-table#row-selection).                                                                                                   |
+| track-by     | String | yes      | This string should be the unique key on data objects that ng-repeat should use to keep track of rows in the table                                                                                                                                          |
+| on-row-click | String | no       | If provided, the contents of this attribute will be placed inside of an `ng-click` on each `<tr>`. Note that it will be evaluated in the row scope. See [*Row Scope & Cell Scope*](https://github.com/andyperlitch/angularjs-table#row-scope--cell-scope). |
 
 
 Options Object
 --------------
 The options object should be available on the parent scope of the `<ap-mesa>` element. It is optional (defaults are used) and has the following keys:
 
-|        key         |    type   |   default   |                                                             description                                                              |
-| ------------------ | --------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| rowPadding         | `number`  | 10          | Number of pixels to pre-render before and after the viewport                                                                                  |
-| sortClasses        | `Array`   | (see below) |                                                                                                                                      |
-| storage            | `Object`  | undefined   |                                                                                                                                      |
-| storageHash        | `String`  | undefined   | Non-sequential "version" hash used to identify and compare items in `storage`.                                                       |
-| storageKey         | `String`  | undefined   | Used as the key to store and retrieve items from `storage`, if it is specified.                                                      |
-| initialSorts       | `Array`   | []          | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending. |
-| loadingText        | `String`  | 'loading'   | String to show when data is loading                                                                                                  |
-| noRowsText         | `String`  | 'no rows'   | String to show when no rows are visible                                                                                              |
-| loadingTemplateUrl | `String`  | undefined   | Path to template for td when loading                                                                                                 |
-| loadingPromise     | `Object`  | undefined   | Promise object for table data loading.  Used to resolve loading state when data is available. |
-| loadingErrorTemplateUrl  | `String`  | undefined   | Path to template for td when there is an error loading table data.                                                                              |
-| loadingErrorText   | `String`  | 'error loading results'   | String to show when loading fails                                                                                              |
-| noRowsTemplateUrl  | `String`  | undefined   | Path to template for td when there are no rows to show.                                                                              |
-| scrollDebounce     | `number`  | 100         | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                   |
-| bgSizeMultiplier   | `number`  | 1           | The background-size css attribute of the placeholder rows is set to bgSizeMultiplier * rowHeight.                                    |
-| defaultRowHeight   | `number`  | 40          | When there are no rows to calculate the height, this number is used as the fallback                                                  |
-| bodyHeight         | `number`  | 300         | The pixel height for the body of the table. Note that unless `fixedHeight` is set to true, this will behave as a max-height.         |
-| fillHeight         | `boolean` | false       | If true, the table will fill the calculated height of the parent element. Note that this overrides `bodyHeight`. The table will listen for `'apMesa:resize'` events from the rootScope to recalculate the height. |
-| fixedHeight        | `boolean` | false       | If true, the table body will always have a height of `bodyHeight`, regardless of whether the rows fill up the vertical space.        |
-| onRegisterApi      | `function` | {}         | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc.              |
-| getter             | `function` | {}         | Customize the way to get column value. If not specified, get columen value by row[column.key]                                        |
-| expandableTemplateUrl | `String` | undefined | A template reference to be used for the expandable row feature. See *Expandable Rows* below. |
-| pagingStrategy | 'PAGINATE' | 'SCROLL' | 'NONE' | 'SCROLL' | Sets the paging strategy. See paging strategies below. |
-| rowsPerPage | `number` | 10 | The number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE` |
-| rowsPerPageChoices | `number[]` | [10, 25, 50, 100] | The choices for number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE` |
-| rowsPerPageMessage | `string` | 'rows per page' | The label for the selection for number of rows to show per page. |
-| showRowsPerPageCtrls | `boolean` | true | Whether or not to show the control for rows-per-page. Only applicable when `pagingStrategy` is `PAGINATE` |
-| maxPageLinks | `number` | 8 | Number of page links to display when paginating. |
-| getData      | `function` | undefined | Specify a function which returns a promise of row data. See *Server-side Interaction* below. |
+| key                     | type       | default                 | description                                                                                                                                                                                                       |          |                                                        |
+|:------------------------|:-----------|:------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------|:-------------------------------------------------------|
+| rowPadding              | `number`   | 10                      | Number of pixels to pre-render before and after the viewport                                                                                                                                                      |          |                                                        |
+| sortClasses             | `Array`    | (see below)             |                                                                                                                                                                                                                   |          |                                                        |
+| storage                 | `Object`   | undefined               |                                                                                                                                                                                                                   |          |                                                        |
+| storageHash             | `String`   | undefined               | Non-sequential "version" hash used to identify and compare items in `storage`.                                                                                                                                    |          |                                                        |
+| storageKey              | `String`   | undefined               | Used as the key to store and retrieve items from `storage`, if it is specified.                                                                                                                                   |          |                                                        |
+| initialSorts            | `Array`    | []                      | Array of objects defining an initial sort order. Each object must have `id` and `dir`, can be "+" for ascending, "-" for descending.                                                                              |          |                                                        |
+| loadingText             | `String`   | 'loading'               | String to show when data is loading                                                                                                                                                                               |          |                                                        |
+| noRowsText              | `String`   | 'no rows'               | String to show when no rows are visible                                                                                                                                                                           |          |                                                        |
+| loadingTemplateUrl      | `String`   | undefined               | Path to template for td when loading                                                                                                                                                                              |          |                                                        |
+| loadingPromise          | `Object`   | undefined               | Promise object for table data loading.  Used to resolve loading state when data is available.                                                                                                                     |          |                                                        |
+| loadingErrorTemplateUrl | `String`   | undefined               | Path to template for td when there is an error loading table data.                                                                                                                                                |          |                                                        |
+| loadingErrorText        | `String`   | 'error loading results' | String to show when loading fails                                                                                                                                                                                 |          |                                                        |
+| noRowsTemplateUrl       | `String`   | undefined               | Path to template for td when there are no rows to show.                                                                                                                                                           |          |                                                        |
+| scrollDebounce          | `number`   | 100                     | Wait time when debouncing the scroll event. Used when updating rows. Milliseconds.                                                                                                                                |          |                                                        |
+| bgSizeMultiplier        | `number`   | 1                       | The background-size css attribute of the placeholder rows is set to bgSizeMultiplier * rowHeight.                                                                                                                 |          |                                                        |
+| defaultRowHeight        | `number`   | 40                      | When there are no rows to calculate the height, this number is used as the fallback                                                                                                                               |          |                                                        |
+| bodyHeight              | `number`   | 300                     | The pixel height for the body of the table. Note that unless `fixedHeight` is set to true, this will behave as a max-height.                                                                                      |          |                                                        |
+| fillHeight              | `boolean`  | false                   | If true, the table will fill the calculated height of the parent element. Note that this overrides `bodyHeight`. The table will listen for `'apMesa:resize'` events from the rootScope to recalculate the height. |          |                                                        |
+| fixedHeight             | `boolean`  | false                   | If true, the table body will always have a height of `bodyHeight`, regardless of whether the rows fill up the vertical space.                                                                                     |          |                                                        |
+| onRegisterApi           | `function` | {}                      | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc.                                                                                           |          |                                                        |
+| getter                  | `function` | {}                      | Customize the way to get column value. If not specified, get columen value by row[column.key]                                                                                                                     |          |                                                        |
+| expandableTemplateUrl   | `String`   | undefined               | A template reference to be used for the expandable row feature. See [*Expandable Rows*](https://github.com/andyperlitch/angularjs-table#expandable-rows) below.                                                   |          |                                                        |
+| pagingStrategy          | 'PAGINATE' | 'SCROLL'                | 'NONE'                                                                                                                                                                                                            | 'SCROLL' | Sets the paging strategy. See paging strategies below. |
+| rowsPerPage             | `number`   | 10                      | The number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE`                                                                                                                          |          |                                                        |
+| rowsPerPageChoices      | `number[]` | [10, 25, 50, 100]       | The choices for number of rows to show per page. Only applicable when `pagingStrategy` is `PAGINATE`                                                                                                              |          |                                                        |
+| rowsPerPageMessage      | `string`   | 'rows per page'         | The label for the selection for number of rows to show per page.                                                                                                                                                  |          |                                                        |
+| showRowsPerPageCtrls    | `boolean`  | true                    | Whether or not to show the control for rows-per-page. Only applicable when `pagingStrategy` is `PAGINATE`                                                                                                         |          |                                                        |
+| maxPageLinks            | `number`   | 8                       | Number of page links to display when paginating.                                                                                                                                                                  |          |                                                        |
+| getData                 | `function` | undefined               | Specify a function which returns a promise of row data. See [*Server-side Interaction*](https://github.com/andyperlitch/angularjs-table#server-side-interaction) below.                                           |          |                                                        |
 
 The options object is also the correct place to pass arbitrary data to table cell templates because it will be available as `options` in the table cell template scope. For example, if you want a click in a cell to call a function that is
 otherwise out of the scope of the table, you can do this:
@@ -163,24 +163,24 @@ Column Definitions
 -----------------
 The columns should be an array of Column Definition Objects. The order in which they appear in this array dictates the order they will appear by default. Column Definition Objects have the following properties:
 
-| property key |          type          | required | default value |                                      description                                       |
-| ------------ | ---------------------- | -------- | ------------- | -------------------------------------------------------------------------------------- |
-| id           | `string`               | yes      | undefined     | Identifies the column.                                                                 |
-| key          | `string`               | yes      | undefined     | The field on each row that this column displays or uses in its format function.        |
-| label        | `string`               | no       | `id`          | The column heading text. If not present, the column `id` is used. See *Column Header* below. |
-| labelTemplate | `string`              | no       | undefined     | If specified, used as html template in column header. See *Column Header* below.       |
-| labelTemplateUrl | `string`           | no       | undefined     | If specified, used as url to html template in column header. See *Column Header* below. |
-| sort         | `function` or `string` | no       | undefined     | If specified, defines row sort function this column uses. See *Row Sorting* below.     |
-| filter       | `function` or `string` | no       | undefined     | If specified, defines row filter function this column uses. See *Row Filtering* below. |
-| filterPlaceholder | `string`          | no       | 'filter'      | If specified, defines the placeholder text for the filter input. See *Row Filtering* below. |
-| format       | `function` or `string` | no       | ''            | If specified, defines cell format function. See the *Cell Formatting* section below.   |
-| width        | `string` or `number`   | no       | 'auto'        | width of column, can include units, e.g. '30px'                                        |
-| lockWidth   | `boolean`              | no       | false         | If true, column will not be resizable.                                                 |
-| ngFilter     | `string`               | no       | undefined     | Name of a registered filter to use on row[column.key]                                  |
-| template     | `string`               | no       | undefined     | A string template for the cell contents. Scope variables available: row, column, options, toggleRowExpand, refreshExpandedHeight, rowIsExpanded |
-| templateUrl  | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                  |
-| title        | `string`               | no       | undefined     | A tooltip for a column header.                                                         |
-| selector     | `boolean`              | no       | undefined     | Marks the column as a "selector" column. See the *Row Selection* section below.        |  
+| property key      | type                   | required | default value | description                                                                                                                                             |
+|:------------------|:-----------------------|:---------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id                | `string`               | yes      | undefined     | Identifies the column.                                                                                                                                  |
+| key               | `string`               | yes      | undefined     | The field on each row that this column displays or uses in its format function.                                                                         |
+| label             | `string`               | no       | `id`          | The column heading text. If not present, the column `id` is used. See [*Column Header*](https://github.com/andyperlitch/angularjs-table#column-header). |
+| labelTemplate     | `string`               | no       | undefined     | If specified, used as html template in column header. See [*Column Header*](https://github.com/andyperlitch/angularjs-table#column-header).             |
+| labelTemplateUrl  | `string`               | no       | undefined     | If specified, used as url to html template in column header. See [*Column Header*](https://github.com/andyperlitch/angularjs-table#column-header).      |
+| sort              | `function` or `string` | no       | undefined     | If specified, defines row sort function this column uses. See [*Row Sorting*](https://github.com/andyperlitch/angularjs-table#row-sorting).             |
+| filter            | `function` or `string` | no       | undefined     | If specified, defines row filter function this column uses. See [*Row Filtering*]().                                                                    |
+| filterPlaceholder | `string`               | no       | 'filter'      | If specified, defines the placeholder text for the filter input. See [*Row Filtering*](https://github.com/andyperlitch/angularjs-table#row-filtering).  |
+| format            | `function` or `string` | no       | ''            | If specified, defines cell format function. See [*Cell Formatting*](https://github.com/andyperlitch/angularjs-table#cell-formatting).                   |
+| width             | `string` or `number`   | no       | 'auto'        | width of column, can include units, e.g. '30px'                                                                                                         |
+| lockWidth         | `boolean`              | no       | false         | If true, column will not be resizable.                                                                                                                  |
+| ngFilter          | `string`               | no       | undefined     | Name of a registered filter to use on row[column.key]                                                                                                   |
+| template          | `string`               | no       | undefined     | A string template for the cell contents. Scope variables available: row, column, options, toggleRowExpand, refreshExpandedHeight, rowIsExpanded         |
+| templateUrl       | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                                                                                   |
+| title             | `string`               | no       | undefined     | A tooltip for a column header.                                                                                                                          |
+| selector          | `boolean`              | no       | undefined     | Marks the column as a "selector" column. See [*Row Selection*](https://github.com/andyperlitch/angularjs-table#row-selection).                          |
 
 
 Column Header
@@ -241,13 +241,13 @@ MyFilterFunction.title = "Perform a simple text search";
 
 There are several common filter functions that are built-in. Use them by passing one of the following strings instead of a function:
 
-| string | description |
-|--------|-------------|
-| like   | Search by simple substring, eg. "foo" matches "foobar" but not "fobar". Use "!" to exclude and "=" to match exact text, e.g. "!bar" or "=baz". |
-| likeFormatted | Same as "like", but looks at formatted cell value instead of raw. |
-| number | Search by number, e.g. "123". Optionally use comparator expressions like ">=10" or "<1000". Use "~" for approx. int values, eg. "~3" will match "3.2". |
-| numberFormatted | Same as number, but looks at formatted cell value instead of raw |
-| date | Search by date. Enter a date string (RFC2822 or ISO 8601 date). You can also type "today", "yesterday", "> 2 days ago", "< 1 day 2 hours ago", etc. |
+| string          | description                                                                                                                                            |
+|:----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| like            | Search by simple substring, eg. "foo" matches "foobar" but not "fobar". Use "!" to exclude and "=" to match exact text, e.g. "!bar" or "=baz".         |
+| likeFormatted   | Same as "like", but looks at formatted cell value instead of raw.                                                                                      |
+| number          | Search by number, e.g. "123". Optionally use comparator expressions like ">=10" or "<1000". Use "~" for approx. int values, eg. "~3" will match "3.2". |
+| numberFormatted | Same as number, but looks at formatted cell value instead of raw                                                                                       |
+| date            | Search by date. Enter a date string (RFC2822 or ISO 8601 date). You can also type "today", "yesterday", "> 2 days ago", "< 1 day 2 hours ago", etc.    |
 
 Cell Formatting
 ---------------
