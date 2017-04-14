@@ -771,6 +771,10 @@ angular.module('apMesa.controllers.ApMesaController', [
           if (trackBy) {
             tElement.find('.ap-mesa-rendered-rows').attr('track-by', trackBy);
           }
+          var onRowClick = tElement.attr('on-row-click');
+          if (onRowClick) {
+            tElement.find('[ap-mesa-rows]').attr('on-row-click', onRowClick);
+          }
           return {
             pre: preLink,
             post: postLink
@@ -1241,6 +1245,9 @@ angular.module('apMesa.directives.apMesaRows', [
         var repeatString = tr.attr('ng-repeat-start');
         repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by row.$$$index';
         tr.attr('ng-repeat-start', repeatString);
+        if (tAttrs.onRowClick) {
+          tElement.find('tr[ng-repeat-start]').attr('ng-click', tAttrs.onRowClick);
+        }
         return link;
       }
     };
@@ -2030,7 +2037,7 @@ angular.module('src/templates/apMesaPaginationCtrls.tpl.html', []).run([
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr ng-repeat-start="row in visible_rows" ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? \'odd\' : \'even\' }}" ap-mesa-row></tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr\n' + '  ng-repeat-start="row in visible_rows"\n' + '  ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? \'odd\' : \'even\' }}"\n' + '  ap-mesa-row>\n' + '</tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaStatusDisplay.tpl.html', []).run([

@@ -71,6 +71,7 @@ The `ap-mesa` tag can have the following attributes:
 | table-class | String | no       | A string of classes to be attached to the actual `<table>` element that gets created                                        |
 | selected    | Array  | no       | This should be provided when using the `selector` built-in format. See the *Row Selection* section below.                   |
 | track-by    | String | yes      | This string should be the unique key on data objects that ng-repeat should use to keep track of rows in the table           |
+| on-row-click| String | no       | If provided, the contents of this attribute will be placed inside of an `ng-click` on each `<tr>`. Note that it will be evaluated in the row scope. See the *Row Scope* section below. |
 
 
 Options Object
@@ -370,6 +371,22 @@ function getData (offset, limit, activeFilters, activeSorts) {
 Note that when `getData` is specified, angular-mesa only checks the `filter` and `sort` fields in the column definition objects for "truthiness".It does not perform any sort of sorting and filtering itself; that is left up to the server to do.
 
 Also note that the `angular-mesa.d.ts` typescript definition file has a more formal signature for this function that may help if you are familiar with TS.
+
+
+Row Scope & Cell Scope
+----------------------
+
+Each row (`<tr>`) is inside of an `ng-repeat`, and so it is given its own scope (not isolate). It inherits properties from the table's main isolate scope plus it is endowed with several properties that are important to know about when using the `on-row-click` attribute, the `template` option on Column Definition objects, and the `expandableTemplateUrl` option on the main table options. Here is a breakdown (note that a more formal definition can be found in the `.d.ts` file in this directory):
+
+| Property              | Type                   | Description                                                                                                                                                                                                           |
+|:----------------------|:-----------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| toggleRowExpand       | Function               | A function that toggles whether or not a row is expanded. Only applicable when `expandableTemplateUrl` is used.                                                                                                       |
+| rowIsExpanded         | boolean                | A variable indicating whether a row is currently expanded.                                                                                                                                                            |
+| refreshExpandedHeight | Function               | A function which, when called, updates the height of the expanded panel as it is known by the table component. This should be called when the content of an expanded panel has caused the panel to change its height. |
+| row                   | any                    | This is the actual row of data which pertains to this table row.                                                                                                                                                      |
+| options               | object (ITableOptions) | The table options object.                                                                                                                                                                                             |
+
+Each cell (`<td>`) inherits all of the above properties, and in addition has `column` which is a pointer to the corresponding column definition object.
 
 
 Browser Support

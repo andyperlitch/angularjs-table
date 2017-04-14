@@ -401,6 +401,10 @@
         if (trackBy) {
           tElement.find('.ap-mesa-rendered-rows').attr('track-by', trackBy);
         }
+        var onRowClick = tElement.attr('on-row-click');
+        if (onRowClick) {
+          tElement.find('[ap-mesa-rows]').attr('on-row-click', onRowClick);
+        }
         return {
           pre: preLink,
           post: postLink

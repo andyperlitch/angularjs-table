@@ -211,6 +211,9 @@ angular.module('apMesa.directives.apMesaRows',[
       var repeatString = tr.attr('ng-repeat-start');
       repeatString += tAttrs.trackBy ? ' track by row[options.trackBy]' : ' track by row.$$$index';
       tr.attr('ng-repeat-start', repeatString);
+      if (tAttrs.onRowClick) {
+        tElement.find('tr[ng-repeat-start]').attr('ng-click', tAttrs.onRowClick)
+      }
       return link;
     }
   };
