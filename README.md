@@ -179,6 +179,7 @@ The columns should be an array of Column Definition Objects. The order in which 
 | template     | `string`               | no       | undefined     | A string template for the cell contents. Scope variables available: row, column, options, toggleRowExpand, refreshExpandedHeight, rowIsExpanded |
 | templateUrl  | `string`               | no       | undefined     | A template url used with ng-include for cell contents                                  |
 | title        | `string`               | no       | undefined     | A tooltip for a column header.                                                         |
+| selector     | `boolean`              | no       | undefined     | Marks the column as a "selector" column. See the *Row Selection* section below.        |  
 
 
 Column Header

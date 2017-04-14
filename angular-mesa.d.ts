@@ -40,6 +40,8 @@ declare namespace angular.apMesa {
     templateUrl?:  string;
     // A tooltip for a column header.
     title?:  string;
+    // Marks the column as a "selector" column.
+    selector?: boolean;
   }
 
   interface ITableSorter {
