@@ -120,6 +120,7 @@ declare namespace angular.apMesa {
     getter?:  (key: string, row: any) => string;
     //  undefined  A template reference to be used for the expandable row feature. See Expandable Rows below.
     expandableTemplateUrl?:  string;
+    expandableTemplate?: string;
     // SCROLL 
     pagingStrategy?: PAGING_STRATEGY;
     rowsPerPage?: number;
