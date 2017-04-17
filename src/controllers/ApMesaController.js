@@ -187,6 +187,7 @@ angular.module('apMesa.controllers.ApMesaController', [
   $scope.setColumns = function(columns) {
     try {
     $scope.columns = columns;
+    var lookup = $scope.transientState.columnLookup = {};
     $scope.columns.forEach(function(column) {
       // formats
       var format = column.format;
@@ -214,6 +215,7 @@ angular.module('apMesa.controllers.ApMesaController', [
         }
       }
 
+      // async get
       if (!$scope.options.getData) {
         // sort
         var sort = column.sort;
@@ -252,6 +254,9 @@ angular.module('apMesa.controllers.ApMesaController', [
           }
         }
       }
+
+      // populate lookup
+      lookup[column.id] = column;
 
     });
     } catch (e) {

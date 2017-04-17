@@ -95,13 +95,6 @@
         loading: false
       };
 
-      if (scope.columns.length) {
-        var lookup = scope.transientState.columnLookup;
-        scope.columns.forEach(function(column) {
-          lookup[column.id] = column;
-        });
-      }
-
       scope.$broadcast('apMesa:stateReset');
     }
 
@@ -140,9 +133,9 @@
     }
 
     function preLink(scope) {
+      resetState(scope);
       initOptions(scope);
       resetColumns(scope);
-      resetState(scope);
     }
 
     function postLink(scope, element) {

@@ -222,6 +222,18 @@ describe('Directive: apMesa', function () {
       expect(actual).to.equal(expected);
     });
 
+    it('should have a col-header-{id} class on each <th>', function() {
+      expect(element.find('table:eq(0) th:eq(2)').hasClass('table-header-first_name')).to.equal(true);
+    });
+
+    it('should have a "sortable-column" class on each <th> whose column has a sort', function() {
+      scope.my_table_columns.forEach(function(col, i) {
+        if (col.sort) {
+          expect(element.find('table:eq(0) th:eq(' + i + ')').hasClass('sortable-column')).to.equal(true);
+        }
+      });
+    });
+
   });
 
   describe('column filter', function() {

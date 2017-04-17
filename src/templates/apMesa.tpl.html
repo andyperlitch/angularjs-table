@@ -9,7 +9,7 @@
           scope="col"
           ng-repeat="column in columns"
           ng-click="toggleSort($event,column)"
-          ng-class="{'sortable-column' : column.sort, 'select-column': column.selector, 'is-sorting': sortDirection[column.id] }"
+          ng-class="[{'sortable-column' : column.sort, 'select-column': column.selector, 'is-sorting': sortDirection[column.id] }, 'table-header-' + column.id ]"
           ng-attr-title="{{ column.title || '' }}"
           ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
         >
