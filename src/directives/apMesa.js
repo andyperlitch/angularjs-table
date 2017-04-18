@@ -94,6 +94,12 @@
         loadingError: null,
         loading: false
       };
+      if (scope.columns && scope.columns.length) {
+        var lookup = scope.transientState.columnLookup;
+        scope.columns.forEach(function (column) {
+          lookup[column.id] = column;
+        });
+      }
 
       scope.$broadcast('apMesa:stateReset');
     }
