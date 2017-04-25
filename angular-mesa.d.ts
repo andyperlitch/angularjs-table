@@ -53,7 +53,7 @@ declare namespace angular.apMesa {
   }
 
   interface ITableFormatter {
-    (value: any, row: any, column: ITableColumn, options: ITableOptions): string;
+    (value: any, row: any, column: ITableColumn, options: ITableOptions): any;
   }
 
   interface IInitialSort {
