@@ -3,10 +3,38 @@
 <p>This example shows the usage of the expandable rows feature, where rows can be expanded with arbitrary content.</p>
 <br>
 
-<ap-mesa 
-  columns="my_table_columns" 
-  rows="phoneData"
-  selected="my_selected_rows"
-  options="my_table_options"
-  table-class="table">
-</ap-mesa>
+<div ng-init="pagingScheme = 'scroll'">
+  <div class="btn-group" role="group">
+    <button
+      ng-class="{ active: pagingScheme == 'scroll' }"
+      ng-click="pagingScheme = 'scroll'"
+      type="button"
+      class="btn btn-primary"
+    >scroll</button>
+    <button
+      ng-class="{ active: pagingScheme == 'paginate' }"
+      ng-click="pagingScheme = 'paginate'"
+      type="button"
+      class="btn btn-primary"
+    >paginate</button>
+  </div>
+  <div ng-if="pagingScheme == 'scroll'">
+    <ap-mesa 
+      columns="my_table_columns" 
+      rows="phoneData"
+      selected="my_selected_rows"
+      options="my_table_options"
+      table-class="table">
+    </ap-mesa>
+  </div>
+
+  <div ng-if="pagingScheme == 'paginate'">
+    <ap-mesa 
+      columns="my_table_columns" 
+      rows="phoneData"
+      selected="my_selected_rows"
+      options="my_table_options_paginated"
+      table-class="table">
+    </ap-mesa>
+  </div>
+</div>

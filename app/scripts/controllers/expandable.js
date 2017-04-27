@@ -8,6 +8,7 @@ angular.module('apMesa.ghPage')
     bodyHeight: 600,
     rowPadding: 600
   };
+  $scope.my_table_options_paginated = angular.extend({ pagingStrategy: 'PAGINATE' }, $scope.my_table_options);
   $scope.my_selected_rows = [];
   $scope.my_table_columns = [
     {
