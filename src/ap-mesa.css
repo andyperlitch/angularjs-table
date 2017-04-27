@@ -148,6 +148,7 @@ table tbody .ap-mesa-dummy-row td {
 }
 .ap-mesa-pagination {
   user-select: none;
+  overflow: hidden;
 }
 .ap-mesa-pagination .rows-per-page-ctrl {
   float: right;
