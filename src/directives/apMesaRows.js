@@ -201,6 +201,9 @@ angular.module('apMesa.directives.apMesaRows',[
         updateHandler(true, false);
       }
     });
+    scope.$on('apMesa:forceRefresh', function() {
+      updateHandler(true, false);
+    });
   }
 
   return {

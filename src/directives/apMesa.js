@@ -373,8 +373,14 @@
           if (triggerDigest) {
             scope.$digest();
           }
+        },
+        reset: function() {
+          scope.resetOffset();
+          resetState(scope);
+          if (scope.options.getData) {
+            scope.$broadcast('apMesa:forceRefresh'); // listened for in apMesaRows
+          }
         }
-
       };
 
       // Register API

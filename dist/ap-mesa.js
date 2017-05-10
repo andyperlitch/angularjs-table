@@ -752,6 +752,13 @@ angular.module('apMesa.controllers.ApMesaController', [
             if (triggerDigest) {
               scope.$digest();
             }
+          },
+          reset: function () {
+            scope.resetOffset();
+            resetState(scope);
+            if (scope.options.getData) {
+              scope.$broadcast('apMesa:forceRefresh');  // listened for in apMesaRows
+            }
           }
         };
         // Register API
@@ -1247,6 +1254,9 @@ angular.module('apMesa.directives.apMesaRows', [
         if (angular.isFunction(getData)) {
           updateHandler(true, false);
         }
+      });
+      scope.$on('apMesa:forceRefresh', function () {
+        updateHandler(true, false);
       });
     }
     return {
@@ -2055,6 +2065,6 @@ angular.module('src/templates/apMesaRows.tpl.html', []).run([
 angular.module('src/templates/apMesaStatusDisplay.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaStatusDisplay.tpl.html', '<div class="ap-mesa-status-display-wrapper" ng-class="{\n' + '  loading: transientState.loading,\n' + '  error: transientState.loadingError,\n' + '  \'has-rows\': visible_rows.length && !transientState.loadingError\n' + '}">\n' + '\n' + '  <!-- LOADING -->\n' + '  <div ng-if="transientState.loading" class="ap-mesa-loading-display">\n' + '    \n' + '    <!-- user-provided -->\n' + '    <div ng-if="options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '    <div ng-if="options.loadingText">{{ options.loadingText }}</div>\n' + '    \n' + '    <!-- default -->\n' + '    <div ng-if="!options.asyncLoadingTemplateUrl && !options.asyncLoadingTemplate" class="ap-mesa-status-display">\n' + '      <div class="ap-mesa-status-display-inner"></div>\n' + '    </div>\n' + '\n' + '  </div>\n' + '  \n' + '  <!-- ERROR -->\n' + '  <div ng-if="transientState.loadingError" class="ap-mesa-error-display">\n' + '    <div ng-if="options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '    <div ng-if="options.loadingErrorText">{{ options.loadingErrorText }}</div>\n' + '    <div ng-if="!options.loadingErrorTemplateUrl && !options.loadingErrorText" class="ap-mesa-error-display-inner">An error occurred.</div>\n' + '  </div>\n' + '\n' + '  <!-- NO DATA -->\n' + '  <div ng-if="!transientState.loading && !transientState.loadingError && visible_rows.length === 0" class="ap-mesa-no-data-display">\n' + '    <div ng-if="options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '    <div ng-if="!options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '  </div>\n' + '</div>');
+    $templateCache.put('src/templates/apMesaStatusDisplay.tpl.html', '<div class="ap-mesa-status-display-wrapper" ng-class="{\n' + '  \'ap-mesa-loading\': transientState.loading,\n' + '  \'ap-mesa-error\': transientState.loadingError,\n' + '  \'has-rows\': visible_rows.length && !transientState.loadingError\n' + '}">\n' + '\n' + '  <!-- LOADING -->\n' + '  <div ng-if="transientState.loading" class="ap-mesa-loading-display">\n' + '    \n' + '    <!-- user-provided -->\n' + '    <div ng-if="options.loadingTemplateUrl" ng-include="options.loadingTemplateUrl"></div>\n' + '    <div ng-if="options.loadingText">{{ options.loadingText }}</div>\n' + '    \n' + '    <!-- default -->\n' + '    <div ng-if="!options.asyncLoadingTemplateUrl && !options.asyncLoadingTemplate" class="ap-mesa-status-display">\n' + '      <div class="ap-mesa-status-display-inner"></div>\n' + '    </div>\n' + '\n' + '  </div>\n' + '  \n' + '  <!-- ERROR -->\n' + '  <div ng-if="transientState.loadingError" class="ap-mesa-error-display">\n' + '    <div ng-if="options.loadingErrorTemplateUrl" ng-include="options.loadingErrorTemplateUrl"></div>\n' + '    <div ng-if="options.loadingErrorText">{{ options.loadingErrorText }}</div>\n' + '    <div ng-if="!options.loadingErrorTemplateUrl && !options.loadingErrorText" class="ap-mesa-error-display-inner">An error occurred.</div>\n' + '  </div>\n' + '\n' + '  <!-- NO DATA -->\n' + '  <div ng-if="!transientState.loading && !transientState.loadingError && visible_rows.length === 0" class="ap-mesa-no-data-display">\n' + '    <div ng-if="options.noRowsTemplateUrl" ng-include="options.noRowsTemplateUrl"></div>\n' + '    <div ng-if="!options.noRowsTemplateUrl">{{ options.noRowsText }}</div>\n' + '  </div>\n' + '</div>');
   }
 ]);

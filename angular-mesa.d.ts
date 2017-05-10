@@ -69,10 +69,11 @@ declare namespace angular.apMesa {
 
   interface ITableApi {
     isSelectedAll: () => boolean;
-    selectAll: () => null;
-    deselectAll: () => null;
-    toggleSelectAll: ($event: Event) => null;
-    setLoading: (isLoading: boolean, triggerDigest: boolean) => null;
+    selectAll: () => void;
+    deselectAll: () => void;
+    toggleSelectAll: () => void;
+    setLoading: (isLoading: boolean, triggerDigest?: boolean) => void;
+    reset: () => void;
   }
 
   interface ITableOptions {
