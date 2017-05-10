@@ -21,9 +21,9 @@ declare namespace angular.apMesa {
     labelTemplate?: string;
     labelTemplateUrl?: string;
     // If specified, defines row sort function this column uses. See Row Sorting below.
-    sort?:  ITableSorter | string;
+    sort?:  ITableSorter | string | true;
     // or string  no  undefined  If specified, defines row filter function this column uses. See Row Filtering below.
-    filter?:  ITableFilterer | string;
+    filter?:  ITableFilterer | string | true;
     // Defines the placeholder text for the filter input, when filter is enabled
     filterPlaceholder?: string;
     // or string  no  ''  If specified, defines cell format function. See the Cell Formatting section below.
