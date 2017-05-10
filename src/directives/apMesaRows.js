@@ -178,9 +178,6 @@ angular.module('apMesa.directives.apMesaRows',[
       }
     });
     scope.$watch('persistentState.rowLimit', function(nv, ov) {
-      if (scope.options.getData && scope.transientState.rowHeightIsCalculated) {
-        return;
-      }
       updateHandlerWithoutClearingCollapsed(nv, ov);
     });
     scope.$watch('transientState.pageOffset', function(nv, ov) {
