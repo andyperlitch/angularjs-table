@@ -497,11 +497,12 @@ angular.module('apMesa.controllers.ApMesaController', [
         if (scope.options && scope.options.rowsPerPage) {
           rowLimit = scope.options.rowsPerPage;
         }
-        scope.persistentState = {
+        // Ensure that persistent state is kept if it is already present
+        scope.persistentState = angular.extend({}, {
           rowLimit: rowLimit,
           searchTerms: {},
           sortOrder: []
-        };
+        }, scope.persistentState);
         scope.transientState = {
           rowHeightIsCalculated: false,
           filterCount: scope.rows ? scope.rows.length : 0,

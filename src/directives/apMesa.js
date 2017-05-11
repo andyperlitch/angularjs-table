@@ -77,11 +77,12 @@
         rowLimit = scope.options.rowsPerPage;
       }
 
-      scope.persistentState = {
+      // Ensure that persistent state is kept if it is already present
+      scope.persistentState = angular.extend({}, {
         rowLimit: rowLimit,
         searchTerms: {},
         sortOrder: []
-      };
+      }, scope.persistentState);
 
       scope.transientState = {
         rowHeightIsCalculated: false,
