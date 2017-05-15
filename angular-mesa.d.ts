@@ -61,6 +61,21 @@ declare namespace angular.apMesa {
     dir: '-' | '+';
   }
 
+  interface IActiveFilter {
+    column: ITableColumn;
+    value: string;
+  }
+
+  interface IActiveSort {
+    column: ITableColumn;
+    direction: 'ASC' | 'DESC';
+  }
+
+  interface IGetDataResponse {
+    total: number;
+    rows: any[];
+  }
+
   interface ITableStorage {
     setItem: (key: string, value: any) => ng.IPromise<any> | any;
     getItem: (key: string) => ng.IPromise<any> | any;
@@ -133,9 +148,9 @@ declare namespace angular.apMesa {
     getData?: (
         offset: number,
         limit: number,
-        activeFilters: { column: ITableColumn; value: string; }[],
-        activeSorts: { column: ITableColumn; direction: 'ASC' | 'DESC' }[]
-    ) => ng.IPromise<{ total: number; rows: any[]; }>
+        activeFilters: IActiveFilter[],
+        activeSorts: IActiveSort[]
+    ) => ng.IPromise<IGetDataResponse>
   }
   interface IRowScope extends ng.IScope {
     toggleRowExpand: Function;
