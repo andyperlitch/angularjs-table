@@ -71,10 +71,11 @@ angular.module('apMesa.directives.apMesaRows',[
 
   /**
    * Updates the visible_rows array on the scope asynchronously, using the options.getData function (when present).
+   * This gets passed to debounce in the link function.
    * @param  {ng.IScope} scope The scope of the particular apMesaRows instance
    * @return {ng.IPromise}       Returns the promise of the request
    */
-  var updateVisibleRowsAsync = debounce(function(scope) {
+  function UpdateVisibleRowsAsync(scope) {
     // get offset
     var offset;
     if (scope.options.pagingStrategy === 'SCROLL') {
@@ -124,15 +125,17 @@ angular.module('apMesa.directives.apMesaRows',[
       });
       scope.transientState.getDataPromise = null;
       scope.api.setLoading(false);
-      $rootScope.$broadcast('angular-mesa:update-dummy-rows');
+      scope.$emit('angular-mesa:update-dummy-rows');
     }, function(e) {
       scope.transientState.getDataPromise = null;
       scope.transientState.loadingError = true;
       scope.api.setLoading(false);
     });
-  }, 200, { leading: false, trailing: true });
+  }
 
   function link(scope) {
+
+    var updateVisibleRowsAsync = debounce(UpdateVisibleRowsAsync, 200, { leading: false, trailing: true })
 
     var updateHandler = function(newValue, oldValue) {
       if (newValue === oldValue) {

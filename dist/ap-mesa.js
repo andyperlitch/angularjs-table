@@ -1136,63 +1136,65 @@ angular.module('apMesa.directives.apMesaRows', [
     }
     /**
    * Updates the visible_rows array on the scope asynchronously, using the options.getData function (when present).
+   * This gets passed to debounce in the link function.
    * @param  {ng.IScope} scope The scope of the particular apMesaRows instance
    * @return {ng.IPromise}       Returns the promise of the request
    */
-    var updateVisibleRowsAsync = debounce(function (scope) {
-        // get offset
-        var offset;
-        if (scope.options.pagingStrategy === 'SCROLL') {
-          offset = scope.transientState.rowOffset;
-        } else if (scope.options.pagingStrategy === 'PAGINATE') {
-          offset = scope.transientState.pageOffset * scope.persistentState.rowLimit;
-        }
-        // get active filter
-        var searchTerms = scope.persistentState.searchTerms;
-        var activeFilters = scope.columns.filter(function (column) {
-            return !!searchTerms[column.id];
-          }).map(function (column) {
-            return {
-              column: column,
-              value: searchTerms[column.id]
-            };
+    function UpdateVisibleRowsAsync(scope) {
+      // get offset
+      var offset;
+      if (scope.options.pagingStrategy === 'SCROLL') {
+        offset = scope.transientState.rowOffset;
+      } else if (scope.options.pagingStrategy === 'PAGINATE') {
+        offset = scope.transientState.pageOffset * scope.persistentState.rowLimit;
+      }
+      // get active filter
+      var searchTerms = scope.persistentState.searchTerms;
+      var activeFilters = scope.columns.filter(function (column) {
+          return !!searchTerms[column.id];
+        }).map(function (column) {
+          return {
+            column: column,
+            value: searchTerms[column.id]
+          };
+        });
+      // get active sorts
+      var activeSorts = scope.persistentState.sortOrder.map(function (sortItem) {
+          return {
+            column: scope.transientState.columnLookup[sortItem.id],
+            direction: sortItem.dir === '+' ? 'ASC' : 'DESC'
+          };
+        });
+      scope.transientState.loadingError = false;
+      scope.api.setLoading(true);
+      var getDataPromise = scope.transientState.getDataPromise = scope.options.getData(offset, scope.persistentState.rowLimit, activeFilters, activeSorts).then(function (res) {
+          if (getDataPromise !== scope.transientState.getDataPromise) {
+            // new request made, cancelling this one
+            return;
+          }
+          var total = res.total;
+          var rows = res.rows;
+          var i = offset;
+          scope.transientState.rowOffset = offset;
+          scope.transientState.filterCount = total;
+          scope.visible_rows = rows;
+          rows.forEach(function (row) {
+            row.$$$index = i++;
           });
-        // get active sorts
-        var activeSorts = scope.persistentState.sortOrder.map(function (sortItem) {
-            return {
-              column: scope.transientState.columnLookup[sortItem.id],
-              direction: sortItem.dir === '+' ? 'ASC' : 'DESC'
-            };
-          });
-        scope.transientState.loadingError = false;
-        scope.api.setLoading(true);
-        var getDataPromise = scope.transientState.getDataPromise = scope.options.getData(offset, scope.persistentState.rowLimit, activeFilters, activeSorts).then(function (res) {
-            if (getDataPromise !== scope.transientState.getDataPromise) {
-              // new request made, cancelling this one
-              return;
-            }
-            var total = res.total;
-            var rows = res.rows;
-            var i = offset;
-            scope.transientState.rowOffset = offset;
-            scope.transientState.filterCount = total;
-            scope.visible_rows = rows;
-            rows.forEach(function (row) {
-              row.$$$index = i++;
-            });
-            scope.transientState.getDataPromise = null;
-            scope.api.setLoading(false);
-            $rootScope.$broadcast('angular-mesa:update-dummy-rows');
-          }, function (e) {
-            scope.transientState.getDataPromise = null;
-            scope.transientState.loadingError = true;
-            scope.api.setLoading(false);
-          });
-      }, 200, {
-        leading: false,
-        trailing: true
-      });
+          scope.transientState.getDataPromise = null;
+          scope.api.setLoading(false);
+          scope.$emit('angular-mesa:update-dummy-rows');
+        }, function (e) {
+          scope.transientState.getDataPromise = null;
+          scope.transientState.loadingError = true;
+          scope.api.setLoading(false);
+        });
+    }
     function link(scope) {
+      var updateVisibleRowsAsync = debounce(UpdateVisibleRowsAsync, 200, {
+          leading: false,
+          trailing: true
+        });
       var updateHandler = function (newValue, oldValue) {
         if (newValue === oldValue) {
           return;
