@@ -1,6 +1,6 @@
 # angularjs-table
 
-A feature-rich and performant table component for [AngularJS](https://angularjs.org/) (v1.x) projects. Great for dashboards and large datasets. [Live demo](http://andyperlitch.github.io/angular-mesa/)
+A feature-rich and performant table component for [AngularJS](https://angularjs.org/) (v1.x) projects. Great for dashboards and large datasets. [Live demo](http://andyperlitch.github.io/angularjs-table/)
 
 NOTE: This project was renamed from **`angular-mesa`**, so many of the component names reflect that in the code.
 
