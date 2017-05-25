@@ -1,6 +1,7 @@
 <div class="ap-mesa-wrapper" ng-class="{
 'paging-strategy-paginate': options.pagingStrategy === 'PAGINATE',
-'paging-strategy-scroll': options.pagingStrategy === 'SCROLL'
+'paging-strategy-scroll': options.pagingStrategy === 'SCROLL',
+'ap-mesa-loading-error': !!transientState.loadingError
 }">
   <table ng-class="classes" class="ap-mesa mesa-header-table">
     <thead>
