@@ -5,6 +5,28 @@ Note that patch versions might not show up here, but always use the latest patch
 As per semver specs, major versions are not backwards-compatible, minor versions are backwards compatible but with new features,
 and patch versions are just bug fixes.
 
+## `v2.15.0`
+
+- Added ap-mesa-no-data class to wrapper when no data
+
+## `v2.14.0`
+
+- Added ap-mesa-loading-error class to wrapper when error
+
+## `v2.13.0`
+
+- Added `reset` method to the table API.
+- Updated classes for loading element
+
+
+## `v2.12.0`
+
+- added "table-header-{column.id}" class to all <th> elements
+
+## `v2.11.0`
+
+- Added support for the `on-row-click` attribute.
+
 ## `v2.10.0`
 
 - Added server-side interaction support with `options.getData`
