@@ -44,6 +44,12 @@ angular.module('apMesa.services.apMesaSortFunctions',[])
           val1 = row1[field];
           val2 = row2[field];
         }
+        if(!val1 && val1 !== 0) {
+            val1 = '';
+        }
+        if(!val2 && val2 !== 0) {
+            val2 = '';
+        }
         return val1.toString().toLowerCase().localeCompare(val2.toString().toLowerCase());
       };
     },
