@@ -933,7 +933,7 @@ angular.module('apMesa.directives.apMesaPaginationCtrls', []).directive('apMesaP
                 current: currentPage === i
               });
             }
-          } else if (currentPage < maxPageLinks - 2) {
+          } else if (currentPage < maxPageLinks - 3) {
             for (var i = 0; i < maxPageLinks - 2; i++) {
               pageLinks.push({
                 gap: false,
@@ -950,7 +950,7 @@ angular.module('apMesa.directives.apMesaPaginationCtrls', []).directive('apMesaP
               page: numPages - 1,
               current: false
             });
-          } else if (numPages - currentPage <= maxPageLinks - 2) {
+          } else if (numPages - currentPage <= maxPageLinks - 3) {
             pageLinks.push({
               gap: false,
               page: 0,
@@ -1994,6 +1994,12 @@ angular.module('apMesa.services.apMesaSortFunctions', []).service('apMesaSortFun
         } else {
           val1 = row1[field];
           val2 = row2[field];
+        }
+        if (!val1 && val1 !== 0) {
+          val1 = '';
+        }
+        if (!val2 && val2 !== 0) {
+          val2 = '';
         }
         return val1.toString().toLowerCase().localeCompare(val2.toString().toLowerCase());
       };
