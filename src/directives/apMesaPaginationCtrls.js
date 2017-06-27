@@ -21,7 +21,7 @@ angular.module('apMesa.directives.apMesaPaginationCtrls', [])
               current: currentPage === i
             });
           }
-        } else if (currentPage < (maxPageLinks - 2)) {
+        } else if (currentPage < (maxPageLinks - 3)) {
           for (var i = 0; i < maxPageLinks - 2; i++) {
             pageLinks.push({
               gap: false,
@@ -38,7 +38,7 @@ angular.module('apMesa.directives.apMesaPaginationCtrls', [])
             page: numPages - 1,
             current: false
           });
-        } else if (numPages - currentPage <= (maxPageLinks - 2)) {
+        } else if (numPages - currentPage <= (maxPageLinks - 3)) {
           pageLinks.push({
             gap: false,
             page: 0,
