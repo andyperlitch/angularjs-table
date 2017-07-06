@@ -369,6 +369,9 @@
         selectAll: scope.selectAll,
         deselectAll: scope.deselectAll,
         toggleSelectAll: scope.toggleSelectAll,
+        clearFilters: () => {
+          scope.persistentState.searchTerms = {};
+        },
         setLoading: function(isLoading, triggerDigest) {
           scope.transientState.loading = isLoading;
           if (triggerDigest) {
