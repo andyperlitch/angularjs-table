@@ -299,7 +299,7 @@ angular.module('apMesa.controllers.ApMesaController', [
         // set new width on th
         // if a new width was set
         if (new_width === false) {
-          delete column.width;
+          column.width = Math.max(initial_width, 0);
         } else {
           column.width = Math.max(new_width, 0);
         }
@@ -748,6 +748,9 @@ angular.module('apMesa.controllers.ApMesaController', [
           selectAll: scope.selectAll,
           deselectAll: scope.deselectAll,
           toggleSelectAll: scope.toggleSelectAll,
+          clearFilters: function () {
+            scope.persistentState.searchTerms = {};
+          },
           setLoading: function (isLoading, triggerDigest) {
             scope.transientState.loading = isLoading;
             if (triggerDigest) {

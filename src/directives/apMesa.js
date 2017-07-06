@@ -369,7 +369,7 @@
         selectAll: scope.selectAll,
         deselectAll: scope.deselectAll,
         toggleSelectAll: scope.toggleSelectAll,
-        clearFilters: () => {
+        clearFilters: function () {
           scope.persistentState.searchTerms = {};
         },
         setLoading: function(isLoading, triggerDigest) {
