@@ -315,7 +315,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       // set new width on th
       // if a new width was set
       if (new_width === false) {
-        delete column.width;
+        column.width = Math.max(initial_width, 0);
       } else {
         column.width = Math.max(new_width, 0);
       }
