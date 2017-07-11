@@ -241,6 +241,9 @@
         scope.calculateRowLimit();
         if (count !== oldCount) {
           var lastPageOffset = Math.floor(scope.transientState.filterCount / scope.options.rowsPerPage);
+          if (scope.transientState.filterCount === (scope.options.rowsPerPage * lastPageOffset)) {
+            lastPageOffset -= 1;
+          }
           scope.transientState.pageOffset = Math.min(lastPageOffset, scope.transientState.pageOffset);
         }
       });
