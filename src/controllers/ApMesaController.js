@@ -23,7 +23,9 @@ angular.module('apMesa.controllers.ApMesaController', [
 
 .controller('ApMesaController',
   ['$scope','$element','apMesaFormatFunctions','apMesaSortFunctions','apMesaFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
-
+  let constans = {
+    minWidth: 40
+  }
   // SCOPE FUNCTIONS
   $scope.getSelectableRows = function() {
     var tableRowFilter = $filter('apMesaRowFilter');
@@ -317,7 +319,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       if (new_width === false) {
         delete column.width;
       } else {
-        column.width = Math.max(new_width, 0);
+        column.width = Math.max(new_width, constans.minWidth);
       }
 
       $scope.$apply();
