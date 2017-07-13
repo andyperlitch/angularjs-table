@@ -93,7 +93,9 @@
         expandedRowHeights: {},
         columnLookup: {},
         loadingError: null,
-        loading: false
+        loading: false,
+        sortPriority : {},
+        sortPriorityShow : false
       };
       if (scope.columns && scope.columns.length) {
         var lookup = scope.transientState.columnLookup;
@@ -255,7 +257,12 @@
       scope.$watch('persistentState.sortOrder', function(sortOrder) {
         if (sortOrder) {
           scope.sortDirection = {};
-          sortOrder.forEach(function(sortItem) {
+          scope.transientState.sortPriority = {};
+          scope.transientState.sortPriorityShow = sortOrder.length > 1;
+          sortOrder.forEach(function(sortItem, index) {
+            if (scope.options && scope.options.showSortPriority) {
+              scope.transientState.sortPriority[sortItem.id] = index + 1;
+            }
             scope.sortDirection[sortItem.id] = sortItem.dir;
           });
         }

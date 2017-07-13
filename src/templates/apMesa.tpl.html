@@ -17,11 +17,11 @@
         >
           <span class="column-text">
             <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />
-            <span
-              ng-if="column.sort"
-              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting."
-              class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"
-            ></span>
+            <span ng-if="column.sort"
+              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting.">
+              <span class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>
+              <span ng-bind="transientState.sortPriority[column.id]" class="sort-priority" ng-if="transientState.sortPriorityShow && transientState.sortPriority[column.id]"></span>
+            </span>
             <span ap-mesa-th-title></span>
           </span>
           <span
