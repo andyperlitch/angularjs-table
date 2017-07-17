@@ -154,6 +154,19 @@ when a discreet width has been set on it */
   font-size: 10px;
 }
 
+.ap-mesa th span.sort-priority {
+  background-color: black;
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  vertical-align: top;
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+  text-align: center;
+  border-radius: 50%;
+}
+
 .ap-mesa th span.glyphicon-sort {
   opacity: 0.2;
 }
