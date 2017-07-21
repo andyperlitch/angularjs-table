@@ -276,7 +276,7 @@
 
         scope.calculateRowLimit();
 
-        var scrollTop = scope.scrollDiv[0].scrollTop - scope.options.rowPadding;
+        var scrollTop = Math.max(0, scope.scrollDiv[0].scrollTop - scope.options.rowPadding);
 
         var rowHeight = scope.rowHeight;
 

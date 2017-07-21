@@ -66,7 +66,7 @@ angular.module('apMesa.directives.apMesaRows',[
     });
 
     scope.visible_rows = visible_rows;
-    $rootScope.$broadcast('angular-mesa:update-dummy-rows');
+    scope.$broadcast('angular-mesa:update-dummy-rows');
   }
 
   /**

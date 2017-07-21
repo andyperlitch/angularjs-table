@@ -677,7 +677,7 @@ angular.module('apMesa.controllers.ApMesaController', [
         var scrollDeferred;
         var debouncedScrollHandler = debounce(function () {
             scope.calculateRowLimit();
-            var scrollTop = scope.scrollDiv[0].scrollTop - scope.options.rowPadding;
+            var scrollTop = Math.max(0, scope.scrollDiv[0].scrollTop - scope.options.rowPadding);
             var rowHeight = scope.rowHeight;
             if (rowHeight === 0) {
               return false;
@@ -1145,7 +1145,7 @@ angular.module('apMesa.directives.apMesaRows', [
         row.$$$index = idx++;
       });
       scope.visible_rows = visible_rows;
-      $rootScope.$broadcast('angular-mesa:update-dummy-rows');
+      scope.$broadcast('angular-mesa:update-dummy-rows');
     }
     /**
    * Updates the visible_rows array on the scope asynchronously, using the options.getData function (when present).
