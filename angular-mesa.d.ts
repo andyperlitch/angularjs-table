@@ -42,6 +42,8 @@ declare namespace angular.apMesa {
     title?:  string;
     // Marks the column as a "selector" column.
     selector?: boolean;
+    // CSS classes to be added to the <th> element
+    classes?: string;
   }
 
   interface ITableSorter {
@@ -150,7 +152,9 @@ declare namespace angular.apMesa {
         limit: number,
         activeFilters: IActiveFilter[],
         activeSorts: IActiveSort[]
-    ) => ng.IPromise<IGetDataResponse>
+    ) => ng.IPromise<IGetDataResponse>;
+    // If true, will show a number indicating stacked sort priority of each column being sorted.
+    showSortPriority?: boolean;
   }
   interface IRowScope extends ng.IScope {
     toggleRowExpand: Function;

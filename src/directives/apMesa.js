@@ -16,6 +16,7 @@
     rowsPerPageChoices: [10, 25, 50, 100],
     rowsPerPageMessage: 'rows per page',
     showRowsPerPageCtrls: true,
+    showSortPriority: false,
     maxPageLinks: 8,
     sortClasses: [
       'glyphicon glyphicon-sort',
