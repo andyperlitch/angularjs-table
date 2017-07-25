@@ -91,6 +91,7 @@ declare namespace angular.apMesa {
     toggleSelectAll: () => void;
     setLoading: (isLoading: boolean, triggerDigest?: boolean) => void;
     reset: () => void;
+    clearFilters: () => void;
   }
 
   interface ITableOptions {
