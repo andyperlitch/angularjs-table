@@ -33,6 +33,11 @@ angular.module('apMesa.ghPage', [
       templateUrl: 'views/clickable-rows.html',
       controller: 'ClickableRowsCtrl'
     })
+    .when('/disabled-columns', {
+      templateUrl: 'views/disabled-columns.html',
+      controller: 'DisabledColumnsCtrl',
+      controllerAs: 'vm'
+    })
     .otherwise({
       redirectTo: '/'
     });

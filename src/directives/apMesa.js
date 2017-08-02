@@ -17,6 +17,7 @@
     rowsPerPageMessage: 'rows per page',
     showRowsPerPageCtrls: true,
     showSortPriority: false,
+    stringifyStorage: true,
     maxPageLinks: 8,
     sortClasses: [
       'glyphicon glyphicon-sort',
@@ -152,12 +153,26 @@
 
       var deregStorageWatchers = [];
       scope.scrollDiv = element.find('.mesa-rows-table-wrapper');
+
       scope.$watch('_columns', function(columns, oldColumns) {
         if (columns !== scope.columns) {
           resetColumns(scope);
           initSorts(scope);
         }
       });
+
+      scope.$watch('enabledColumns', function(columnIds, oldColumnIds) {
+        if (!scope.enabledColumns) {
+          if (scope._columns || scope.columns) {
+            scope.enabledColumns = (scope._columns || scope.columns).map(function(column) { return column.id; });
+          }
+          return;
+        }
+        scope.enabledColumnObjects = scope.enabledColumns.map(function(columnId) {
+          return scope.transientState.columnLookup[columnId];
+        });
+        scope.saveToStorage();
+      }, true);
 
       scope.$watch('options', function(newOptions, oldOptions) {
         resetState(scope);
@@ -411,6 +426,7 @@
         _columns: '=columns',
         rows: '=',
         classes: '@tableClass',
+        enabledColumns: '=?',
         selected: '=',
         options: '=?',
         trackBy: '@?'

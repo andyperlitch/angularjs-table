@@ -15,6 +15,7 @@ Features
 - localStorage state persistance
 - pagination or infinite-scrolling
 - server-side interaction support
+- enable/disable columns
 
 Installation
 ------------
@@ -63,15 +64,16 @@ Attributes
 ----------
 The `ap-mesa` tag can have the following attributes:
 
-| attribute    | type   | required | description                                                                                                                                                                                                                                                |
-|:-------------|:-------|:---------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| options      | object | no       | An object containing various options for the table. See [*Options Object*](https://github.com/andyperlitch/angularjs-table#options-object) below for details                                                                                               |
-| columns      | Array  | yes      | An array of column definition objects. See [*Column Definitions*](https://github.com/andyperlitch/angularjs-table#column-definitions) below.                                                                                                               |
-| rows         | Array  | yes      | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates                                                                                                                                |
-| table-class  | String | no       | A string of classes to be attached to the actual `<table>` element that gets created                                                                                                                                                                       |
-| selected     | Array  | no       | This should be provided when using the `selector` built-in format. See [*Row Selection*](https://github.com/andyperlitch/angularjs-table#row-selection).                                                                                                   |
-| track-by     | String | yes      | This string should be the unique key on data objects that ng-repeat should use to keep track of rows in the table                                                                                                                                          |
-| on-row-click | String | no       | If provided, the contents of this attribute will be placed inside of an `ng-click` on each `<tr>`. Note that it will be evaluated in the row scope. See [*Row Scope & Cell Scope*](https://github.com/andyperlitch/angularjs-table#row-scope--cell-scope). |
+| attribute       | type   | required | description                                                                                                                                                                                                                                                |
+|:----------------|:-------|:---------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| options         | object | no       | An object containing various options for the table. See [*Options Object*](https://github.com/andyperlitch/angularjs-table#options-object) below for details                                                                                               |
+| columns         | Array  | yes      | An array of column definition objects. See [*Column Definitions*](https://github.com/andyperlitch/angularjs-table#column-definitions) below.                                                                                                               |
+| rows            | Array  | yes      | An array of data to be displayed. See the note on maintaining $$hashKeys in order to allow for more performant data updates                                                                                                                                |
+| table-class     | String | no       | A string of classes to be attached to the actual `<table>` element that gets created                                                                                                                                                                       |
+| selected        | Array  | no       | This should be provided when using the `selector` built-in format. See [*Row Selection*](https://github.com/andyperlitch/angularjs-table#row-selection).                                                                                                   |
+| track-by        | String | yes      | This string should be the unique key on data objects that ng-repeat should use to keep track of rows in the table                                                                                                                                          |
+| on-row-click    | String | no       | If provided, the contents of this attribute will be placed inside of an `ng-click` on each `<tr>`. Note that it will be evaluated in the row scope. See [*Row Scope & Cell Scope*](https://github.com/andyperlitch/angularjs-table#row-scope--cell-scope). |
+| enabled-columns | any[]  | no       | If provided, represents the array of columns to display by their ids. See [*Enabling/Disabling Columns*](https://github.com/andyperlitch/angularjs-table#enabling-disabling-columns).                                                                      |
 
 
 Options Object
@@ -389,6 +391,37 @@ Each row (`<tr>`) is inside of an `ng-repeat`, and so it is given its own scope 
 | options               | object (ITableOptions) | The table options object.                                                                                                                                                                                             |
 
 Each cell (`<td>`) inherits all of the above properties, and in addition has `column` which is a pointer to the corresponding column definition object.
+
+
+Enable/Disable Columns
+----------------------
+
+You can dynamically enable/disable columns on the fly by using the `enabled-columns` input on the `<ap-mesa>` tag.
+
+For example, say your js looks like this:
+
+```js
+$scope.columns = [
+  { id: 'a', key: 'key1' },
+  { id: 'b', key: 'key2' },
+  { id: 'c', key: 'key3' },
+  { id: 'd', key: 'key4' }
+];
+$scope.enabledColumns = ['b', 'd', 'c'];
+```
+
+And your html looks like this:
+```html
+<ap-mesa
+columns="columns"
+enabled-columns="enabledColumns"
+rows="rows"
+options="options"
+></ap-mesa>
+```
+
+You can update the value of `enabledColumns` from the outside to manipulate the currently-showing set of columns.
+As with normal two-way bound inputs, this value will update as sorting is changed via drag-and-drop by the user.
 
 
 Browser Support

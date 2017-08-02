@@ -7,12 +7,12 @@
   <table ng-class="classes" class="ap-mesa mesa-header-table">
     <thead>
       <!-- MAIN ROW OF COLUMN HEADERS -->
-      <tr ui-sortable="sortableOptions" ng-model="columns" class="ap-mesa-header-row">
+      <tr ui-sortable="sortableOptions" ng-model="enabledColumnObjects" class="ap-mesa-header-row">
 
         <!-- COLUMN HEADERS -->
         <th
         scope="col"
-        ng-repeat="column in columns"
+        ng-repeat="column in enabledColumnObjects"
         ng-click="toggleSort($event,column)"
         ng-class="[
           {
@@ -56,7 +56,7 @@
       <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">
 
         <!-- COLUMN FILTER CELLS -->
-        <td ng-repeat="column in columns" ng-class="'column-' + column.id">
+        <td ng-repeat="column in enabledColumnObjects" ng-class="'column-' + column.id">
 
           <!-- FILTER INPUT -->
           <input
@@ -88,14 +88,14 @@
       <thead>
         <th
             scope="col"
-            ng-repeat="column in columns"
+            ng-repeat="column in enabledColumnObjects"
             ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
           ></th>
         </tr>
       </thead>
-      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" columns="columns" cell-content="..."></tbody>
+      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" cell-content="..."></tbody>
       <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
-      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" columns="columns" cell-content="..."></tbody>
+      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" cell-content="..."></tbody>
     </table>
   </div>
   <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === 'PAGINATE'" ap-mesa-pagination-ctrls></div>

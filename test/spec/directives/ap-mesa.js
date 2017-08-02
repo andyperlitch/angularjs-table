@@ -28,7 +28,7 @@ describe('Directive: apMesa', function () {
     $provide.value('$log', mockLog);
   }));
 
-  beforeEach(inject(function ($compile, $rootScope, $timeout) {
+  beforeEach(inject(function ($compile, $rootScope, $timeout, $templateCache) {
     // Format functions
     function inches2feet(inches){
       var feet = Math.floor(inches/12);
@@ -70,20 +70,70 @@ describe('Directive: apMesa', function () {
         weight: Math.round( seed2 * 130 ) + 90
       };
     }
-    
+
     scope = $rootScope.$new();
     compile = $compile;
     timeout = $timeout;
 
+    // Preload for labelTemplateUrl option
+    $templateCache.put('example/th/template.html', '<span class="test-labelTemplateUrl">Height!</span>');
+
     // Table columns
     scope.my_table_columns = columns = [
-      { id: 'selector',   key: 'selected',   label: '',                                            selector: true, width: '30px', lockWidth: true },
-      { id: 'ID',         key: 'id',                              sort: 'number', filter: 'number'                                               },
-      { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like',  title: 'First names are cool'                 },
-      { id: 'last_name',  key: 'last_name',  label: 'Last Name',  sort: 'string', filter: 'like',  filter_placeholder: 'last name'               },
-      { id: 'age',        key: 'age',        label: 'Age',        sort: 'number', filter: 'number'                                               },
-      { id: 'height',     key: 'height',     label: 'Height',     sort: 'number', filter: feet_filter, format: inches2feet                       },
-      { id: 'weight',     key: 'weight',     label: 'Weight',     sort: 'number', filter: 'number'                                               }
+      {
+        id: 'selector',
+        key: 'selected',
+        label: '',
+        selector: true,
+        width: '30px',
+        lockWidth: true
+      },
+      {
+        id: 'ID',
+        key: 'id',
+        sort: 'number',
+        filter: 'number'
+      },
+      {
+        id: 'first_name',
+        key: 'first_name',
+        label: 'First Name',
+        sort: 'string',
+        filter: 'like',
+        title: 'First names are cool'
+      },
+      {
+        id: 'last_name',
+        key: 'last_name',
+        label: 'Last Name',
+        sort: 'string',
+        filter: 'like',
+        filter_placeholder: 'last name'
+      },
+      {
+        id: 'age',
+        key: 'age',
+        sort: 'number',
+        filter: 'number',
+        labelTemplate: '<span class="test-labelTemplate">Age</span>'
+      },
+      {
+        id: 'height',
+        key: 'height',
+        label: 'Height',
+        sort: 'number',
+        filter: feet_filter,
+        format: inches2feet,
+        labelTemplateUrl: 'example/th/template.html'
+      },
+      {
+        id: 'weight',
+        key: 'weight',
+        label: 'Weight',
+        sort: 'number',
+        filter: 'number',
+        classes: 'test-classes-option'
+      }
     ];
 
     // Table data
@@ -188,7 +238,7 @@ describe('Directive: apMesa', function () {
   });
 
   describe('column header', function() {
-    
+
     it('should have a .column-resizer element if lockWidth is not set', function() {
       expect(element.find('table:eq(0) th:eq(1) .column-resizer').length).to.equal(1);
     });
@@ -234,10 +284,24 @@ describe('Directive: apMesa', function () {
       });
     });
 
+    it('should use the labelTemplate option', function() {
+      expect(element.find('table:eq(0) th:eq(4) span.test-labelTemplate').length).to.equal(1);
+    });
+
+    it('should use the labelTemplateUrl option', function() {
+      expect(element.find('table:eq(0) th:eq(5) span.test-labelTemplateUrl').length).to.equal(1);
+    });
+
+    it('should add any classes specified in the classes option to the header', function() {
+      expect(element.find('table:eq(0) th:eq(6)').hasClass('test-classes-option')).to.equal(true);
+    });
+
+
+
   });
 
   describe('column filter', function() {
-    
+
     it('should have a placeholder if specified as a property on the filter function', function() {
       var actual = element.find('table:eq(0) tr:eq(1) td:eq(5) input').attr('placeholder');
       var expected = filter_placeholder;
