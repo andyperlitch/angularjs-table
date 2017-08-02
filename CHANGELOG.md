@@ -5,6 +5,21 @@ Note that patch versions might not show up here, but always use the latest patch
 As per semver specs, major versions are not backwards-compatible, minor versions are backwards compatible but with new features,
 and patch versions are just bug fixes.
 
+## `v2.18.0`
+
+- Added support for `enabled-columns` input. This allows you to programmatically and dynamically control what columns are currently being shown.
+
+## `v2.17.0`
+
+- Add sort order indicator to angularjs-table (#10)
+- Edge number on pagination cases not to show data (#11)
+- min-width added to column
+
+## `v2.16.0`
+
+- `clearFilters` function added to table API (#9)
+- column is resized improperly (#8)
+
 ## `v2.15.0`
 
 - Added ap-mesa-no-data class to wrapper when no data
