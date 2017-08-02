@@ -32,7 +32,7 @@ describe('Controller: TableController', function() {
     mockLog = {
       warn: sandbox.spy()
     };
-    mockWindow = angular.element('<div></div')[0];
+    mockWindow = angular.element('<div></div>')[0];
 
     $scope.persistentState = {
       sortOrder: [],
@@ -51,7 +51,8 @@ describe('Controller: TableController', function() {
         'glyphicon glyphicon-chevron-up',
         'glyphicon glyphicon-chevron-down'
       ],
-      storageHash: 'testhash123'
+      storageHash: 'testhash123',
+      stringifyStorage: true
     });
 
     $controller('ApMesaController', {
@@ -548,43 +549,19 @@ describe('Controller: TableController', function() {
 
       var rowIds = [];
 
-      var stateStr = {
+      var stateObj = {
         'sortOrder': [],
         'sortDirection': {},
         'searchTerms': {},
-        'columns': [
-          {
-            'id': 'selected',
-            'disabled': false
-          },
-          {
-            'id': 'ID',
-            'disabled': false
-          },
-          {
-            'id': 'first_name',
-            'disabled': false
-          },
-          {
-            'id': 'last_name',
-            'disabled': false
-          },
-          {
-            'id': 'height',
-            'disabled': false
-          },
-          {
-            'id': 'weight',
-            'disabled': false
-          },
-          {
-            'id': 'age',
-            'disabled': false
-          },
-          {
-            'id': 'likes',
-            'disabled': false
-          }
+        'enabledColumns': [
+          'selected',
+          'ID',
+          'first_name',
+          'last_name',
+          'height',
+          'weight',
+          'age',
+          'likes'
         ],
         'options': {
           'rowLimit': 10,
@@ -592,7 +569,7 @@ describe('Controller: TableController', function() {
         }
       };
 
-      stateStr = JSON.stringify(stateStr);
+      var stateStr = JSON.stringify(stateObj);
 
       beforeEach(function() {
         $scope.columns = [
@@ -639,33 +616,17 @@ describe('Controller: TableController', function() {
       describe('reordering columns', function() {
         beforeEach(function() {
           $scope.loadFromStorage();
+          $scope.$digest();
           $scope.columns[0] = { id: 'first_name', key: 'first_name', label: 'First Name', sort: 'string', filter: 'like'};
           $scope.columns[2] = { id: 'selected', key: 'id', label: '', width: 30, lockWidth: true, selector: true };
         });
 
-        it('sort should be called', function() {
-          expect($scope.columns.sort).to.have.been.called;
+        it('should set $scope.enabledColumns to that in the state', function() {
+          expect($scope.enabledColumns).to.deep.equal(stateObj.enabledColumns);
         });
 
-        it('new row should be at the end', function() {
+        it('new column should be at the end', function() {
           expect($scope.columns[1].id).to.equal('ID');
-        });
-      });
-
-
-      describe('inserting a new columns at the beginning', function() {
-        beforeEach(function() {
-          $scope.columns.splice(0, 0, { id: 'new_row', key: 'new_row', label: 'New Row', sort: 'string', filter: 'like'});
-        });
-
-        it('sort should be called', function() {
-          $scope.loadFromStorage();
-          expect($scope.columns.sort).to.have.been.called;
-        });
-
-        it('new row should be last now', function() {
-          $scope.loadFromStorage();
-          expect($scope.columns[5].id).to.equal('new_row');
         });
       });
 
@@ -680,39 +641,15 @@ describe('Controller: TableController', function() {
         'sortOrder': [],
         'sortDirection': {},
         'searchTerms': {},
-        'columns': [
-          {
-            'id': 'selected',
-            'disabled': false
-          },
-          {
-            'id': 'ID',
-            'disabled': false
-          },
-          {
-            'id': 'first_name',
-            'disabled': false
-          },
-          {
-            'id': 'last_name',
-            'disabled': false
-          },
-          {
-            'id': 'height',
-            'disabled': false
-          },
-          {
-            'id': 'weight',
-            'disabled': false
-          },
-          {
-            'id': 'age',
-            'disabled': false
-          },
-          {
-            'id': 'likes',
-            'disabled': false
-          }
+        'enabledColumns': [
+          'selected',
+          'ID',
+          'first_name',
+          'last_name',
+          'height',
+          'weight',
+          'age',
+          'likes'
         ],
         'options': {
           'rowLimit': 10,

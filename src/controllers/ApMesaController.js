@@ -22,7 +22,7 @@ angular.module('apMesa.controllers.ApMesaController', [
 ])
 
 .controller('ApMesaController',
-  ['$scope','$element','apMesaFormatFunctions','apMesaSortFunctions','apMesaFilterFunctions','$log', '$window', '$filter', '$timeout', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout) {
+  ['$scope','$element','apMesaFormatFunctions','apMesaSortFunctions','apMesaFilterFunctions','$log', '$window', '$filter', '$timeout', '$q', function($scope, $element, formats, sorts, filters, $log, $window, $filter, $timeout, $q) {
   var CONSTANTS = {
     minWidth: 40
   };
@@ -330,7 +330,14 @@ angular.module('apMesa.controllers.ApMesaController', [
     handle: '.column-text',
     helper: 'clone',
     placeholder: 'ap-mesa-column-placeholder',
-    distance: 5
+    distance: 5,
+    update: function() {
+      // use of $timeout req'd for this because the update event comes before
+      // the model is updated!
+      $timeout(function() {
+        $scope.enabledColumns = $scope.enabledColumnObjects.map(function(column) { return column.id; });
+      });
+    }
   };
 
   $scope.getActiveColCount = function() {
@@ -355,13 +362,8 @@ angular.module('apMesa.controllers.ApMesaController', [
       state[prop] = $scope.persistentState[prop];
     });
 
-    // serialize columns
-    state.columns = $scope.columns.map(function(col) {
-      return {
-        id: col.id,
-        disabled: !!col.disabled
-      };
-    });
+    // save enabled columns (can't be in persistent state because it is a directive @Input)
+    state.enabledColumns = $scope.enabledColumns;
 
     // save non-transient options
     state.options = {};
@@ -370,75 +372,66 @@ angular.module('apMesa.controllers.ApMesaController', [
     });
 
     // Save to storage
-    $scope.storage.setItem($scope.storageKey, JSON.stringify(state));
+    var valueToStore = $scope.options.stringifyStorage ? JSON.stringify(state) : state;
+    $scope.storage.setItem($scope.storageKey, valueToStore);
   };
 
   $scope.loadFromStorage = function() {
+
+    var options = $scope.options;
 
     if (!$scope.storage) {
       return;
     }
 
     // Attempt to parse the storage
-    var stateString = $scope.storage.getItem($scope.storageKey);
+    var stateValue = $scope.storage.getItem($scope.storageKey);
 
-    // Was it there?
-    if (!stateString) {
-      return;
-    }
+    $q.when(stateValue).then(function(stateStringOrObject) {
 
-    // Try to parse it
-    var state;
-    try {
-      state = JSON.parse(stateString);
-
-      // if mimatched storage hash, stop loading from storage
-      if (state.options.storageHash !== $scope.options.storageHash) {
+      if (!stateStringOrObject) {
+        console.warn('angularjs-table: loading from storage failed because storage.getItem did not return anything.');
         return;
       }
 
-      // load state objects
-      ['sortOrder', 'searchTerms'].forEach(function(prop){
-        $scope.persistentState[prop] = state[prop];
-      });
+      try {
 
-      // validate (compare ids)
-
-      // reorder columns and merge
-      var column_ids = state.columns.map(function(col) {
-        return col.id;
-      });
-
-      $scope.columns.sort(function(a,b) {
-        var aNotThere = column_ids.indexOf(a.id) === -1;
-        var bNotThere = column_ids.indexOf(b.id) === -1;
-
-        if (aNotThere && bNotThere) {
-          return 0;
+        var state;
+        if (options.stringifyStorage) {
+          if (typeof stateStringOrObject !== 'string') {
+            throw new TypeError('storage.getItem is expected to return a string if options.stringifyStorage is true.');
+          }
+          state = JSON.parse(stateStringOrObject);
+        } else if (angular.isObject(stateStringOrObject)) {
+          state = stateStringOrObject;
+        } else {
+          throw new TypeError('storage.getItem is expected to return an object if options.stringifyStorage is false.');
         }
-        if (aNotThere) {
-          return 1;
-        }
-        if (bNotThere) {
-          return -1;
-        }
-        return column_ids.indexOf(a.id) - column_ids.indexOf(b.id);
-      });
 
-      $scope.columns.forEach(function(col, i) {
-        ['disabled'].forEach(function(prop) {
-          col[prop] = state.columns[i][prop];
+        // if mimatched storage hash, stop loading from storage
+        if (state.options.storageHash !== $scope.options.storageHash) {
+          return;
+        }
+
+        // load state objects
+        ['sortOrder', 'searchTerms'].forEach(function(prop){
+          $scope.persistentState[prop] = state[prop];
         });
-      });
 
-      // load options
-      ['rowLimit', 'pagingScheme', 'storageHash'].forEach(function(prop) {
-        $scope.options[prop] = state.options[prop];
-      });
+        // load enabled columns list
+        $scope.enabledColumns = state.enabledColumns;
 
-    } catch (e) {
-      $log.warn('Loading from storage failed!');
-    }
+        // load options
+        ['rowLimit', 'pagingScheme', 'storageHash'].forEach(function(prop) {
+          $scope.options[prop] = state.options[prop];
+        });
+
+      } catch (e) {
+        console.warn('angularjs-table: failed to load state from storage. ', e);
+      }
+    }, function(e) {
+      console.warn('angularjs-table: storage.getItem failed: ', e);
+    });
   };
 
 }]);

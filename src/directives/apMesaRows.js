@@ -36,7 +36,7 @@ angular.module('apMesa.directives.apMesaRows',[
   function updateVisibleRows(scope) {
 
     // sanity check
-    if (!scope.rows || !scope.columns) {
+    if (!scope.rows || !scope.enabledColumnObjects) {
       return [];
     }
 
@@ -44,10 +44,10 @@ angular.module('apMesa.directives.apMesaRows',[
     var visible_rows, idx;
 
     // filter rows
-    visible_rows = tableRowFilter(scope.rows, scope.columns, scope.persistentState, scope.transientState, scope.options);
+    visible_rows = tableRowFilter(scope.rows, scope.enabledColumnObjects, scope.persistentState, scope.transientState, scope.options);
 
     // sort rows
-    visible_rows = tableRowSorter(visible_rows, scope.columns, scope.persistentState.sortOrder, scope.options, scope.transientState);
+    visible_rows = tableRowSorter(visible_rows, scope.enabledColumnObjects, scope.persistentState.sortOrder, scope.options, scope.transientState);
 
     // limit rows
     if (scope.options.pagingStrategy === 'SCROLL') {
@@ -86,7 +86,7 @@ angular.module('apMesa.directives.apMesaRows',[
 
     // get active filter
     var searchTerms = scope.persistentState.searchTerms;
-    var activeFilters = scope.columns
+    var activeFilters = scope.enabledColumnObjects
       .filter(function(column) {
         return !! searchTerms[column.id];
       })
@@ -146,7 +146,7 @@ angular.module('apMesa.directives.apMesaRows',[
       } else {
         updateVisibleRowsAsync(scope);
       }
-      
+
       scope.transientState.expandedRows = {};
     };
 
@@ -159,7 +159,7 @@ angular.module('apMesa.directives.apMesaRows',[
       } else {
         updateVisibleRowsAsync(scope);
       }
-      
+
     };
 
     // Watchers that trigger updates to visible rows
@@ -195,6 +195,9 @@ angular.module('apMesa.directives.apMesaRows',[
       if (angular.isArray(newRows)) {
         updateHandler(true, false);
       }
+    });
+    scope.$watch('enabledColumnObjects', function(nv, ov) {
+      updateHandler(nv, ov);
     });
     scope.$watch('options.getData', function(getData) {
       if (angular.isFunction(getData)) {
