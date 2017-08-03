@@ -75,7 +75,7 @@ The `ap-mesa` tag can have the following attributes:
 | selected        | Array  | no       | This should be provided when using the `selector` built-in format. See [*Row Selection*](https://github.com/andyperlitch/angularjs-table#row-selection).                                                                                                   |
 | track-by        | String | yes      | This string should be the unique key on data objects that ng-repeat should use to keep track of rows in the table                                                                                                                                          |
 | on-row-click    | String | no       | If provided, the contents of this attribute will be placed inside of an `ng-click` on each `<tr>`. Note that it will be evaluated in the row scope. See [*Row Scope & Cell Scope*](https://github.com/andyperlitch/angularjs-table#row-scope--cell-scope). |
-| enabled-columns | any[]  | no       | If provided, represents the array of columns to display by their ids. See [*Enabling/Disabling Columns*](https://github.com/andyperlitch/angularjs-table#enabling-disabling-columns).                                                                      |
+| enabled-columns | any[]  | no       | If provided, represents the array of columns to display by their ids. See [*Enabling/Disabling Columns*](https://github.com/andyperlitch/angularjs-table#enabledisable-columns).                                                                      |
 
 
 Options Object
