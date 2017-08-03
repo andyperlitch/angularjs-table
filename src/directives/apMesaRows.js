@@ -125,10 +125,12 @@ angular.module('apMesa.directives.apMesaRows',[
       });
       scope.transientState.getDataPromise = null;
       scope.api.setLoading(false);
+      scope.getDataError = undefined;
       scope.$emit('angular-mesa:update-dummy-rows');
     }, function(e) {
       scope.transientState.getDataPromise = null;
       scope.transientState.loadingError = true;
+      scope.getDataError = e;
       scope.api.setLoading(false);
     });
   }
