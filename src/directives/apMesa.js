@@ -143,6 +143,28 @@
       }
     }
 
+    function updateSortPriority(scope) {
+      var sortOrder = scope.persistentState.sortOrder;
+      var enabledColumnLookup = {};
+      scope.enabledColumns.forEach(function (id) {
+        enabledColumnLookup[id] = true;
+      });
+      scope.sortDirection = {};
+      scope.transientState.sortPriority = {};
+      scope.transientState.sortPriorityShow = sortOrder.length > 1;
+      var index = 1;
+      sortOrder
+        .filter(function (sortItem) {
+          return enabledColumnLookup[sortItem.id];
+        })
+        .forEach(function (sortItem) {
+          if (scope.options && scope.options.showSortPriority) {
+            scope.transientState.sortPriority[sortItem.id] = index++;
+          }
+          scope.sortDirection[sortItem.id] = sortItem.dir;
+        });
+    }
+
     function preLink(scope) {
       resetState(scope);
       initOptions(scope);
@@ -171,6 +193,7 @@
         scope.enabledColumnObjects = scope.enabledColumns.map(function(columnId) {
           return scope.transientState.columnLookup[columnId];
         });
+        updateSortPriority(scope);
         scope.saveToStorage();
       }, true);
 
@@ -275,15 +298,7 @@
       });
       scope.$watch('persistentState.sortOrder', function(sortOrder) {
         if (sortOrder) {
-          scope.sortDirection = {};
-          scope.transientState.sortPriority = {};
-          scope.transientState.sortPriorityShow = sortOrder.length > 1;
-          sortOrder.forEach(function(sortItem, index) {
-            if (scope.options && scope.options.showSortPriority) {
-              scope.transientState.sortPriority[sortItem.id] = index + 1;
-            }
-            scope.sortDirection[sortItem.id] = sortItem.dir;
-          });
+          updateSortPriority(scope);
         }
       }, true);
 

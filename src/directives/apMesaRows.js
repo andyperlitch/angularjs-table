@@ -95,7 +95,15 @@ angular.module('apMesa.directives.apMesaRows',[
       });
 
     // get active sorts
-    var activeSorts = scope.persistentState.sortOrder.map(function(sortItem) {
+    var enabledColumnLookup = {};
+    scope.enabledColumns.forEach(function(id) {
+      enabledColumnLookup[id] = true;
+    });
+    var activeSorts = scope.persistentState.sortOrder
+    .filter(function(sortItem) {
+      return enabledColumnLookup[sortItem.id];
+    })
+    .map(function(sortItem) {
       return {
         column: scope.transientState.columnLookup[sortItem.id],
         direction: sortItem.dir === '+' ? 'ASC' : 'DESC'

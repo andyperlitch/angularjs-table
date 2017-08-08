@@ -22,11 +22,17 @@ angular.module('apMesa.filters.apMesaRowSorter', [])
     if (!sortOrder.length) {
       return rows;
     }
-    var arrayCopy = [];
-    for ( var i = 0; i < rows.length; i++) { arrayCopy.push(rows[i]); }
+    var arrayCopy = rows.slice();
+    var enabledColumns = {};
+    columns.forEach(function(column) {
+      enabledColumns[column.id] = true;
+    });
     return arrayCopy.sort(function(a,b) {
       for (var i = 0; i < sortOrder.length; i++) {
         var sortItem = sortOrder[i];
+        if (!enabledColumns[sortItem.id]) {
+          continue;
+        }
         var column = transientState.columnLookup[sortItem.id];
         var dir = sortItem.dir;
         if (column && column.sort) {

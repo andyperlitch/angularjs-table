@@ -552,6 +552,25 @@ angular.module('apMesa.controllers.ApMesaController', [
           resetState(scope);
         }
       }
+      function updateSortPriority(scope) {
+        var sortOrder = scope.persistentState.sortOrder;
+        var enabledColumnLookup = {};
+        scope.enabledColumns.forEach(function (id) {
+          enabledColumnLookup[id] = true;
+        });
+        scope.sortDirection = {};
+        scope.transientState.sortPriority = {};
+        scope.transientState.sortPriorityShow = sortOrder.length > 1;
+        var index = 1;
+        sortOrder.filter(function (sortItem) {
+          return enabledColumnLookup[sortItem.id];
+        }).forEach(function (sortItem) {
+          if (scope.options && scope.options.showSortPriority) {
+            scope.transientState.sortPriority[sortItem.id] = index++;
+          }
+          scope.sortDirection[sortItem.id] = sortItem.dir;
+        });
+      }
       function preLink(scope) {
         resetState(scope);
         initOptions(scope);
@@ -578,6 +597,7 @@ angular.module('apMesa.controllers.ApMesaController', [
           scope.enabledColumnObjects = scope.enabledColumns.map(function (columnId) {
             return scope.transientState.columnLookup[columnId];
           });
+          updateSortPriority(scope);
           scope.saveToStorage();
         }, true);
         scope.$watch('options', function (newOptions, oldOptions) {
@@ -677,15 +697,7 @@ angular.module('apMesa.controllers.ApMesaController', [
         });
         scope.$watch('persistentState.sortOrder', function (sortOrder) {
           if (sortOrder) {
-            scope.sortDirection = {};
-            scope.transientState.sortPriority = {};
-            scope.transientState.sortPriorityShow = sortOrder.length > 1;
-            sortOrder.forEach(function (sortItem, index) {
-              if (scope.options && scope.options.showSortPriority) {
-                scope.transientState.sortPriority[sortItem.id] = index + 1;
-              }
-              scope.sortDirection[sortItem.id] = sortItem.dir;
-            });
+            updateSortPriority(scope);
           }
         }, true);
         var scrollDeferred;
@@ -1187,7 +1199,13 @@ angular.module('apMesa.directives.apMesaRows', [
           };
         });
       // get active sorts
-      var activeSorts = scope.persistentState.sortOrder.map(function (sortItem) {
+      var enabledColumnLookup = {};
+      scope.enabledColumns.forEach(function (id) {
+        enabledColumnLookup[id] = true;
+      });
+      var activeSorts = scope.persistentState.sortOrder.filter(function (sortItem) {
+          return enabledColumnLookup[sortItem.id];
+        }).map(function (sortItem) {
           return {
             column: scope.transientState.columnLookup[sortItem.id],
             direction: sortItem.dir === '+' ? 'ASC' : 'DESC'
@@ -1211,10 +1229,12 @@ angular.module('apMesa.directives.apMesaRows', [
           });
           scope.transientState.getDataPromise = null;
           scope.api.setLoading(false);
+          scope.getDataError = undefined;
           scope.$emit('angular-mesa:update-dummy-rows');
         }, function (e) {
           scope.transientState.getDataPromise = null;
           scope.transientState.loadingError = true;
+          scope.getDataError = e;
           scope.api.setLoading(false);
         });
     }
@@ -1459,13 +1479,17 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
     if (!sortOrder.length) {
       return rows;
     }
-    var arrayCopy = [];
-    for (var i = 0; i < rows.length; i++) {
-      arrayCopy.push(rows[i]);
-    }
+    var arrayCopy = rows.slice();
+    var enabledColumns = {};
+    columns.forEach(function (column) {
+      enabledColumns[column.id] = true;
+    });
     return arrayCopy.sort(function (a, b) {
       for (var i = 0; i < sortOrder.length; i++) {
         var sortItem = sortOrder[i];
+        if (!enabledColumns[sortItem.id]) {
+          continue;
+        }
         var column = transientState.columnLookup[sortItem.id];
         var dir = sortItem.dir;
         if (column && column.sort) {
