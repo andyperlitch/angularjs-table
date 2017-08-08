@@ -437,6 +437,8 @@ angular.module('apMesa.controllers.ApMesaController', [
       ],
       rowsPerPageMessage: 'rows per page',
       showRowsPerPageCtrls: true,
+      clearSortOnColumnHide: true,
+      clearFilterOnColumnHide: true,
       showSortPriority: false,
       stringifyStorage: true,
       maxPageLinks: 8,
@@ -597,6 +599,24 @@ angular.module('apMesa.controllers.ApMesaController', [
           scope.enabledColumnObjects = scope.enabledColumns.map(function (columnId) {
             return scope.transientState.columnLookup[columnId];
           });
+          var enabledColumnLookup = {};
+          scope.enabledColumns.forEach(function (id) {
+            enabledColumnLookup[id] = true;
+          });
+          if (scope.options.clearFilterOnColumnHide) {
+            angular.forEach(scope.persistentState.searchTerms, function (value, key) {
+              if (!enabledColumnLookup[key]) {
+                delete scope.persistentState.searchTerms[key];
+              }
+            });
+          }
+          if (scope.options.clearSortOnColumnHide) {
+            scope.persistentState.sortOrder.forEach(function (sortItem, index) {
+              if (!enabledColumnLookup[sortItem.id]) {
+                scope.persistentState.sortOrder.splice(index, 1);
+              }
+            });
+          }
           updateSortPriority(scope);
           scope.saveToStorage();
         }, true);

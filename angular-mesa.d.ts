@@ -156,6 +156,10 @@ declare namespace angular.apMesa {
     ) => ng.IPromise<IGetDataResponse>;
     // If true, will show a number indicating stacked sort priority of each column being sorted.
     showSortPriority?: boolean;
+    // If true, a column's filter state will be removed when that column is hidden.
+    clearFilterOnColumnHide?: boolean;
+    // If true, a column's sort state will be removed when that column is hidden.
+    clearSortOnColumnHide?: boolean;
   }
   interface IRowScope extends ng.IScope {
     toggleRowExpand: Function;

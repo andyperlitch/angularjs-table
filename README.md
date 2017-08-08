@@ -115,6 +115,8 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | maxPageLinks            | `number`                         | 8                       | Number of page links to display when paginating.                                                                                                                                                                  |
 | getData                 | `function`                       | undefined               | Specify a function which returns a promise of row data. See [*Server-side Interaction*](https://github.com/andyperlitch/angularjs-table#server-side-interaction) below.                                           |
 | showSortPriority        | `boolean`                        | false                   | If true, will show a number indicating stacked sort priority of each column being sorted.                                                                                                                         |
+| clearFilterOnColumnHide | `boolean`                        | true                    | If true, a column's filter state will be removed when that column is hidden. |
+| clearSortOnColumnHide   | `boolean`                        | true                    | If true, a column's sort state will be removed when that column is hidden. |
 
 The options object is also the correct place to pass arbitrary data to table cell templates because it will be available as `options` in the table cell template scope. For example, if you want a click in a cell to call a function that is
 otherwise out of the scope of the table, you can do this:
