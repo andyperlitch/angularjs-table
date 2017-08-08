@@ -103,7 +103,7 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | bodyHeight              | `number`                         | 300                     | The pixel height for the body of the table. Note that unless `fixedHeight` is set to true, this will behave as a max-height.                                                                                      |
 | fillHeight              | `boolean`                        | false                   | If true, the table will fill the calculated height of the parent element. Note that this overrides `bodyHeight`. The table will listen for `'apMesa:resize'` events from the rootScope to recalculate the height. |
 | fixedHeight             | `boolean`                        | false                   | If true, the table body will always have a height of `bodyHeight`, regardless of whether the rows fill up the vertical space.                                                                                     |
-| onRegisterApi           | `function`                       | {}                      | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc.                                                                                           |
+| onRegisterApi           | `function`                       | {}                      | Provides a access to select table controller methods, including selectAll, deselectAll, isSelectedAll, setLoading, etc. See [*Table API*](https://github.com/andyperlitch/angularjs-table#table-api).              |
 | getter                  | `function`                       | {}                      | Customize the way to get column value. If not specified, get columen value by row[column.key]                                                                                                                     |
 | expandableTemplateUrl   | `String`                         | undefined               | A template reference to be used for the expandable row feature. See [*Expandable Rows*](https://github.com/andyperlitch/angularjs-table#expandable-rows).                                                         |
 | expandableTemplate      | `String`                         | undefined               | A template string to be used for the expandable row feature. See [*Expandable Rows*](https://github.com/andyperlitch/angularjs-table#expandable-rows).                                                            |
@@ -426,6 +426,34 @@ options="options"
 
 You can update the value of `enabledColumns` from the outside to manipulate the currently-showing set of columns.
 As with normal two-way bound inputs, this value will update as sorting is changed via drag-and-drop by the user.
+
+
+Table API
+---------
+
+When a table is instantiated, it creates an API object with several methods that allow you to programmatically control parts of the table.
+
+There are two ways to access the API. One is to use the `onRegisterApi` option, e.g.:
+
+```js
+var tableApi;
+$scope.tableOptions = {
+    // other options
+    onRegisterApi: function(api) {
+        tableApi = api;
+    }
+}
+```
+
+The other way is to use the optional binding on the element itself, e.g.:
+
+```html
+<ap-mesa
+columns="vm.columns"
+rows="vm.rows"
+api="vm.api">
+</ap-mesa>
+```
 
 
 Browser Support

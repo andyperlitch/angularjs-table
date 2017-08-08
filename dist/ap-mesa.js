@@ -835,7 +835,8 @@ angular.module('apMesa.controllers.ApMesaController', [
           enabledColumns: '=?',
           selected: '=',
           options: '=?',
-          trackBy: '@?'
+          trackBy: '@?',
+          api: '=?'
         },
         controller: 'ApMesaController',
         compile: function (tElement) {

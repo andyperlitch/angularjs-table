@@ -468,7 +468,8 @@
         enabledColumns: '=?',
         selected: '=',
         options: '=?',
-        trackBy: '@?'
+        trackBy: '@?',
+        api: '=?'
       },
       controller: 'ApMesaController',
       compile: function(tElement) {
