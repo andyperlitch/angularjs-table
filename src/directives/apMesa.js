@@ -99,7 +99,8 @@
         loadingError: null,
         loading: false,
         sortPriority : {},
-        sortPriorityShow : false
+        sortPriorityShow : false,
+        showFiltersRow: true
       };
       if (scope.columns && scope.columns.length) {
         var lookup = scope.transientState.columnLookup;
@@ -449,6 +450,30 @@
           if (scope.options.getData) {
             scope.$broadcast('apMesa:forceRefresh'); // listened for in apMesaRows
           }
+        },
+        resetRowSort: function(sorts) {
+          scope.persistentState.sortOrder = [];
+          var sortsToSet = sorts || scope.options.initialSorts;
+          if (angular.isArray(sortsToSet) && sortsToSet.length) {
+            angular.forEach(sortsToSet, function (sort) {
+              scope.addSort(sort.id, sort.dir);
+            });
+          }
+        },
+        hasActiveFilters: function() {
+          return scope.enabledColumns.some(function(columnId) {
+            return scope.persistentState.searchTerms[columnId];
+          });
+        },
+        toggleFiltersRow: function(showFiltersRow) {
+          if (arguments.length !== 1) {
+            showFiltersRow = !scope.transientState.showFiltersRow;
+          }
+          showFiltersRow = !!showFiltersRow;
+          scope.transientState.showFiltersRow = showFiltersRow;
+        },
+        isFilterRowEnabled: function() {
+          return scope.transientState.showFiltersRow;
         }
       };
 

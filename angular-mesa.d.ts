@@ -92,6 +92,11 @@ declare namespace angular.apMesa {
     setLoading: (isLoading: boolean, triggerDigest?: boolean) => void;
     reset: () => void;
     clearFilters: () => void;
+    // Resets rows' sorting order to whatever options.initialSorts. You can also pass an explicit array of IInitialSort objects.
+    resetRowSort: (sorts?: IInitialSort[]) => void;
+    hasActiveFilters: () => boolean;
+    toggleFiltersRow: (showFiltersRow?: boolean) => void;
+    isFilterRowEnabled: () => boolean;
   }
 
   interface ITableOptions {

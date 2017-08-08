@@ -53,7 +53,7 @@
       </tr>
 
       <!-- ROW OF COLUMMN FILTERS -->
-      <tr ng-if="hasFilterFields()" class="ap-mesa-filter-row">
+      <tr ng-if="hasFilterFields() && transientState.showFiltersRow" class="ap-mesa-filter-row">
 
         <!-- COLUMN FILTER CELLS -->
         <td ng-repeat="column in enabledColumnObjects" ng-class="'column-' + column.id">
