@@ -188,79 +188,94 @@ angular.module('apMesa.controllers.ApMesaController', [
   };
   $scope.setColumns = function(columns) {
     try {
-    $scope.columns = columns;
-    var lookup = $scope.transientState.columnLookup = {};
-    $scope.columns.forEach(function(column) {
-      // formats
-      var format = column.format;
-      if (typeof format !== 'function') {
-        if (typeof format === 'string') {
-          if (typeof formats[format] === 'function') {
-            column.format = formats[format];
-          }
-          else {
-
-            try {
-              column.format = $filter(format);
-            } catch (e) {
-              delete column.format;
-              $log.warn('format function reference in column(id=' + column.id + ') ' +
-                    'was not found in built-in format functions or $filters. ' +
-                    'format function given: "' + format + '". ' +
-                    'Available built-ins: ' + Object.keys(formats).join(',') + '. ' +
-                    'If you supplied a $filter, ensure it is available on this module');
-            }
-
-          }
-        } else {
-          delete column.format;
-        }
-      }
-
-      // async get
-      if (!$scope.options.getData) {
-        // sort
-        var sort = column.sort;
-        if (typeof sort !== 'function') {
-          if (typeof sort === 'string') {
-            if (typeof sorts[sort] === 'function') {
-              column.sort = sorts[sort](column.key);
+      $scope.columns = columns;
+      var lookup = $scope.transientState.columnLookup = {};
+      $scope.columns.forEach(function(column) {
+        // formats
+        var format = column.format;
+        if (typeof format !== 'function') {
+          if (typeof format === 'string') {
+            if (typeof formats[format] === 'function') {
+              column.format = formats[format];
             }
             else {
+
+              try {
+                column.format = $filter(format);
+              } catch (e) {
+                delete column.format;
+                $log.warn('format function reference in column(id=' + column.id + ') ' +
+                      'was not found in built-in format functions or $filters. ' +
+                      'format function given: "' + format + '". ' +
+                      'Available built-ins: ' + Object.keys(formats).join(',') + '. ' +
+                      'If you supplied a $filter, ensure it is available on this module');
+              }
+
+            }
+          } else {
+            delete column.format;
+          }
+        }
+
+        // async get
+        if (!$scope.options.getData) {
+          // sort
+          var sort = column.sort;
+          if (typeof sort !== 'function') {
+            if (typeof sort === 'string') {
+              if (typeof sorts[sort] === 'function') {
+                column.sort = sorts[sort](column.key);
+              }
+              else {
+                delete column.sort;
+                $log.warn('sort function reference in column(id=' + column.id + ') ' +
+                      'was not found in built-in sort functions. ' +
+                      'sort function given: "' + sort + '". ' +
+                      'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
+              }
+            } else {
               delete column.sort;
-              $log.warn('sort function reference in column(id=' + column.id + ') ' +
-                    'was not found in built-in sort functions. ' +
-                    'sort function given: "' + sort + '". ' +
-                    'Available built-ins: ' + Object.keys(sorts).join(',') + '. ');
             }
-          } else {
-            delete column.sort;
           }
-        }
-        // filter
-        var filter = column.filter;
-        if (typeof filter !== 'function') {
-          if (typeof filter === 'string') {
-            if (typeof filters[filter] === 'function') {
-              column.filter = filters[filter];
-            }
-            else {
+          // filter
+          var filter = column.filter;
+          if (typeof filter !== 'function') {
+            if (typeof filter === 'string') {
+              if (typeof filters[filter] === 'function') {
+                column.filter = filters[filter];
+              }
+              else {
+                delete column.filter;
+                $log.warn('filter function reference in column(id=' + column.id + ') ' +
+                      'was not found in built-in filter functions. ' +
+                      'filter function given: "' + filter + '". ' +
+                      'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
+              }
+            } else {
               delete column.filter;
-              $log.warn('filter function reference in column(id=' + column.id + ') ' +
-                    'was not found in built-in filter functions. ' +
-                    'filter function given: "' + filter + '". ' +
-                    'Available built-ins: ' + Object.keys(filters).join(',') + '. ');
             }
-          } else {
-            delete column.filter;
           }
         }
+
+        // populate lookup
+        lookup[column.id] = column;
+
+      });
+
+      // check enabledColumns for validity
+      if (angular.isArray($scope.enabledColumns)) {
+        // if any of the ids in enabledColumns do not map to a column in the new column set...
+        if ($scope.enabledColumns.some(function(columnId) {
+          return !lookup[columnId];
+        })) {
+          // ...unset the enabled columns
+          $scope.enabledColumns = undefined;
+        }
+      } else {
+        $scope.enabledColumns = $scope.columns.map(function(column) {
+          return column.id;
+        });
       }
-
-      // populate lookup
-      lookup[column.id] = column;
-
-    });
     } catch (e) {
       console.log(e.message);
     }

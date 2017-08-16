@@ -258,6 +258,20 @@ angular.module('apMesa.controllers.ApMesaController', [
           // populate lookup
           lookup[column.id] = column;
         });
+        // check enabledColumns for validity
+        if (angular.isArray($scope.enabledColumns)) {
+          // if any of the ids in enabledColumns do not map to a column in the new column set...
+          if ($scope.enabledColumns.some(function (columnId) {
+              return !lookup[columnId];
+            })) {
+            // ...unset the enabled columns
+            $scope.enabledColumns = undefined;
+          }
+        } else {
+          $scope.enabledColumns = $scope.columns.map(function (column) {
+            return column.id;
+          });
+        }
       } catch (e) {
         console.log(e.message);
       }
