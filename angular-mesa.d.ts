@@ -97,6 +97,7 @@ declare namespace angular.apMesa {
     hasActiveFilters: () => boolean;
     toggleFiltersRow: (showFiltersRow?: boolean) => void;
     isFilterRowEnabled: () => boolean;
+    setFilter: (columnId, value) => void;
   }
 
   interface ITableOptions {

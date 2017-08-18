@@ -849,6 +849,9 @@ angular.module('apMesa.controllers.ApMesaController', [
               return scope.persistentState.searchTerms[columnId];
             });
           },
+          setFilter: function (columnId, value) {
+            scope.persistentState.searchTerms[columnId] = value;
+          },
           toggleFiltersRow: function (showFiltersRow) {
             if (arguments.length !== 1) {
               showFiltersRow = !scope.transientState.showFiltersRow;
