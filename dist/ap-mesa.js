@@ -735,6 +735,9 @@ angular.module('apMesa.controllers.ApMesaController', [
             updateSortPriority(scope);
           }
         }, true);
+        scope.$on('angular-mesa:update-dummy-rows', function () {
+          updateSortPriority(scope);
+        });
         var scrollDeferred;
         var debouncedScrollHandler = debounce(function () {
             scope.calculateRowLimit();
