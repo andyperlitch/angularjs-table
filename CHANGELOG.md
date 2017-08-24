@@ -5,6 +5,18 @@ Note that patch versions might not show up here, but always use the latest patch
 As per semver specs, major versions are not backwards-compatible, minor versions are backwards compatible but with new features,
 and patch versions are just bug fixes.
 
+## `v2.21.0`
+
+- Added `setFilter` method to api
+
+## `v2.20.0`
+
+- Added `showFiltersRow` transient property, more API methods
+
+## `v2.19.0`
+
+- Added `clearFilterOnColumnHide` and `clearSortOnColumnHide` options
+
 ## `v2.18.0`
 
 - Added support for `enabled-columns` input. This allows you to programmatically and dynamically control what columns are currently being shown.
