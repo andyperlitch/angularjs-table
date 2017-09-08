@@ -79,8 +79,8 @@ declare namespace angular.apMesa {
   }
 
   interface ITableStorage {
-    setItem: (key: string, value: any) => ng.IPromise<any> | any;
-    getItem: (key: string) => ng.IPromise<any> | any;
+    setItem: (key: string, value: string | ITableStorageState) => ng.IPromise<any> | any;
+    getItem: (key: string) => ng.IPromise<string | ITableStorageState> | string | ITableStorageState;
     removeItem: (key: string) => ng.IPromise<any> | any;
   }
 
@@ -111,6 +111,9 @@ declare namespace angular.apMesa {
     storageHash?:  string;
     //  Used as the key to store and retrieve items from storage, if it is specified.
     storageKey?:  string;
+    // If true, will use JSON.stringify to serialize the state of the table before passing to storage.setItem.
+    // Also means that  it will use JSON.parse to deserialize state in storage.getItem
+    stringifyStorage?: boolean;
     //  Array of objects defining an initial sort order. Each object must have id and dir, can be "+" for ascending, "-" for descending.
     initialSorts?:  IInitialSort[];
     //  String to show when data is loading
@@ -146,7 +149,7 @@ declare namespace angular.apMesa {
     //  undefined  A template reference to be used for the expandable row feature. See Expandable Rows below.
     expandableTemplateUrl?:  string;
     expandableTemplate?: string;
-    // SCROLL 
+    // SCROLL
     pagingStrategy?: PAGING_STRATEGY;
     rowsPerPage?: number;
     rowsPerPageChoices?: number[];
@@ -181,5 +184,15 @@ declare namespace angular.apMesa {
     row: any;
     column: ITableColumn;
     options: ITableOptions;
+  }
+  interface ITableStorageState {
+    sortOrder: IInitialSort[];
+    searchTerms: { [columnId: string]: string };
+    enabledColumns: string[];
+    options: {
+      rowLimit: number;
+      pagingStrategy: PAGING_STRATEGY;
+      storageHash?: string;
+    };
   }
 }

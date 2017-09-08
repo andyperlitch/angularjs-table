@@ -366,7 +366,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       state.options = {};
       [
         'rowLimit',
-        'pagingScheme',
+        'pagingStrategy',
         'storageHash'
       ].forEach(function (prop) {
         state.options[prop] = $scope.options[prop];
@@ -415,7 +415,7 @@ angular.module('apMesa.controllers.ApMesaController', [
           // load options
           [
             'rowLimit',
-            'pagingScheme',
+            'pagingStrategy',
             'storageHash'
           ].forEach(function (prop) {
             $scope.options[prop] = state.options[prop];

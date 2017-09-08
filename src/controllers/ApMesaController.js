@@ -382,7 +382,7 @@ angular.module('apMesa.controllers.ApMesaController', [
 
     // save non-transient options
     state.options = {};
-    ['rowLimit', 'pagingScheme', 'storageHash'].forEach(function(prop){
+    ['rowLimit', 'pagingStrategy', 'storageHash'].forEach(function(prop){
       state.options[prop] = $scope.options[prop];
     });
 
@@ -437,7 +437,7 @@ angular.module('apMesa.controllers.ApMesaController', [
         $scope.enabledColumns = state.enabledColumns;
 
         // load options
-        ['rowLimit', 'pagingScheme', 'storageHash'].forEach(function(prop) {
+        ['rowLimit', 'pagingStrategy', 'storageHash'].forEach(function(prop) {
           $scope.options[prop] = state.options[prop];
         });
 
