@@ -2186,7 +2186,7 @@ angular.module('src/templates/apMesaPaginationCtrls.tpl.html', []).run([
 angular.module('src/templates/apMesaRows.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr\n' + '  ng-repeat-start="row in visible_rows"\n' + '  ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? \'odd\' : \'even\' }}"\n' + '  ap-mesa-row>\n' + '</tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ columns.length }}"></td>\n' + '</tr>\n' + '');
+    $templateCache.put('src/templates/apMesaRows.tpl.html', '<tr\n' + '  ng-repeat-start="row in visible_rows"\n' + '  ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? \'odd\' : \'even\' }}"\n' + '  ap-mesa-row>\n' + '</tr>\n' + '<tr ng-repeat-end ng-if="rowIsExpanded" class="ap-mesa-expand-panel">\n' + '  <td ap-mesa-expandable ng-attr-colspan="{{ enabledColumns.length }}"></td>\n' + '</tr>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaStatusDisplay.tpl.html', []).run([
