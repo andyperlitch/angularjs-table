@@ -343,7 +343,6 @@ angular.module('apMesa.controllers.ApMesaController', [
   $scope.sortableOptions = {
     axis: 'x',
     handle: '.column-text',
-    helper: 'clone',
     placeholder: 'ap-mesa-column-placeholder',
     distance: 5,
     update: function() {
