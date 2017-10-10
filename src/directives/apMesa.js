@@ -464,6 +464,9 @@
             });
           }
         },
+        getRowSort: function () {
+          return scope.persistentState.sortOrder;
+        },
         hasActiveFilters: function() {
           return scope.enabledColumns.some(function(columnId) {
             return scope.persistentState.searchTerms[columnId];
