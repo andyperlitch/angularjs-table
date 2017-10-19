@@ -336,7 +336,7 @@ angular.module('apMesa.controllers.ApMesaController', [
       } else {
         column.width = Math.max(new_width, CONSTANTS.minWidth);
       }
-
+      $scope.$emit('apMesa:columnResized', column, column.width);
       $scope.$apply();
     });
   };
