@@ -463,6 +463,8 @@
               scope.addSort(sort.id, sort.dir);
             });
           }
+        }, getRowSort: function () {
+          return scope.persistentState.sortOrder;
         },
         getRowSort: function () {
           return scope.persistentState.sortOrder;
