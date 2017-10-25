@@ -847,6 +847,9 @@ angular.module('apMesa.controllers.ApMesaController', [
               });
             }
           },
+          getRowSort: function () {
+            return scope.persistentState.sortOrder;
+          },
           hasActiveFilters: function () {
             return scope.enabledColumns.some(function (columnId) {
               return scope.persistentState.searchTerms[columnId];
@@ -1550,7 +1553,15 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
     columns.forEach(function (column) {
       enabledColumns[column.id] = true;
     });
-    return arrayCopy.sort(function (a, b) {
+    // js sort doesn't work as expected because it rearranges the equal elements
+    // so we will arrange elements only if they are different, based on the element index
+    var sortArray = arrayCopy.map(function (data, index) {
+        return {
+          index: index,
+          data: data
+        };
+      });
+    sortArray.sort(function (a, b) {
       for (var i = 0; i < sortOrder.length; i++) {
         var sortItem = sortOrder[i];
         if (!enabledColumns[sortItem.id]) {
@@ -1560,13 +1571,16 @@ angular.module('apMesa.filters.apMesaRowSorter', []).filter('apMesaRowSorter', f
         var dir = sortItem.dir;
         if (column && column.sort) {
           var fn = column.sort;
-          var result = dir === '+' ? fn(a, b, options, column) : fn(b, a, options, column);
+          var result = dir === '+' ? fn(a.data, b.data, options, column) : fn(b.data, a.data, options, column);
           if (result !== 0) {
             return result;
           }
         }
       }
-      return 0;
+      return a.index - b.index;
+    });
+    return sortArray.map(function (value) {
+      return value.data;
     });
   };
 });
