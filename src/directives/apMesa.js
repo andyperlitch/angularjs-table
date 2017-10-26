@@ -372,7 +372,7 @@
           runningTotalScroll += rowsHeight;
 
           // the pixels that this row's expanded panel displaces
-          var expandedPixels = scope.transientState.expandedRowHeights[expandedOffset];
+          var expandedPixels = scope.transientState.expandedRowHeights[expandedOffset] || 0;
           runningTotalScroll += expandedPixels;
           rowOffset = expandedOffset;
 
@@ -383,7 +383,7 @@
           }
         }
 
-        scope.transientState.rowOffset = Math.max(0, rowOffset);
+        scope.transientState.rowOffset = Math.max(0, rowOffset || 0);
 
         scrollDeferred.resolve();
 
