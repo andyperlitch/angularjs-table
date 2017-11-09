@@ -1,6 +1,11 @@
 /* main root element */
 .ap-mesa-wrapper {
   position: relative;
+  overflow-x: hidden;
+}
+
+.ap-mesa-wrapper.allow-scroll-x {
+  overflow-x: auto !important;
 }
 
 /* styles for both header- and rows- tables */
@@ -8,6 +13,10 @@
   table-layout: fixed;
   width: 100%;
   margin-bottom: 0;
+}
+
+.ap-mesa-wrapper.allow-scroll-x .ap-mesa {
+  width: auto !important;
 }
 
 /* the visible table header */
@@ -29,9 +38,15 @@
 }
 .mesa-rows-table-wrapper {
   overflow: auto;
+  display: inline-block;
 }
 .mesa-rows-table > tbody + tbody {
   border-top: none;
+}
+
+.ap-mesa-wrapper.allow-scroll-x .ap-mesa .mesa-rows-table-wrapper {
+  overflow-x: auto;
+  width: auto !important;
 }
 
 /* general styles for all cells in both tables */

@@ -1,102 +1,105 @@
-<div class="ap-mesa-wrapper" ng-class="{
-'paging-strategy-paginate': options.pagingStrategy === 'PAGINATE',
-'paging-strategy-scroll': options.pagingStrategy === 'SCROLL',
-'ap-mesa-loading-error': !!transientState.loadingError,
-'ap-mesa-no-data': !transientState.loading && !transientState.loadingError && visible_rows.length === 0
-}">
-  <table ng-class="classes" class="ap-mesa mesa-header-table">
-    <thead>
-      <!-- MAIN ROW OF COLUMN HEADERS -->
-      <tr ui-sortable="sortableOptions" ng-model="enabledColumnObjects" class="ap-mesa-header-row">
-
-        <!-- COLUMN HEADERS -->
-        <th
-        scope="col"
-        ng-repeat="column in enabledColumnObjects"
-        ng-click="toggleSort($event,column)"
-        ng-class="[
-          {
-            'sortable-column' : column.sort,
-            'select-column': column.selector,
-            'is-sorting': sortDirection[column.id]
-          },
-          'table-header-' + column.id,
-          column.classes ? column.classes : ''
-        ]"
-        ng-attr-title="{{ column.title || '' }}"
-        ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }">
-
-          <!-- COLUMN TEXT -->
-          <span class="column-text">
-            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />
-            <span
-            class="ap-mesa-sort-icon" 
-            ng-if="column.sort"
-            title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting.">
-              <span class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>
-              <span ng-bind="transientState.sortPriority[column.id]" class="sort-priority" ng-if="transientState.sortPriorityShow && transientState.sortPriority[column.id]"></span>
-            </span>
-            <span class="ap-mesa-th-title" ap-mesa-th-title></span>
-          </span>
-
-          <!-- COLUMN RESIZER -->
-          <span
-          ng-if="!column.lockWidth"
-          class="column-resizer"
-          ng-class="{'discreet-width': !!column.width}"
-          title="Click and drag to set discreet width. Click once to clear discreet width."
-          ng-mousedown="startColumnResize($event, column)">
-            &nbsp;
-          </span>
-
-        </th>
-      </tr>
-
-      <!-- ROW OF COLUMMN FILTERS -->
-      <tr ng-if="hasFilterFields() && transientState.showFiltersRow" class="ap-mesa-filter-row">
-
-        <!-- COLUMN FILTER CELLS -->
-        <td ng-repeat="column in enabledColumnObjects" ng-class="'column-' + column.id">
-
-          <!-- FILTER INPUT -->
-          <input
-          type="text"
-          ng-if="(column.filter)"
-          ng-model="persistentState.searchTerms[column.id]"
-          ng-attr-placeholder="{{ column.filterPlaceholder ? column.filterPlaceholder : (column.filter.placeholder || 'filter') }}"
-          ng-attr-title="{{ column.filter && column.filter.title }}"
-          ng-class="{'active': persistentState.searchTerms[column.id] }">
-
-          <!-- FILTER CLEAR BUTTON -->
-          <button
-          ng-if="(column.filter)"
-          ng-show="persistentState.searchTerms[column.id]"
-          class="clear-search-btn"
-          role="button"
-          type="button"
-          ng-click="clearAndFocusSearch(column.id)">
-            &times;
-          </button>
-
-        </td>
-      </tr>
-    </thead>
-  </table>
-  <div ap-mesa-status-display></div>
-  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle" ng-hide="transientState.loadingError">
-    <table ng-class="classes" class="ap-mesa mesa-rows-table">
+<div>
+  <div class="ap-mesa-wrapper" ng-class="{
+  'paging-strategy-paginate': options.pagingStrategy === 'PAGINATE',
+  'paging-strategy-scroll': options.pagingStrategy === 'SCROLL',
+  'ap-mesa-loading-error': !!transientState.loadingError,
+  'ap-mesa-no-data': !transientState.loading && !transientState.loadingError && visible_rows.length === 0,
+  'allow-scroll-x': options.allowScrollX
+  }">
+    <table ng-class="classes" class="ap-mesa mesa-header-table">
       <thead>
-        <th
-            scope="col"
-            ng-repeat="column in enabledColumnObjects"
-            ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
-          ></th>
+        <!-- MAIN ROW OF COLUMN HEADERS -->
+        <tr ui-sortable="sortableOptions" ng-model="enabledColumnObjects" class="ap-mesa-header-row">
+
+          <!-- COLUMN HEADERS -->
+          <th
+          scope="col"
+          ng-repeat="column in enabledColumnObjects"
+          ng-click="toggleSort($event,column)"
+          ng-class="[
+            {
+              'sortable-column' : column.sort,
+              'select-column': column.selector,
+              'is-sorting': sortDirection[column.id]
+            },
+            'table-header-' + column.id,
+            column.classes ? column.classes : ''
+          ]"
+          ng-attr-title="{{ column.title || '' }}"
+          ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }">
+
+            <!-- COLUMN TEXT -->
+            <span class="column-text">
+              <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />
+              <span
+              class="ap-mesa-sort-icon" 
+              ng-if="column.sort"
+              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting.">
+                <span class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>
+                <span ng-bind="transientState.sortPriority[column.id]" class="sort-priority" ng-if="transientState.sortPriorityShow && transientState.sortPriority[column.id]"></span>
+              </span>
+              <span class="ap-mesa-th-title" ap-mesa-th-title></span>
+            </span>
+
+            <!-- COLUMN RESIZER -->
+            <span
+            ng-if="!column.lockWidth"
+            class="column-resizer"
+            ng-class="{'discreet-width': !!column.width}"
+            title="Click and drag to set discreet width. Click once to clear discreet width."
+            ng-mousedown="startColumnResize($event, column)">
+              &nbsp;
+            </span>
+
+          </th>
+        </tr>
+
+        <!-- ROW OF COLUMMN FILTERS -->
+        <tr ng-if="hasFilterFields() && transientState.showFiltersRow" class="ap-mesa-filter-row">
+
+          <!-- COLUMN FILTER CELLS -->
+          <td ng-repeat="column in enabledColumnObjects" ng-class="'column-' + column.id">
+
+            <!-- FILTER INPUT -->
+            <input
+            type="text"
+            ng-if="(column.filter)"
+            ng-model="persistentState.searchTerms[column.id]"
+            ng-attr-placeholder="{{ column.filterPlaceholder ? column.filterPlaceholder : (column.filter.placeholder || 'filter') }}"
+            ng-attr-title="{{ column.filter && column.filter.title }}"
+            ng-class="{'active': persistentState.searchTerms[column.id] }">
+
+            <!-- FILTER CLEAR BUTTON -->
+            <button
+            ng-if="(column.filter)"
+            ng-show="persistentState.searchTerms[column.id]"
+            class="clear-search-btn"
+            role="button"
+            type="button"
+            ng-click="clearAndFocusSearch(column.id)">
+              &times;
+            </button>
+
+          </td>
         </tr>
       </thead>
-      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" cell-content="..."></tbody>
-      <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
-      <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" cell-content="..."></tbody>
     </table>
+    <div ap-mesa-status-display></div>
+    <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle" ng-hide="transientState.loadingError">
+      <table ng-class="classes" class="ap-mesa mesa-rows-table">
+        <thead>
+          <th
+              scope="col"
+              ng-repeat="column in enabledColumnObjects"
+              ng-style="{ width: column.width, 'min-width': column.width, 'max-width': column.width }"
+            ></th>
+          </tr>
+        </thead>
+        <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" cell-content="..."></tbody>
+        <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>
+        <tbody ng-if="options.pagingStrategy === 'SCROLL'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" cell-content="..."></tbody>
+      </table>
+    </div>
   </div>
   <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === 'PAGINATE'" ap-mesa-pagination-ctrls></div>
 </div>

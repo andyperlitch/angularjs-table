@@ -7,7 +7,8 @@ angular.module('apMesa.ghPage')
     bodyHeight: 600,
     rowPadding: 600,
     storage: localStorage,
-    storageKey: 'example'
+    storageKey: 'example',
+    allowScrollX: true
   };
   this.my_table_options_paginated = angular.extend({ pagingStrategy: 'PAGINATE' }, this.my_table_options);
   this.my_selected_rows = [];
@@ -28,20 +29,22 @@ angular.module('apMesa.ghPage')
       id: 'brand',
       key: 'Brand',
       sort: 'string',
-      label: 'Brand'
+      label: 'Brand',
     },
     {
       id: 'edge',
       key: 'edge',
       label: 'Edge',
       sort: 'string',
-      filter: 'like'
+      filter: 'like',
+      width: '300px',
     },
     {
       id: 'tech',
       key: 'technology',
       sort: 'string',
-      label: 'Tech'
+      label: 'Tech',
+      width: '160px',
     }
   ];
   this.my_enabled_columns = this.my_table_columns.map(function(c) { return c.id; });
