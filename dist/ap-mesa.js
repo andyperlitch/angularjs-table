@@ -276,6 +276,33 @@ angular.module('apMesa.controllers.ApMesaController', [
         console.log(e.message);
       }
     };
+    $scope.resizeRowsTableIfNecessary = function () {
+      var allColumnsHaveWidths = $scope.columns && $scope.columns.map(function (col) {
+          return !!col.width;
+        }).reduce(function (prevValue, currValue) {
+          return prevValue && currValue;
+        });
+      $timeout(function () {
+        var rowsTableElement = $element.find('.mesa-rows-table');
+        var topTableElement = $element.find('.mesa-header-table');
+        if (!rowsTableElement) {
+          return;
+        }
+        if ($scope.options.allowScrollX && allColumnsHaveWidths) {
+          var topTableElementWidth = topTableElement.css('width');
+          if (topTableElementWidth) {
+            rowsTableElement.attr('style', 'width: ' + topTableElementWidth + ' !important');
+          }
+        } else if ($scope.options.allowScrollX && !allColumnsHaveWidths) {
+          console.warn('option.allowScrollX is set, but all columns have not been defined with widths.', $scope.columns.filter(function (col) {
+            return !!col.width;
+          }));
+          rowsTableElement.css('width', null);
+        } else {
+          rowsTableElement.css('width', null);
+        }
+      }, 100);
+    };
     $scope.startColumnResize = function ($event, column) {
       // Stop default so text does not get selected
       $event.preventDefault();
@@ -319,6 +346,7 @@ angular.module('apMesa.controllers.ApMesaController', [
         } else {
           column.width = Math.max(new_width, CONSTANTS.minWidth);
         }
+        $scope.resizeRowsTableIfNecessary();
         $scope.$apply();
       });
     };
@@ -634,6 +662,7 @@ angular.module('apMesa.controllers.ApMesaController', [
           }
           updateSortPriority(scope);
           scope.saveToStorage();
+          scope.resizeRowsTableIfNecessary();
         }, true);
         scope.$watch('options', function (newOptions, oldOptions) {
           resetState(scope);
@@ -678,6 +707,9 @@ angular.module('apMesa.controllers.ApMesaController', [
           } else if (fillHeightWatcher) {
             fillHeightWatcher();
           }
+        });
+        scope.$watch('options.allowScrollX', function () {
+          scope.resizeRowsTableIfNecessary();
         });
         //  - row limit
         scope.$watch('options.bodyHeight', function () {
@@ -2182,7 +2214,7 @@ angular.module('apMesa.templates', [
 angular.module('src/templates/apMesa.tpl.html', []).run([
   '$templateCache',
   function ($templateCache) {
-    $templateCache.put('src/templates/apMesa.tpl.html', '<div class="ap-mesa-wrapper" ng-class="{\n' + '\'paging-strategy-paginate\': options.pagingStrategy === \'PAGINATE\',\n' + '\'paging-strategy-scroll\': options.pagingStrategy === \'SCROLL\',\n' + '\'ap-mesa-loading-error\': !!transientState.loadingError,\n' + '\'ap-mesa-no-data\': !transientState.loading && !transientState.loadingError && visible_rows.length === 0\n' + '}">\n' + '  <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '    <thead>\n' + '      <!-- MAIN ROW OF COLUMN HEADERS -->\n' + '      <tr ui-sortable="sortableOptions" ng-model="enabledColumnObjects" class="ap-mesa-header-row">\n' + '\n' + '        <!-- COLUMN HEADERS -->\n' + '        <th\n' + '        scope="col"\n' + '        ng-repeat="column in enabledColumnObjects"\n' + '        ng-click="toggleSort($event,column)"\n' + '        ng-class="[\n' + '          {\n' + '            \'sortable-column\' : column.sort,\n' + '            \'select-column\': column.selector,\n' + '            \'is-sorting\': sortDirection[column.id]\n' + '          },\n' + '          \'table-header-\' + column.id,\n' + '          column.classes ? column.classes : \'\'\n' + '        ]"\n' + '        ng-attr-title="{{ column.title || \'\' }}"\n' + '        ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }">\n' + '\n' + '          <!-- COLUMN TEXT -->\n' + '          <span class="column-text">\n' + '            <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '            <span\n' + '            class="ap-mesa-sort-icon" \n' + '            ng-if="column.sort"\n' + '            title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting.">\n' + '              <span class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>\n' + '              <span ng-bind="transientState.sortPriority[column.id]" class="sort-priority" ng-if="transientState.sortPriorityShow && transientState.sortPriority[column.id]"></span>\n' + '            </span>\n' + '            <span class="ap-mesa-th-title" ap-mesa-th-title></span>\n' + '          </span>\n' + '\n' + '          <!-- COLUMN RESIZER -->\n' + '          <span\n' + '          ng-if="!column.lockWidth"\n' + '          class="column-resizer"\n' + '          ng-class="{\'discreet-width\': !!column.width}"\n' + '          title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '          ng-mousedown="startColumnResize($event, column)">\n' + '            &nbsp;\n' + '          </span>\n' + '\n' + '        </th>\n' + '      </tr>\n' + '\n' + '      <!-- ROW OF COLUMMN FILTERS -->\n' + '      <tr ng-if="hasFilterFields() && transientState.showFiltersRow" class="ap-mesa-filter-row">\n' + '\n' + '        <!-- COLUMN FILTER CELLS -->\n' + '        <td ng-repeat="column in enabledColumnObjects" ng-class="\'column-\' + column.id">\n' + '\n' + '          <!-- FILTER INPUT -->\n' + '          <input\n' + '          type="text"\n' + '          ng-if="(column.filter)"\n' + '          ng-model="persistentState.searchTerms[column.id]"\n' + '          ng-attr-placeholder="{{ column.filterPlaceholder ? column.filterPlaceholder : (column.filter.placeholder || \'filter\') }}"\n' + '          ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '          ng-class="{\'active\': persistentState.searchTerms[column.id] }">\n' + '\n' + '          <!-- FILTER CLEAR BUTTON -->\n' + '          <button\n' + '          ng-if="(column.filter)"\n' + '          ng-show="persistentState.searchTerms[column.id]"\n' + '          class="clear-search-btn"\n' + '          role="button"\n' + '          type="button"\n' + '          ng-click="clearAndFocusSearch(column.id)">\n' + '            &times;\n' + '          </button>\n' + '\n' + '        </td>\n' + '      </tr>\n' + '    </thead>\n' + '  </table>\n' + '  <div ap-mesa-status-display></div>\n' + '  <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle" ng-hide="transientState.loadingError">\n' + '    <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '      <thead>\n' + '        <th\n' + '            scope="col"\n' + '            ng-repeat="column in enabledColumnObjects"\n' + '            ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '          ></th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" cell-content="..."></tbody>\n' + '      <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '      <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" cell-content="..."></tbody>\n' + '    </table>\n' + '  </div>\n' + '  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === \'PAGINATE\'" ap-mesa-pagination-ctrls></div>\n' + '</div>\n' + '');
+    $templateCache.put('src/templates/apMesa.tpl.html', '<div>\n' + '  <div class="ap-mesa-wrapper" ng-class="{\n' + '  \'paging-strategy-paginate\': options.pagingStrategy === \'PAGINATE\',\n' + '  \'paging-strategy-scroll\': options.pagingStrategy === \'SCROLL\',\n' + '  \'ap-mesa-loading-error\': !!transientState.loadingError,\n' + '  \'ap-mesa-no-data\': !transientState.loading && !transientState.loadingError && visible_rows.length === 0,\n' + '  \'allow-scroll-x\': options.allowScrollX\n' + '  }">\n' + '    <table ng-class="classes" class="ap-mesa mesa-header-table">\n' + '      <thead>\n' + '        <!-- MAIN ROW OF COLUMN HEADERS -->\n' + '        <tr ui-sortable="sortableOptions" ng-model="enabledColumnObjects" class="ap-mesa-header-row">\n' + '\n' + '          <!-- COLUMN HEADERS -->\n' + '          <th\n' + '          scope="col"\n' + '          ng-repeat="column in enabledColumnObjects"\n' + '          ng-click="toggleSort($event,column)"\n' + '          ng-class="[\n' + '            {\n' + '              \'sortable-column\' : column.sort,\n' + '              \'select-column\': column.selector,\n' + '              \'is-sorting\': sortDirection[column.id]\n' + '            },\n' + '            \'table-header-\' + column.id,\n' + '            column.classes ? column.classes : \'\'\n' + '          ]"\n' + '          ng-attr-title="{{ column.title || \'\' }}"\n' + '          ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }">\n' + '\n' + '            <!-- COLUMN TEXT -->\n' + '            <span class="column-text">\n' + '              <input ng-if="column.selector" type="checkbox" ng-checked="isSelectedAll()" ng-click="toggleSelectAll($event)" />\n' + '              <span\n' + '              class="ap-mesa-sort-icon" \n' + '              ng-if="column.sort"\n' + '              title="This column is sortable. Click to toggle sort order. Hold shift while clicking multiple columns to stack sorting.">\n' + '                <span class="sorting-icon {{ getSortClass( sortDirection[column.id] ) }}"></span>\n' + '                <span ng-bind="transientState.sortPriority[column.id]" class="sort-priority" ng-if="transientState.sortPriorityShow && transientState.sortPriority[column.id]"></span>\n' + '              </span>\n' + '              <span class="ap-mesa-th-title" ap-mesa-th-title></span>\n' + '            </span>\n' + '\n' + '            <!-- COLUMN RESIZER -->\n' + '            <span\n' + '            ng-if="!column.lockWidth"\n' + '            class="column-resizer"\n' + '            ng-class="{\'discreet-width\': !!column.width}"\n' + '            title="Click and drag to set discreet width. Click once to clear discreet width."\n' + '            ng-mousedown="startColumnResize($event, column)">\n' + '              &nbsp;\n' + '            </span>\n' + '\n' + '          </th>\n' + '        </tr>\n' + '\n' + '        <!-- ROW OF COLUMMN FILTERS -->\n' + '        <tr ng-if="hasFilterFields() && transientState.showFiltersRow" class="ap-mesa-filter-row">\n' + '\n' + '          <!-- COLUMN FILTER CELLS -->\n' + '          <td ng-repeat="column in enabledColumnObjects" ng-class="\'column-\' + column.id">\n' + '\n' + '            <!-- FILTER INPUT -->\n' + '            <input\n' + '            type="text"\n' + '            ng-if="(column.filter)"\n' + '            ng-model="persistentState.searchTerms[column.id]"\n' + '            ng-attr-placeholder="{{ column.filterPlaceholder ? column.filterPlaceholder : (column.filter.placeholder || \'filter\') }}"\n' + '            ng-attr-title="{{ column.filter && column.filter.title }}"\n' + '            ng-class="{\'active\': persistentState.searchTerms[column.id] }">\n' + '\n' + '            <!-- FILTER CLEAR BUTTON -->\n' + '            <button\n' + '            ng-if="(column.filter)"\n' + '            ng-show="persistentState.searchTerms[column.id]"\n' + '            class="clear-search-btn"\n' + '            role="button"\n' + '            type="button"\n' + '            ng-click="clearAndFocusSearch(column.id)">\n' + '              &times;\n' + '            </button>\n' + '\n' + '          </td>\n' + '        </tr>\n' + '      </thead>\n' + '    </table>\n' + '    <div ap-mesa-status-display></div>\n' + '    <div class="mesa-rows-table-wrapper" ng-style="tbodyNgStyle" ng-hide="transientState.loadingError">\n' + '      <table ng-class="classes" class="ap-mesa mesa-rows-table">\n' + '        <thead>\n' + '          <th\n' + '              scope="col"\n' + '              ng-repeat="column in enabledColumnObjects"\n' + '              ng-style="{ width: column.width, \'min-width\': column.width, \'max-width\': column.width }"\n' + '            ></th>\n' + '          </tr>\n' + '        </thead>\n' + '        <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ap-mesa-dummy-rows="[0,transientState.rowOffset]" cell-content="..."></tbody>\n' + '        <tbody ap-mesa-rows class="ap-mesa-rendered-rows"></tbody>\n' + '        <tbody ng-if="options.pagingStrategy === \'SCROLL\'" ap-mesa-dummy-rows="[transientState.rowOffset + visible_rows.length, transientState.filterCount]" cell-content="..."></tbody>\n' + '      </table>\n' + '    </div>\n' + '  </div>\n' + '  <div class="ap-mesa-pagination" ng-if="options.pagingStrategy === \'PAGINATE\'" ap-mesa-pagination-ctrls></div>\n' + '</div>\n' + '');
   }
 ]);
 angular.module('src/templates/apMesaDummyRows.tpl.html', []).run([

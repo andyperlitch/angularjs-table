@@ -169,6 +169,8 @@ declare namespace angular.apMesa {
     clearFilterOnColumnHide?: boolean;
     // If true, a column's sort state will be removed when that column is hidden.
     clearSortOnColumnHide?: boolean;
+    // If true, the table will create a horizontal scroll bar.
+    allowScrollX?: boolean;
   }
   interface IRowScope extends ng.IScope {
     toggleRowExpand: Function;

@@ -23,13 +23,15 @@ angular.module('apMesa.ghPage')
                   '<i class="glyphicon glyphicon-triangle-right" ng-if="!rowIsExpanded"></i>' +
                   '<i class="glyphicon glyphicon-triangle-bottom" ng-if="rowIsExpanded"></i>' +
                   '{{ row.DeviceName }}' +
-                '</a>'
+                '</a>',
+      width: '200px',
     },
     {
       id: 'brand',
       key: 'Brand',
       sort: 'string',
       label: 'Brand',
+      width: '100px',
     },
     {
       id: 'edge',

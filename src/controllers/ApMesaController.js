@@ -281,6 +281,36 @@ angular.module('apMesa.controllers.ApMesaController', [
     }
   };
 
+  $scope.resizeRowsTableIfNecessary = function () {
+    var allColumnsHaveWidths = $scope.columns && $scope.columns.map(function (col) {
+      return !!col.width;
+    }).reduce(function(prevValue, currValue) {
+      return prevValue && currValue;
+    });
+
+    $timeout(function() {
+      var rowsTableElement = $element.find('.mesa-rows-table');
+      var topTableElement = $element.find('.mesa-header-table');
+      if (!rowsTableElement) {
+        return;
+      }
+
+      if ($scope.options.allowScrollX && allColumnsHaveWidths) {
+        var topTableElementWidth = topTableElement.css('width');
+        if (topTableElementWidth) {
+          rowsTableElement.attr('style', 'width: ' + topTableElementWidth + ' !important');
+        }
+      } else if ($scope.options.allowScrollX && !allColumnsHaveWidths) {
+        console.warn('option.allowScrollX is set, but all columns have not been defined with widths.', $scope.columns.filter(function (col) { return !!col.width} ));
+        rowsTableElement.css('width', null);
+      } else {
+        rowsTableElement.css('width', null);
+      }
+
+    }, 100);
+  }
+
+
   $scope.startColumnResize = function($event, column) {
 
     // Stop default so text does not get selected
@@ -337,6 +367,8 @@ angular.module('apMesa.controllers.ApMesaController', [
         column.width = Math.max(new_width, CONSTANTS.minWidth);
       }
 
+      $scope.resizeRowsTableIfNecessary();
+      
       $scope.$apply();
     });
   };

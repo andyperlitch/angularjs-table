@@ -220,6 +220,7 @@
 
         updateSortPriority(scope);
         scope.saveToStorage();
+        scope.resizeRowsTableIfNecessary();
       }, true);
 
       scope.$watch('options', function(newOptions, oldOptions) {
@@ -267,6 +268,10 @@
         } else if (fillHeightWatcher) {
           fillHeightWatcher();
         }
+      });
+
+      scope.$watch('options.allowScrollX', function() {
+        scope.resizeRowsTableIfNecessary();
       });
 
       //  - row limit
