@@ -219,7 +219,9 @@
         }
 
         updateSortPriority(scope);
-        scope.saveToStorage();
+        if(!angular.equals(columnIds, oldColumnIds) ) {
+          scope.saveToStorage();
+        }
       }, true);
 
       scope.$watch('options', function(newOptions, oldOptions) {
@@ -244,9 +246,9 @@
           //  - sort change
           //  occurs in scope.toggleSort
           //  - column order change
-          deregStorageWatchers.push(scope.$watchCollection('columns', scope.saveToStorage));
+          deregStorageWatchers.push(scope.$watchCollection('columns',(nv, ov) => !angular.equals(nv, ov)? scope.saveToStorage(): undefined));
           //  - search terms change
-          deregStorageWatchers.push(scope.$watchCollection('persistentState.searchTerms', scope.saveToStorage));
+          deregStorageWatchers.push(scope.$watchCollection('persistentState.searchTerms', (nv, ov) => !angular.equals(nv, ov)? scope.saveToStorage(): undefined));
         } else if (deregStorageWatchers.length) {
           deregStorageWatchers.forEach(function(d) { d(); });
           deregStorageWatchers = [];
