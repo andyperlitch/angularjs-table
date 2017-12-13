@@ -34,6 +34,12 @@ With bower:
 bower install angularjs-table
 ```
 
+Dependencies
+------------
+
+The only real dependencies for this library are angular and angular-sanitize. You can optionally include `angular-ui-sortable`, which relies on jquery. This will enable the column sorting via drag-and-drop. Without the presence of `angular-ui-sortable`, the library should work just fine, but without the ability for the user to change the order of the columns via drag-and-drop.
+
+
 Getting Started
 ---------------
 
