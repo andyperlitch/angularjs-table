@@ -183,6 +183,9 @@
         if (columns !== scope.columns) {
           resetColumns(scope);
           initSorts(scope);
+          scope.enabledColumnObjects = scope.enabledColumns.map(function(columnId) {
+            return scope.transientState.columnLookup[columnId];
+          });
         }
       });
 
