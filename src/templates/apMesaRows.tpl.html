@@ -1,5 +1,5 @@
 <tr
-  ng-repeat-start="row in visible_rows"
+  ng-repeat-start="row in visible_rows track by $index"
   ng-attr-class="{{ (transientState.rowOffset + $index) % 2 ? 'odd' : 'even' }}"
   ap-mesa-row>
 </tr>
