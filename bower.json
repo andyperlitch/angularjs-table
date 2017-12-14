@@ -7,12 +7,16 @@
   ],
   "dependencies": {
     "angular": "^1.6",
-    "jquery": "~2.0.3",
-    "angular-sanitize": "^1.6",
-    "angular-ui-sortable": "~0.13",
-    "jquery-ui": ">=1.11.0"
+    "angular-sanitize": "^1.6"
+  },
+  "optionalDependencies": {
+    "jquery-ui": ">=1.11.0",
+    "angular-ui-sortable": "~0.13"
   },
   "devDependencies": {
+    "jquery": "~2",
+    "angular-ui-sortable": "~0.13",
+    "jquery-ui": ">=1.11.0",
     "angular-route": "^1.6",
     "bootstrap": "~3.0.3",
     "angular-mocks": "^1.6",
