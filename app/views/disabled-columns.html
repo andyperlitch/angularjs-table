@@ -56,6 +56,10 @@
 
       <pre>{{ vm.my_enabled_columns | json }}</pre>
 
+      <input id="fixedWidthLayout" type="checkbox" ng-checked="(vm.pagingScheme !== 'paginate' && vm.my_table_options.fixedWidthLayout) || (vm.pagingScheme == 'paginate' && vm.my_table_options_paginated.fixedWidthLayout)" ng-click="vm.toggleFixedWidth()"/>
+      <label for="fixedWidthLayout">options.fixedWidthLayout</label>
+
+      
     </div>
   </div>
 </div>

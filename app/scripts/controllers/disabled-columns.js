@@ -1,13 +1,14 @@
 'use strict';
 
 angular.module('apMesa.ghPage')
-.controller('DisabledColumnsCtrl', function($scope, $q, phoneData, $templateCache) {
+.controller('DisabledColumnsCtrl', function($scope, $q, phoneData, $templateCache, $rootScope) {
 
   this.my_table_options = {
     bodyHeight: 600,
     rowPadding: 600,
     storage: localStorage,
-    storageKey: 'example'
+    storageKey: 'example',
+    fixedWidthLayout: false
   };
   this.my_table_options_paginated = angular.extend({ pagingStrategy: 'PAGINATE' }, this.my_table_options);
   this.my_selected_rows = [];
@@ -22,28 +23,34 @@ angular.module('apMesa.ghPage')
                   '<i class="glyphicon glyphicon-triangle-right" ng-if="!rowIsExpanded"></i>' +
                   '<i class="glyphicon glyphicon-triangle-bottom" ng-if="rowIsExpanded"></i>' +
                   '{{ row.DeviceName }}' +
-                '</a>'
+                '</a>',
+      width: '220px',
     },
     {
       id: 'brand',
       key: 'Brand',
       sort: 'string',
-      label: 'Brand'
+      label: 'Brand',
+      width: '300px',
     },
     {
       id: 'edge',
       key: 'edge',
       label: 'Edge',
       sort: 'string',
-      filter: 'like'
+      filter: 'like',
+      width: '320px',
     },
     {
       id: 'tech',
       key: 'technology',
       sort: 'string',
-      label: 'Tech'
+      label: 'Tech',
+      width: '180px',
     }
   ];
+    
+  this.fixed_width_paging_scheme = 'scroll';
   this.my_enabled_columns = this.my_table_columns.map(function(c) { return c.id; });
   this.phoneData = phoneData;
   var _this = this;
@@ -62,4 +69,13 @@ angular.module('apMesa.ghPage')
     }
   };
 
+  this.toggleFixedWidth = function () {
+    _this.my_table_options.fixedWidthLayout = !_this.my_table_options.fixedWidthLayout;
+    _this.my_table_options_paginated.fixedWidthLayout = !_this.my_table_options_paginated.fixedWidthLayout;
+  };
+
+  $rootScope.$on('apMesa:columnResized', function(event, column, columnWidth) {
+    console.log('Column was resized', column, columnWidth);
+    console.log(_this.my_table_columns);
+  });
 });

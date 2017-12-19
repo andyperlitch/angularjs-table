@@ -117,6 +117,7 @@ The options object should be available on the parent scope of the `<ap-mesa>` el
 | showSortPriority        | `boolean`                        | false                   | If true, will show a number indicating stacked sort priority of each column being sorted.                                                                                                                         |
 | clearFilterOnColumnHide | `boolean`                        | true                    | If true, a column's filter state will be removed when that column is hidden. |
 | clearSortOnColumnHide   | `boolean`                        | true                    | If true, a column's sort state will be removed when that column is hidden. |
+| fixedWidthLayout        | `boolean`                        | false                   | If true, the table's width can go beyond 100% width of the container. Use this with `lockWidth = true` for all columns. Note that horizontal scrollbars will appear for the table element. |
 
 The options object is also the correct place to pass arbitrary data to table cell templates because it will be available as `options` in the table cell template scope. For example, if you want a click in a cell to call a function that is
 otherwise out of the scope of the table, you can do this:

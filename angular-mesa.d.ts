@@ -169,6 +169,9 @@ declare namespace angular.apMesa {
     clearFilterOnColumnHide?: boolean;
     // If true, a column's sort state will be removed when that column is hidden.
     clearSortOnColumnHide?: boolean;
+    // If true, the table's width can go beyond 100% width of the container. Use this with `lockWidth = true` for all columns.
+    // Note that horizontal scrollbars will appear for the table element. By default, the value is false.
+    fixedWidthLayout?: boolean;
   }
   interface IRowScope extends ng.IScope {
     toggleRowExpand: Function;
