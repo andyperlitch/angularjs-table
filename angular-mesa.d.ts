@@ -90,6 +90,8 @@ declare namespace angular.apMesa {
     deselectAll: () => void;
     toggleSelectAll: () => void;
     setLoading: (isLoading: boolean, triggerDigest?: boolean) => void;
+    // In case if server values are keep changing, refresh can be called programmatically to keep the table data in sync with server.
+    refresh: () => void;     
     reset: () => void;
     clearFilters: () => void;
     // Resets rows' sorting order to whatever options.initialSorts. You can also pass an explicit array of IInitialSort objects.

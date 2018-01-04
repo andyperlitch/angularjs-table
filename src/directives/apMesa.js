@@ -448,6 +448,9 @@
             scope.$digest();
           }
         },
+        refresh: function() {
+          scope.$broadcast('apMesa:forceRefresh');
+        },
         reset: function() {
           scope.resetOffset();
           resetState(scope);
