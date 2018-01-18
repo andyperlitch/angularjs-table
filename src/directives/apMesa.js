@@ -246,9 +246,17 @@
           //  - sort change
           //  occurs in scope.toggleSort
           //  - column order change
-          deregStorageWatchers.push(scope.$watchCollection('columns',(nv, ov) => !angular.equals(nv, ov)? scope.saveToStorage(): undefined));
+          deregStorageWatchers.push(scope.$watchCollection('columns',function (nv, ov) { 
+            if (!angular.equals(nv, ov)) { 
+              scope.saveToStorage()
+            } 
+          }));
           //  - search terms change
-          deregStorageWatchers.push(scope.$watchCollection('persistentState.searchTerms', (nv, ov) => !angular.equals(nv, ov)? scope.saveToStorage(): undefined));
+          deregStorageWatchers.push(scope.$watchCollection('persistentState.searchTerms', function (nv, ov) { 
+            if (!angular.equals(nv, ov)) { 
+              scope.saveToStorage()
+            } 
+          }));
         } else if (deregStorageWatchers.length) {
           deregStorageWatchers.forEach(function(d) { d(); });
           deregStorageWatchers = [];
@@ -465,8 +473,6 @@
               scope.addSort(sort.id, sort.dir);
             });
           }
-        }, getRowSort: function () {
-          return scope.persistentState.sortOrder;
         },
         getRowSort: function () {
           return scope.persistentState.sortOrder;
